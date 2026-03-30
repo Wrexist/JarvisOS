@@ -55,6 +55,15 @@ export default async function ProjectDetailPage({
       status: r.status,
       createdAt: r.createdAt.toISOString(),
     })),
+    pullRequests: project.pullRequests.map((pr) => ({
+      id: pr.id,
+      number: pr.number,
+      title: pr.title,
+      headBranch: pr.headBranch,
+      status: pr.status,
+      url: pr.url,
+      updatedAt: pr.updatedAt.toISOString(),
+    })),
   };
 
   return (

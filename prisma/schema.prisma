@@ -109,6 +109,7 @@ model Workspace {
   repositories    Repository[]
   promptTemplates PromptTemplate[]
   aiRuns          AIRun[]
+  notifications   Notification[]
 }
 
 model Idea {
@@ -182,6 +183,9 @@ model Task {
 
   linkedPullRequestId String?
   linkedPullRequest   PullRequest? @relation("TaskLinkedPR", fields: [linkedPullRequestId], references: [id], onDelete: SetNull)
+
+  blockedByTasks Task[] @relation("TaskDependency")
+  blockingTasks  Task[] @relation("TaskDependency")
 
   aiRuns     AIRun[]
   activities ActivityEvent[]
@@ -310,4 +314,17 @@ model ActivityEvent {
 
   taskId String?
   task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String?
+  href      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }

@@ -55,6 +55,15 @@ interface ProjectTabsProps {
       status: string;
       createdAt: string;
     }>;
+    pullRequests: Array<{
+      id: string;
+      number: number;
+      title: string;
+      headBranch: string;
+      status: "OPEN" | "DRAFT" | "MERGED" | "CLOSED";
+      url: string;
+      updatedAt: string;
+    }>;
   };
 }
 
@@ -234,7 +243,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       {activeTab === "GitHub" && (
         <div className="space-y-4">
           <RepoConnect projectId={project.id} />
-          <PRList pullRequests={[]} />
+          <PRList pullRequests={project.pullRequests} />
         </div>
       )}
 
