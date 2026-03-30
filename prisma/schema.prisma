@@ -175,6 +175,8 @@ model Idea {
 
   project Project?
   aiRuns  AIRun[]
+
+  @@index([workspaceId, status])
 }
 
 model Project {
@@ -230,6 +232,9 @@ model Task {
 
   aiRuns     AIRun[]
   activities ActivityEvent[]
+
+  @@index([projectId, status])
+  @@index([projectId, priority])
 }
 
 model Document {
@@ -355,6 +360,8 @@ model ActivityEvent {
 
   taskId String?
   task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
 }
 
 model Notification {
