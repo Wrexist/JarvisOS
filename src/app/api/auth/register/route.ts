@@ -1,0 +1,70 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import slugify from "slugify";
+
+export async function POST(request: Request) {
+  try {
+    const { name, email, password } = await request.json();
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Email already registered" },
+        { status: 409 }
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name: name || undefined,
+        passwordHash,
+      },
+    });
+
+    // Create a default workspace for the new user
+    const slug = slugify(name || email.split("@")[0], {
+      lower: true,
+      strict: true,
+    });
+
+    await prisma.workspace.create({
+      data: {
+        name: name ? `${name}'s Workspace` : "My Workspace",
+        slug: `${slug}-${Date.now()}`,
+        ownerId: user.id,
+      },
+    });
+
+    return NextResponse.json(
+      { success: true, email: user.email },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Registration failed:", error);
+    return NextResponse.json(
+      { error: "Registration failed" },
+      { status: 500 }
+    );
+  }
+}
