@@ -1,0 +1,313 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum IdeaStatus {
+  INBOX
+  REVIEWING
+  VALIDATED
+  CONVERTED
+  ARCHIVED
+}
+
+enum ProjectStage {
+  CLARIFYING
+  PLANNING
+  READY_TO_BUILD
+  BUILDING
+  TESTING
+  SHIPPED
+  PAUSED
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum DocumentType {
+  PRD
+  TECH_SPEC
+  NOTES
+  RETRO
+  SCRATCHPAD
+}
+
+enum AIRunType {
+  IDEA_ENRICH
+  TASK_GENERATION
+  SPEC_GENERATION
+  NEXT_ACTION
+  TASK_PROMPT
+  PR_SUMMARY
+}
+
+enum AIRunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum PRStatus {
+  OPEN
+  DRAFT
+  MERGED
+  CLOSED
+}
+
+enum CheckConclusion {
+  SUCCESS
+  FAILURE
+  NEUTRAL
+  CANCELLED
+  SKIPPED
+  TIMED_OUT
+  ACTION_REQUIRED
+  STALE
+  STARTUP_FAILURE
+  UNKNOWN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaces Workspace[]
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  ideas           Idea[]
+  projects        Project[]
+  repositories    Repository[]
+  promptTemplates PromptTemplate[]
+  aiRuns          AIRun[]
+}
+
+model Idea {
+  id           String     @id @default(cuid())
+  title        String
+  summary      String?
+  description  String?
+  problem      String?
+  targetUser   String?
+  whyNow       String?
+  monetization String?
+  risks        String?
+  assumptions  String?
+  score        Int?
+  status       IdeaStatus @default(INBOX)
+  tags         String[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  project Project?
+  aiRuns  AIRun[]
+}
+
+model Project {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  stage       ProjectStage @default(CLARIFYING)
+  healthScore Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  ideaId String? @unique
+  idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  repositoryId String?
+  repository   Repository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+
+  tasks        Task[]
+  documents    Document[]
+  aiRuns       AIRun[]
+  pullRequests PullRequest[]
+  activities   ActivityEvent[]
+
+  @@unique([workspaceId, slug])
+}
+
+model Task {
+  id                 String     @id @default(cuid())
+  title              String
+  description        String?
+  acceptanceCriteria String?
+  status             TaskStatus @default(TODO)
+  priority           Priority   @default(MEDIUM)
+  estimateHours      Float?
+  aiGenerated        Boolean    @default(false)
+  relevantFiles      String[]
+  dueDate            DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  linkedPullRequestId String?
+  linkedPullRequest   PullRequest? @relation("TaskLinkedPR", fields: [linkedPullRequestId], references: [id], onDelete: SetNull)
+
+  aiRuns     AIRun[]
+  activities ActivityEvent[]
+}
+
+model Document {
+  id        String       @id @default(cuid())
+  title     String
+  type      DocumentType
+  content   String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Repository {
+  id             String  @id @default(cuid())
+  githubNodeId   String? @unique
+  githubRepoId   BigInt? @unique
+  owner          String
+  name           String
+  fullName       String  @unique
+  defaultBranch  String?
+  isPrivate      Boolean @default(true)
+  installationId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  projects     Project[]
+  pullRequests PullRequest[]
+  checkRuns    CheckRun[]
+}
+
+model PullRequest {
+  id            String   @id @default(cuid())
+  githubPrId    BigInt?  @unique
+  number        Int
+  title         String
+  url           String
+  headBranch    String
+  baseBranch    String
+  status        PRStatus
+  authorLogin   String?
+  lastCommitSha String?
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  linkedTasks Task[]     @relation("TaskLinkedPR")
+  checkRuns   CheckRun[]
+}
+
+model CheckRun {
+  id               String          @id @default(cuid())
+  githubCheckRunId BigInt?         @unique
+  name             String
+  status           String?
+  conclusion       CheckConclusion @default(UNKNOWN)
+  detailsUrl       String?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  headSha          String?
+
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  pullRequestId String?
+  pullRequest   PullRequest? @relation(fields: [pullRequestId], references: [id], onDelete: SetNull)
+}
+
+model AIRun {
+  id        String      @id @default(cuid())
+  type      AIRunType
+  status    AIRunStatus @default(QUEUED)
+  modelName String?
+  input     String
+  output    String?
+  error     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  ideaId String?
+  idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+}
+
+model PromptTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  type      String
+  message   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}

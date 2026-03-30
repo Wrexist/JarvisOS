@@ -1,0 +1,14 @@
+{
+  "hooks": [
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "pnpm lint"
+        }
+      ]
+    }
+  ]
+}
