@@ -12,6 +12,7 @@ import {
   Bot,
   Settings,
   Zap,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,6 +26,7 @@ const navItems = [
   { label: "Docs", href: "/docs", icon: FileText },
   { label: "GitHub", href: "/github", icon: GitBranch },
   { label: "AI Runs", href: "/ai-runs", icon: Bot },
+  { label: "Review", href: "/review", icon: CalendarDays },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
