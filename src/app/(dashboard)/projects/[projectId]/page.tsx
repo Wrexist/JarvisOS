@@ -26,7 +26,11 @@ export default async function ProjectDetailPage({
     tasks: project.tasks.map((t) => ({
       id: t.id,
       title: t.title,
+      description: t.description,
       status: t.status,
+      priority: t.priority,
+      estimateHours: t.estimateHours,
+      dueDate: t.dueDate?.toISOString() ?? null,
     })),
     documents: project.documents.map((d) => ({
       id: d.id,

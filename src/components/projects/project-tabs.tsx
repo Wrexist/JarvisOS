@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { StageBadge } from "@/components/projects/stage-badge";
 import { ActivityFeed } from "@/components/projects/activity-feed";
+import { TaskView } from "@/components/tasks/task-view";
 import {
   Select,
   SelectContent,
@@ -28,7 +27,11 @@ interface ProjectTabsProps {
     tasks: Array<{
       id: string;
       title: string;
+      description: string | null;
       status: TaskStatus;
+      priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+      estimateHours: number | null;
+      dueDate: string | null;
     }>;
     documents: Array<{
       id: string;
@@ -211,12 +214,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Tasks" && (
-        <div className="glass-panel p-8 text-center text-muted-foreground">
-          <p>Task management coming in Phase 5</p>
-          <p className="text-xs mt-2">
-            {project._count.tasks} tasks in this project
-          </p>
-        </div>
+        <TaskView tasks={project.tasks} projectId={project.id} />
       )}
 
       {activeTab === "Docs" && (
