@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
@@ -37,7 +38,7 @@ export function TaskBoard({
       });
       router.refresh();
     } catch (error) {
-      console.error("Failed to move task:", error);
+      toast.error("Something went wrong");
     }
   }
 

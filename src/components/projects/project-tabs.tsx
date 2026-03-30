@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -104,7 +105,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       });
       router.refresh();
     } catch (error) {
-      console.error("Failed to update stage:", error);
+      toast.error("Something went wrong");
     } finally {
       setChangingStage(false);
     }

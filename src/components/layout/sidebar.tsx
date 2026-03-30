@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Lightbulb,
@@ -14,8 +15,10 @@ import {
   Settings,
   Zap,
   CalendarDays,
+  BarChart3,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,11 +34,15 @@ const navItems = [
   { label: "GitHub", href: "/github", icon: GitBranch },
   { label: "AI Runs", href: "/ai-runs", icon: Bot },
   { label: "Review", href: "/review", icon: CalendarDays },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userName = session?.user?.name || session?.user?.email?.split("@")[0] || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   return (
     <>
@@ -81,14 +88,25 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <Separator className="opacity-50" />
 
       {/* User */}
-      <div className="flex items-center gap-3 px-5 py-4">
+      <div className="flex items-center gap-3 px-5 py-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
-          F
+          {userInitial}
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">Founder</span>
-          <span className="text-xs text-muted-foreground">ForgeOS</span>
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-sm font-medium truncate">{userName}</span>
+          <span className="text-xs text-muted-foreground truncate">
+            {session?.user?.email ?? ""}
+          </span>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 shrink-0"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          title="Sign out"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+        </Button>
       </div>
     </>
   );

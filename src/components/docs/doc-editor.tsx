@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function DocEditor({
         });
         router.refresh();
       } catch (error) {
-        console.error("Failed to save:", error);
+        toast.error("Something went wrong");
       } finally {
         setSaving(false);
       }
