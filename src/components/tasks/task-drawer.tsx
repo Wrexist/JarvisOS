@@ -6,6 +6,7 @@ import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { GeneratePromptButton } from "@/components/tasks/generate-prompt-button";
 import {
   Select,
   SelectContent,
@@ -293,6 +294,10 @@ export function TaskDrawer({
                 placeholder="src/app/page.tsx, src/lib/utils.ts"
               />
             </div>
+
+            {/* Claude Prompt */}
+            <Separator />
+            <GeneratePromptButton taskId={task.id} />
 
             {/* Meta */}
             <div className="pt-2 text-xs text-muted-foreground space-y-1">

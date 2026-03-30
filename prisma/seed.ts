@@ -193,32 +193,40 @@ async function main() {
     },
   });
 
-  // Prompt Template
-  await prisma.promptTemplate.create({
-    data: {
-      name: "Idea Enrich",
-      description: "Enriches a raw idea into a structured product concept",
-      content: `You are a product strategist.
-
-Turn this raw idea into a structured product concept.
-
-Return JSON with:
-- summary
-- problem
-- targetUser
-- whyNow
-- monetization
-- risks
-- assumptions
-- score (1-100)
-
-Idea title:
-{{idea_title}}
-
-Idea description:
-{{idea_description}}`,
-      workspaceId: workspace.id,
-    },
+  // Prompt Templates (5 defaults)
+  await prisma.promptTemplate.createMany({
+    data: [
+      {
+        name: "Idea Enrich",
+        description: "Enriches a raw idea into a structured product concept",
+        content: `You are a product strategist.\n\nTurn this raw idea into a structured product concept.\n\nReturn JSON with:\n- summary\n- problem\n- targetUser\n- whyNow\n- monetization\n- risks\n- assumptions\n- score (1-100)\n\nIdea title:\n{{idea_title}}\n\nIdea description:\n{{idea_description}}`,
+        workspaceId: workspace.id,
+      },
+      {
+        name: "Task Breakdown",
+        description: "Generates MVP tasks from a project description",
+        content: `Turn this project into an MVP execution plan.\n\nReturn JSON:\n{\n  "tasks": [\n    {\n      "title": "",\n      "description": "",\n      "priority": "LOW|MEDIUM|HIGH|URGENT",\n      "acceptanceCriteria": ""\n    }\n  ]\n}\n\nProject:\n{{project_name}}\n\nDescription:\n{{project_description}}`,
+        workspaceId: workspace.id,
+      },
+      {
+        name: "MVP Spec",
+        description: "Generates a markdown MVP specification",
+        content: `Create an MVP product spec in markdown.\n\nInclude:\n- Overview\n- User problem\n- Core features\n- Primary flows\n- Technical approach\n- MVP boundaries\n- Future ideas\n\nProject:\n{{project_name}}\n\nDescription:\n{{project_description}}`,
+        workspaceId: workspace.id,
+      },
+      {
+        name: "Next Action",
+        description: "Suggests the most important next action for a project",
+        content: `Given this project state, suggest the single most important next action.\n\nProject:\n{{project_name}}\n\nStage:\n{{project_stage}}\n\nOpen tasks:\n{{open_tasks}}\n\nBlocked tasks:\n{{blocked_tasks}}\n\nOpen PRs:\n{{open_prs}}\n\nReturn:\n- recommended_action\n- reason`,
+        workspaceId: workspace.id,
+      },
+      {
+        name: "Task Coding Prompt",
+        description: "Generates a Claude Code prompt for implementing a task",
+        content: `Implement this task in ForgeOS.\n\nTask title:\n{{task_title}}\n\nTask description:\n{{task_description}}\n\nAcceptance criteria:\n{{acceptance_criteria}}\n\nProject context:\n{{project_context}}\n\nRelevant files:\n{{relevant_files}}\n\nInstructions:\n- Inspect the current implementation before changing anything\n- Keep the solution minimal and clean\n- Reuse existing patterns\n- Update types if needed\n- Add loading/error states if UI is involved\n- Briefly explain what changed`,
+        workspaceId: workspace.id,
+      },
+    ],
   });
 
   // Activity Events

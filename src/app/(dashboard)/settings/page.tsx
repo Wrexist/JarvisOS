@@ -1,15 +1,27 @@
+import { Separator } from "@/components/ui/separator";
+import { TemplateList } from "@/components/settings/template-list";
+import { ClaudeMdGenerator } from "@/components/settings/claude-md-generator";
+import { HooksTemplate } from "@/components/settings/hooks-template";
+
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="mt-1 text-muted-foreground">
           Workspace configuration, templates, and integrations.
         </p>
       </div>
-      <div className="glass-panel p-12 text-center text-muted-foreground">
-        Settings coming in Phase 8
-      </div>
+
+      <TemplateList />
+
+      <Separator />
+
+      <ClaudeMdGenerator />
+
+      <Separator />
+
+      <HooksTemplate />
     </div>
   );
 }

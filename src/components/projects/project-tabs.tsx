@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { ActivityFeed } from "@/components/projects/activity-feed";
 import { TaskView } from "@/components/tasks/task-view";
 import { DocsView } from "@/components/docs/docs-view";
+import { RepoConnect } from "@/components/github/repo-connect";
+import { PRList } from "@/components/github/pr-list";
 import {
   Select,
   SelectContent,
@@ -224,8 +226,9 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "GitHub" && (
-        <div className="glass-panel p-8 text-center text-muted-foreground">
-          GitHub integration coming in Phase 9
+        <div className="space-y-4">
+          <RepoConnect projectId={project.id} />
+          <PRList pullRequests={[]} />
         </div>
       )}
 
