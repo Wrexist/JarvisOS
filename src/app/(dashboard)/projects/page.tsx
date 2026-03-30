@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { listProjects } from "@/server/services/project.service";
 import { ProjectCard } from "@/components/projects/project-card";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 
 export default async function ProjectsPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const projects = await listProjects(workspaceId);
 
   return (

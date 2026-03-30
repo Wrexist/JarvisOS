@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import {
   listUnreadNotifications,
   markAllNotificationsRead,
@@ -7,7 +7,7 @@ import {
 
 export async function GET() {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const notifications = await listUnreadNotifications(workspaceId);
     return NextResponse.json(notifications);
   } catch (error) {
@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function PATCH() {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     await markAllNotificationsRead(workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {

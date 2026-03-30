@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import {
   upsertRepository,
   connectRepoToProject,
@@ -11,7 +11,7 @@ export async function POST(
 ) {
   try {
     const { projectId } = await params;
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const { fullName } = await request.json();
 
     if (!fullName || typeof fullName !== "string" || !fullName.includes("/")) {
@@ -21,7 +21,7 @@ export async function POST(
       );
     }
 
-    const [owner, name] = fullName.split("/");
+    const [owner, name] = fullName.split("/", 2);
 
     const repo = await upsertRepository(workspaceId, {
       fullName,

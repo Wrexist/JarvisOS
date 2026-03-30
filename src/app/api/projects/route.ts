@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { listProjects, createProject } from "@/server/services/project.service";
 
 export async function GET() {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const projects = await listProjects(workspaceId);
     return NextResponse.json(projects);
   } catch (error) {
@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const body = await request.json();
 
     if (!body.name || typeof body.name !== "string") {

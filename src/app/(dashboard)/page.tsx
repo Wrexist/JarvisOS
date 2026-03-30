@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import {
   FolderKanban,
   Lightbulb,
@@ -135,7 +135,7 @@ function computeNextAction(data: Awaited<ReturnType<typeof getDashboardData>>) {
 }
 
 export default async function HomePage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const data = await getDashboardData(workspaceId);
   const nextAction = computeNextAction(data);
 

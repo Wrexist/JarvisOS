@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { GitBranch } from "lucide-react";
 import Link from "next/link";
 
 export default async function GitHubPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const repositories = await prisma.repository.findMany({
     where: { workspaceId },
     include: {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { renderTemplate } from "@/lib/ai/prompts";
 import { createAIRun, completeAIRun } from "@/server/services/ai-run.service";
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
 
   // Try loading template from DB
   const dbTemplate = await prisma.promptTemplate.findFirst({

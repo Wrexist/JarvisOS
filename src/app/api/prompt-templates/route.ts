@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 
 export async function GET() {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const templates = await prisma.promptTemplate.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
     const body = await request.json();
 
     if (!body.name || !body.content) {

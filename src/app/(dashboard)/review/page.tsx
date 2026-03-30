@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import {
   getWeeklyReviewData,
   detectStaleProjects,
@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 
 export default async function ReviewPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const [review, staleProjects] = await Promise.all([
     getWeeklyReviewData(workspaceId),
     detectStaleProjects(workspaceId),

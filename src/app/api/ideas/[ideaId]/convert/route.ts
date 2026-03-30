@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { convertIdeaToProject } from "@/server/services/idea.service";
 
 export async function POST(
@@ -8,7 +8,7 @@ export async function POST(
 ) {
   try {
     const { ideaId } = await params;
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
 
     const project = await convertIdeaToProject(ideaId, workspaceId);
     return NextResponse.json(project, { status: 201 });

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate, IDEA_ENRICH_PROMPT } from "@/lib/ai/prompts";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { getIdea, updateIdea } from "@/server/services/idea.service";
 import {
   createAIRun,
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Idea not found" }, { status: 404 });
   }
 
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
 
   // Try to load template from DB, fallback to hardcoded
   const dbTemplate = await prisma.promptTemplate.findFirst({

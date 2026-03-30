@@ -25,9 +25,9 @@ export function proxy(request: NextRequest) {
 
   // Allow static files and Next.js internals
   if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon") ||
-    pathname.includes(".")
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico" ||
+    /\.(svg|png|jpg|jpeg|gif|ico|css|js|woff2?)$/.test(pathname)
   ) {
     return NextResponse.next();
   }

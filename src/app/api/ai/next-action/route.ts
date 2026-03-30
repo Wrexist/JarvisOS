@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate } from "@/lib/ai/prompts";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
   createAIRun,
@@ -35,7 +35,7 @@ Return JSON:
 
 export async function POST() {
   try {
-    const workspaceId = await getDefaultWorkspaceId();
+    const workspaceId = await getSessionWorkspaceId();
 
     // Gather context across all active projects
     const projects = await prisma.project.findMany({

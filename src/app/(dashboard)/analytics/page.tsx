@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import {
   getTaskCompletionByDay,
   getVelocity,
@@ -13,7 +13,7 @@ import { TrendingUp, TrendingDown, Minus, CheckSquare, Bot } from "lucide-react"
 import type { ProjectStage } from "@/generated/prisma/client";
 
 export default async function AnalyticsPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
 
   const [completionData, velocity, aiUsage, projectProgress] =
     await Promise.all([
