@@ -1,0 +1,433 @@
+I’m going to give you:
+
+Full PRD (real, not fluff)
+Database schema (production-ready MVP level)
+Exact MVP build plan (14-day sprint)
+Page-by-page UI spec
+Claude Code prompt pack (plug-and-play)
+
+No filler. Only what moves you forward.
+
+1. PRODUCT REQUIREMENTS DOCUMENT (PRD)
+Product name (working)
+
+ForgeOS
+(you can rename later, this just frames thinking)
+
+Core problem
+
+You (and builders like you) have:
+
+too many ideas
+unclear priorities
+fragmented execution
+weak connection between planning → coding → shipping
+
+Current tools:
+
+Notion = storage
+Jira = pain
+GitHub = execution only
+AI tools = disconnected
+
+👉 Result: ideas don’t turn into shipped products fast enough
+
+Solution
+
+A single system that:
+
+captures ideas
+turns them into structured projects
+generates execution plans
+connects directly to GitHub
+orchestrates Claude/Codex for building
+shows exactly what to do next
+Target user (v1)
+Solo dev / indie hacker
+AI-native builder
+Uses GitHub
+Uses Claude/Codex
+Wants speed > process
+Core use cases
+1. Capture idea
+
+→ becomes structured idea
+→ AI enriches
+→ score it
+→ convert to project
+
+2. Plan product
+
+→ generate MVP roadmap
+→ create tasks
+→ define specs
+
+3. Execute
+
+→ pick task
+→ generate Claude prompt
+→ open in Claude Code
+→ code
+→ push → PR
+
+4. Ship
+
+→ track PR
+→ see status
+→ merge
+→ mark tasks done
+
+5. Improve
+
+→ see bottlenecks
+→ get suggestions
+→ iterate
+
+Core principles
+Action > organization
+Everything leads to next step
+AI is embedded, not bolted on
+GitHub is the source of truth for code
+Minimal friction always
+2. MVP FEATURE SCOPE (STRICT)
+
+Cut aggressively. This is your V1.
+
+INCLUDED
+Ideas
+Create idea
+AI structure idea
+Convert to project
+Projects
+Overview
+Stage system
+Basic roadmap (Now/Next/Later)
+Tasks
+Create/edit tasks
+Link to project
+Status
+Priority
+Docs
+Simple spec editor
+AI generate spec
+GitHub
+Connect repo
+Show PRs
+Link PR to task
+AI
+Generate tasks from idea
+Generate spec
+Generate Claude prompt
+Dashboard
+Today tasks
+Active projects
+Suggested next step
+NOT INCLUDED (v1)
+Full analytics
+Multi-user teams
+Deep research system
+Mobile app
+Advanced automation
+Codex automation (Claude first focus)
+3. DATABASE SCHEMA (MVP, CLEAN + SCALABLE)
+
+Using PostgreSQL
+
+USERS
+users (
+  id UUID PK,
+  email TEXT UNIQUE,
+  name TEXT,
+  created_at TIMESTAMP
+)
+IDEAS
+ideas (
+  id UUID PK,
+  user_id UUID FK,
+  title TEXT,
+  description TEXT,
+  problem TEXT,
+  target_user TEXT,
+  status TEXT, -- inbox, validated, converted
+  score INT,
+  created_at TIMESTAMP
+)
+PROJECTS
+projects (
+  id UUID PK,
+  user_id UUID FK,
+  idea_id UUID FK,
+  name TEXT,
+  description TEXT,
+  stage TEXT, -- planning, building, shipped
+  repo_url TEXT,
+  created_at TIMESTAMP
+)
+TASKS
+tasks (
+  id UUID PK,
+  project_id UUID FK,
+  title TEXT,
+  description TEXT,
+  status TEXT, -- todo, doing, done
+  priority INT,
+  ai_generated BOOLEAN,
+  created_at TIMESTAMP
+)
+DOCUMENTS
+documents (
+  id UUID PK,
+  project_id UUID FK,
+  title TEXT,
+  content TEXT,
+  type TEXT, -- spec, notes
+  created_at TIMESTAMP
+)
+GITHUB PRs
+pull_requests (
+  id UUID PK,
+  project_id UUID FK,
+  pr_number INT,
+  title TEXT,
+  status TEXT,
+  url TEXT,
+  created_at TIMESTAMP
+)
+AI PROMPTS LOG
+ai_runs (
+  id UUID PK,
+  project_id UUID,
+  task_id UUID,
+  type TEXT, -- spec, tasks, code_prompt
+  input TEXT,
+  output TEXT,
+  created_at TIMESTAMP
+)
+FUTURE READY (don’t build yet)
+agents
+metrics
+blockers
+assumptions
+4. SYSTEM ARCHITECTURE
+Frontend
+Next.js (App Router)
+Tailwind
+shadcn/ui
+Zustand or React Query
+Backend
+Next.js API routes OR separate Node API
+Prisma ORM
+PostgreSQL
+Integrations
+GitHub OAuth
+Claude API
+Background jobs (simple v1)
+AI calls async
+GitHub sync polling
+5. EXACT MVP BUILD PLAN (14 DAYS)
+DAY 1–2
+Setup project
+Auth (simple email or Clerk)
+DB schema
+Prisma
+DAY 3–4
+Ideas CRUD
+Idea list page
+Idea detail page
+Convert → Project
+DAY 5–6
+Project creation
+Project dashboard
+Stage system
+Basic layout
+DAY 7–8
+Tasks system
+Task list
+Task create/edit
+Link to project
+DAY 9
+Document editor
+Save specs
+DAY 10
+Claude API integration
+Generate:
+idea structuring
+tasks
+spec
+DAY 11
+GitHub OAuth
+Repo linking
+DAY 12
+PR fetch + display
+Link PR to tasks
+DAY 13
+Dashboard (home)
+Suggested next action (basic AI)
+DAY 14
+Polish UI
+Fix flows
+Deploy
+6. PAGE-BY-PAGE UI SPEC
+1. HOME
+Sections:
+Today tasks
+Active projects
+“Next best action”
+Recent PRs
+2. IDEAS PAGE
+List:
+Title
+Score
+Status
+Actions:
+New idea
+AI improve
+Convert to project
+3. IDEA DETAIL
+Full idea
+AI enrich button
+Score display
+Convert button
+4. PROJECT PAGE
+Header:
+Name
+Stage
+Repo
+Tabs:
+Overview
+Tasks
+Docs
+GitHub
+5. TASKS TAB
+List
+Status columns
+Add task
+“Generate tasks with AI”
+6. DOCS TAB
+Spec editor
+AI generate spec
+7. GITHUB TAB
+PR list
+Status
+Link to tasks
+8. GLOBAL COMMAND BAR
+
+Shortcut:
+
+Create idea
+Create task
+Open project
+Generate AI
+7. CLAUDE CODE PROMPT PACK (CRITICAL)
+
+These are your execution weapons.
+
+1. SYSTEM PROMPT (GLOBAL)
+You are a senior full-stack engineer working inside a structured product execution system.
+
+Your job:
+- Write clean, production-ready code
+- Follow existing architecture
+- Avoid unnecessary complexity
+- Think before coding
+- Explain decisions briefly when needed
+
+Rules:
+- Do not hallucinate files
+- Only modify relevant parts
+- Keep functions small and clear
+- Prefer readability over cleverness
+- Follow modern best practices
+
+Always:
+1. Understand the task
+2. Identify files involved
+3. Plan changes
+4. Implement cleanly
+2. TASK → CODE PROMPT
+TASK:
+{{task_title}}
+
+DESCRIPTION:
+{{task_description}}
+
+PROJECT CONTEXT:
+{{project_description}}
+
+REQUIREMENTS:
+{{acceptance_criteria}}
+
+FILES TO CONSIDER:
+{{relevant_files}}
+
+GOAL:
+Implement this feature cleanly and minimally.
+
+OUTPUT:
+- Code changes
+- Explanation (short)
+3. IDEA → TASK BREAKDOWN
+Turn this product idea into a structured MVP task list.
+
+IDEA:
+{{idea}}
+
+Output:
+- 10–20 actionable tasks
+- Grouped by phase
+- Each task clear and buildable
+- No vague tasks
+4. SPEC GENERATOR
+Create a clean MVP product spec.
+
+PROJECT:
+{{project}}
+
+Include:
+- Overview
+- Core features
+- User flow
+- Tech approach
+- MVP scope only
+5. BUG FIX PROMPT
+BUG:
+{{bug}}
+
+CODE:
+{{relevant_code}}
+
+Fix the issue with minimal changes.
+Explain root cause briefly.
+6. PR REVIEW PROMPT
+Review this PR like a senior engineer.
+
+Focus on:
+- bugs
+- bad patterns
+- missing edge cases
+- performance risks
+
+PR:
+{{diff}}
+7. NEXT ACTION ENGINE
+Given this project state:
+
+PROJECT:
+{{project}}
+
+TASKS:
+{{tasks}}
+
+PRs:
+{{prs}}
+
+Suggest the single most important next action.
+Explain why in 1–2 sentences.
+8. FINAL TRUTH
+
+If you execute this correctly, you don’t just build another app.
+
+You build:
+→ your personal product factory
+→ your unfair advantage
+→ a system that compounds every idea you ever have
