@@ -11,6 +11,7 @@ import { GenerateTasksButton } from "@/components/projects/generate-tasks-button
 import { DocsView } from "@/components/docs/docs-view";
 import { RepoConnect } from "@/components/github/repo-connect";
 import { PRList } from "@/components/github/pr-list";
+import { ProjectSettings } from "@/components/projects/project-settings";
 import {
   Select,
   SelectContent,
@@ -271,9 +272,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Settings" && (
-        <div className="glass-panel p-8 text-center text-muted-foreground">
-          Project settings coming in Phase 10
-        </div>
+        <ProjectSettings project={{ id: project.id, name: project.name, description: project.description }} />
       )}
     </div>
   );
