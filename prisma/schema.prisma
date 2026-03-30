@@ -173,8 +173,9 @@ model Idea {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  project Project?
-  aiRuns  AIRun[]
+  project  Project?
+  aiRuns   AIRun[]
+  comments Comment[]
 
   @@index([workspaceId, status])
 }
@@ -232,6 +233,7 @@ model Task {
 
   aiRuns     AIRun[]
   activities ActivityEvent[]
+  comments   Comment[]
 
   @@index([projectId, status])
   @@index([projectId, priority])
@@ -375,4 +377,17 @@ model Notification {
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  ideaId String?
+  idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
 }

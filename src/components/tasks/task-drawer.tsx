@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { CommentSection } from "@/components/comments/comment-list";
 import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -299,6 +300,10 @@ export function TaskDrawer({
             {/* Claude Prompt */}
             <Separator />
             <GeneratePromptButton taskId={task.id} />
+
+            {/* Comments */}
+            <Separator />
+            <CommentSection taskId={task.id} />
 
             {/* Meta */}
             <div className="pt-2 text-xs text-muted-foreground space-y-1">

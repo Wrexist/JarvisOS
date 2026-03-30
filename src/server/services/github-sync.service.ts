@@ -232,3 +232,41 @@ export async function unlinkTaskPR(taskId: string) {
     data: { linkedPullRequestId: null },
   });
 }
+
+/**
+ * Auto-completes tasks linked to a merged PR.
+ */
+export async function autoCompleteLinkedTasks(pullRequestId: string) {
+  const pr = await prisma.pullRequest.findUnique({
+    where: { id: pullRequestId },
+    include: {
+      linkedTasks: {
+        where: { status: { not: "DONE" } },
+        select: { id: true, title: true, projectId: true },
+      },
+    },
+  });
+
+  if (!pr || pr.linkedTasks.length === 0) return [];
+
+  const completed = [];
+  for (const task of pr.linkedTasks) {
+    await prisma.task.update({
+      where: { id: task.id },
+      data: { status: "DONE" },
+    });
+
+    await prisma.activityEvent.create({
+      data: {
+        type: "task.auto_completed",
+        message: `Task "${task.title}" auto-completed from PR #${pr.number} merge`,
+        projectId: task.projectId,
+        taskId: task.id,
+      },
+    });
+
+    completed.push(task);
+  }
+
+  return completed;
+}
