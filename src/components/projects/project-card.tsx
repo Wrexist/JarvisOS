@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FolderKanban } from "lucide-react";
 import { StageBadge } from "@/components/projects/stage-badge";
+import { HealthIndicator } from "@/components/projects/health-indicator";
 import type { ProjectStage } from "@/generated/prisma/client";
 
 interface ProjectCardProps {
@@ -10,6 +10,7 @@ interface ProjectCardProps {
   stage: ProjectStage;
   taskCount: number;
   docCount: number;
+  healthScore: number | null;
   updatedAt: string;
 }
 
@@ -20,15 +21,14 @@ export function ProjectCard({
   stage,
   taskCount,
   docCount,
+  healthScore,
   updatedAt,
 }: ProjectCardProps) {
   return (
     <Link href={`/projects/${id}`}>
       <div className="glass-panel p-5 transition-colors hover:border-zinc-700/70 group">
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <FolderKanban className="h-5 w-5 text-primary" />
-          </div>
+          <HealthIndicator score={healthScore} size="sm" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
               <h3 className="font-medium text-foreground group-hover:text-white truncate">

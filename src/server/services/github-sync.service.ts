@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { PRStatus, CheckConclusion } from "@/generated/prisma/client";
 
 /**
  * Upserts a repository record from GitHub webhook/sync data.
@@ -62,6 +63,24 @@ export async function connectRepoToProject(
 export async function listRepoPullRequests(repositoryId: string) {
   return prisma.pullRequest.findMany({
     where: { repositoryId },
+    include: {
+      checkRuns: { orderBy: { completedAt: "desc" } },
+      linkedTasks: { select: { id: true, title: true } },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+}
+
+/**
+ * Lists pull requests for a project (via its repository).
+ */
+export async function listProjectPullRequests(projectId: string) {
+  return prisma.pullRequest.findMany({
+    where: { projectId },
+    include: {
+      checkRuns: { orderBy: { completedAt: "desc" } },
+      linkedTasks: { select: { id: true, title: true } },
+    },
     orderBy: { updatedAt: "desc" },
   });
 }
@@ -73,5 +92,143 @@ export async function listRepositories(workspaceId: string) {
   return prisma.repository.findMany({
     where: { workspaceId },
     orderBy: { createdAt: "desc" },
+  });
+}
+
+/**
+ * Syncs a pull request from a GitHub webhook payload.
+ */
+export async function syncPullRequest(
+  repositoryId: string,
+  projectId: string | null,
+  data: {
+    number: number;
+    title: string;
+    url: string;
+    headBranch: string;
+    baseBranch: string;
+    status: PRStatus;
+    authorLogin?: string;
+    lastCommitSha?: string;
+    githubPrId?: bigint;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+) {
+  const pr = await prisma.pullRequest.upsert({
+    where: { githubPrId: data.githubPrId ?? BigInt(-1) },
+    update: {
+      title: data.title,
+      status: data.status,
+      lastCommitSha: data.lastCommitSha,
+      updatedAt: data.updatedAt,
+      projectId,
+    },
+    create: {
+      number: data.number,
+      title: data.title,
+      url: data.url,
+      headBranch: data.headBranch,
+      baseBranch: data.baseBranch,
+      status: data.status,
+      authorLogin: data.authorLogin,
+      lastCommitSha: data.lastCommitSha,
+      githubPrId: data.githubPrId,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      repositoryId,
+      projectId,
+    },
+  });
+
+  if (projectId) {
+    await prisma.activityEvent.create({
+      data: {
+        type: "pr.synced",
+        message: `PR #${data.number} "${data.title}" synced`,
+        projectId,
+      },
+    });
+  }
+
+  return pr;
+}
+
+/**
+ * Syncs a check run from a GitHub webhook payload.
+ */
+export async function syncCheckRun(
+  repositoryId: string,
+  data: {
+    name: string;
+    status?: string;
+    conclusion: CheckConclusion;
+    detailsUrl?: string;
+    startedAt?: Date;
+    completedAt?: Date;
+    headSha?: string;
+    githubCheckRunId?: bigint;
+  }
+) {
+  // Find the PR by headSha
+  let pullRequestId: string | null = null;
+  if (data.headSha) {
+    const pr = await prisma.pullRequest.findFirst({
+      where: { lastCommitSha: data.headSha },
+      select: { id: true },
+    });
+    pullRequestId = pr?.id ?? null;
+  }
+
+  return prisma.checkRun.upsert({
+    where: { githubCheckRunId: data.githubCheckRunId ?? BigInt(-1) },
+    update: {
+      status: data.status,
+      conclusion: data.conclusion,
+      completedAt: data.completedAt,
+    },
+    create: {
+      name: data.name,
+      status: data.status,
+      conclusion: data.conclusion,
+      detailsUrl: data.detailsUrl,
+      startedAt: data.startedAt,
+      completedAt: data.completedAt,
+      headSha: data.headSha,
+      githubCheckRunId: data.githubCheckRunId,
+      repositoryId,
+      pullRequestId,
+    },
+  });
+}
+
+/**
+ * Links a task to a PR.
+ */
+export async function linkTaskToPR(taskId: string, prId: string) {
+  const task = await prisma.task.update({
+    where: { id: taskId },
+    data: { linkedPullRequestId: prId },
+  });
+
+  await prisma.activityEvent.create({
+    data: {
+      type: "task.pr_linked",
+      message: `Task "${task.title}" linked to a pull request`,
+      projectId: task.projectId,
+      taskId: task.id,
+    },
+  });
+
+  return task;
+}
+
+/**
+ * Unlinks a task from its PR.
+ */
+export async function unlinkTaskPR(taskId: string) {
+  return prisma.task.update({
+    where: { id: taskId },
+    data: { linkedPullRequestId: null },
   });
 }

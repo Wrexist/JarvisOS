@@ -36,6 +36,7 @@ export default async function ProjectsPage() {
               stage={project.stage}
               taskCount={project._count.tasks}
               docCount={project._count.documents}
+              healthScore={project.healthScore}
               updatedAt={project.updatedAt.toISOString()}
             />
           ))}

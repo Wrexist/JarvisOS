@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,10 +13,14 @@ import {
   Bot,
   Settings,
   Zap,
+  CalendarDays,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Home", href: "/", icon: LayoutDashboard },
@@ -25,14 +30,15 @@ const navItems = [
   { label: "Docs", href: "/docs", icon: FileText },
   { label: "GitHub", href: "/github", icon: GitBranch },
   { label: "AI Runs", href: "/ai-runs", icon: Bot },
+  { label: "Review", href: "/review", icon: CalendarDays },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-border/50 bg-zinc-950/80 backdrop-blur-xl">
+    <>
       {/* Logo */}
       <div className="flex h-14 items-center gap-2 px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -56,6 +62,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onNavigate}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
@@ -83,6 +90,52 @@ export function Sidebar() {
           <span className="text-xs text-muted-foreground">ForgeOS</span>
         </div>
       </div>
+    </>
+  );
+}
+
+export function Sidebar() {
+  return (
+    <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-64 flex-col border-r border-border/50 bg-zinc-950/80 backdrop-blur-xl">
+      <SidebarContent />
     </aside>
+  );
+}
+
+export function MobileSidebar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="lg:hidden"
+        onClick={() => setOpen(true)}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border/50 bg-zinc-950/95 backdrop-blur-xl lg:hidden">
+            <div className="absolute right-2 top-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <SidebarContent onNavigate={() => setOpen(false)} />
+          </aside>
+        </>
+      )}
+    </>
   );
 }
