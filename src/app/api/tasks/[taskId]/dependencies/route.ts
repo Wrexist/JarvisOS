@@ -57,6 +57,13 @@ export async function DELETE(
     const { taskId } = await params;
     const { blockedById } = await request.json();
 
+    if (!blockedById) {
+      return NextResponse.json(
+        { error: "blockedById is required" },
+        { status: 400 }
+      );
+    }
+
     await prisma.task.update({
       where: { id: taskId },
       data: {

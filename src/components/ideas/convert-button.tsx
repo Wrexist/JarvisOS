@@ -26,13 +26,14 @@ export function ConvertButton({
         method: "POST",
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || "Conversion failed");
       }
 
-      const project = await res.json();
-      router.push(`/projects/${project.id}`);
+      toast.success("Converted to project");
+      router.push(`/projects/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Conversion failed");
       setLoading(false);

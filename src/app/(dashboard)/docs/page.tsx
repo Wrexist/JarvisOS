@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { DocTypeBadge } from "@/components/docs/doc-type-badge";
 import { FileText } from "lucide-react";
 import Link from "next/link";
 
 export default async function DocsPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const documents = await prisma.document.findMany({
     where: { project: { workspaceId } },
     include: { project: { select: { id: true, name: true } } },

@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "lucide-react";
 
 export default async function AIRunsPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const aiRuns = await prisma.aIRun.findMany({
     where: { workspaceId },
     include: {

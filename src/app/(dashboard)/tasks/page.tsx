@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
 
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { listAllTasks } from "@/server/services/task.service";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
 import Link from "next/link";
 
 export default async function TasksPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const tasks = await listAllTasks(workspaceId);
 
   return (

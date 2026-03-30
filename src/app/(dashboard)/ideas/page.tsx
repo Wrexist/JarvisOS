@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { listIdeas } from "@/server/services/idea.service";
 import { IdeaList } from "@/components/ideas/idea-list";
 import { CreateIdeaDialog } from "@/components/ideas/create-idea-dialog";
 
 export default async function IdeasPage() {
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
   const ideas = await listIdeas(workspaceId);
 
   // Serialize dates for client component

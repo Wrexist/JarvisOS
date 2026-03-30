@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate } from "@/lib/ai/prompts";
-import { getDefaultWorkspaceId } from "@/lib/workspace";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { createDocument } from "@/server/services/document.service";
 import {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const workspaceId = await getDefaultWorkspaceId();
+  const workspaceId = await getSessionWorkspaceId();
 
   const dbTemplate = await prisma.promptTemplate.findFirst({
     where: { workspaceId, name: "MVP Spec" },
