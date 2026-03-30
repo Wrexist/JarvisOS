@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { GitBranch } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function RepoConnect({ projectId }: { projectId: string }) {
       }
 
       setFullName("");
-      router.refresh();
+      toast.success("Done"); router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Connection failed");
     } finally {

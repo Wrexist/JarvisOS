@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,9 +44,10 @@ export function CreateProjectDialog() {
       setOpen(false);
       setName("");
       setDescription("");
+      toast.success("Project created");
       router.refresh();
-    } catch (error) {
-      console.error("Failed to create project:", error);
+    } catch {
+      toast.error("Failed to create project");
     } finally {
       setLoading(false);
     }

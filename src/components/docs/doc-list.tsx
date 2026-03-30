@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { FileText, Plus, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ export function DocList({
       onDocSelect(doc.id);
       router.refresh();
     } catch (error) {
-      console.error("Failed to create document:", error);
+      toast.error("Something went wrong");
     }
   }
 
@@ -81,7 +82,7 @@ export function DocList({
       onDocSelect(document.id);
       router.refresh();
     } catch (error) {
-      console.error("Spec generation failed:", error);
+      toast.error("Something went wrong");
     } finally {
       setGenerating(false);
     }
@@ -94,7 +95,7 @@ export function DocList({
       await fetch(`/api/documents/${docId}`, { method: "DELETE" });
       router.refresh();
     } catch (error) {
-      console.error("Failed to delete:", error);
+      toast.error("Something went wrong");
     }
   }
 

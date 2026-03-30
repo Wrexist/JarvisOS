@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,7 @@ export function TaskDrawer({
         router.refresh();
       }
     } catch (error) {
-      console.error("Failed to update:", error);
+      toast.error("Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -91,7 +92,7 @@ export function TaskDrawer({
       setTask((prev) => (prev ? { ...prev, status: status as TaskStatus } : prev));
       router.refresh();
     } catch (error) {
-      console.error("Failed to update status:", error);
+      toast.error("Something went wrong");
     }
   }
 
@@ -102,7 +103,7 @@ export function TaskDrawer({
       onClose();
       router.refresh();
     } catch (error) {
-      console.error("Failed to delete:", error);
+      toast.error("Something went wrong");
     }
   }
 

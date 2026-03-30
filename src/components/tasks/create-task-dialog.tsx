@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,9 +54,10 @@ export function CreateTaskDialog({ projectId }: { projectId: string }) {
       setTitle("");
       setDescription("");
       setPriority("MEDIUM");
+      toast.success("Task created");
       router.refresh();
-    } catch (error) {
-      console.error("Failed to create task:", error);
+    } catch {
+      toast.error("Failed to create task");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +61,7 @@ export function TemplateList() {
       setNewDescription("");
       setNewContent("");
     } catch (error) {
-      console.error("Failed to create template:", error);
+      toast.error("Something went wrong");
     }
   }
 
@@ -76,7 +77,7 @@ export function TemplateList() {
       );
       setEditingId(null);
     } catch (error) {
-      console.error("Failed to save:", error);
+      toast.error("Something went wrong");
     }
   }
 
@@ -86,7 +87,7 @@ export function TemplateList() {
       await fetch(`/api/prompt-templates/${id}`, { method: "DELETE" });
       setTemplates((prev) => prev.filter((t) => t.id !== id));
     } catch (error) {
-      console.error("Failed to delete:", error);
+      toast.error("Something went wrong");
     }
   }
 

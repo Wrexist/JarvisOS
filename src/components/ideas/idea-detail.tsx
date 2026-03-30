@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -123,7 +124,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
       setEditing(false);
       router.refresh();
     } catch (error) {
-      console.error("Failed to save:", error);
+      toast.error("Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -136,7 +137,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
       await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
       router.push("/ideas");
     } catch (error) {
-      console.error("Failed to delete:", error);
+      toast.error("Something went wrong");
       setDeleting(false);
     }
   }

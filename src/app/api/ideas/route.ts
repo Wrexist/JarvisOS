@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDefaultWorkspaceId } from "@/lib/workspace";
 import { listIdeas, createIdea } from "@/server/services/idea.service";
+import { validateBody } from "@/lib/api-utils";
+import { createIdeaSchema } from "@/lib/validations";
 import type { IdeaStatus } from "@/generated/prisma/client";
 
 export async function GET(request: Request) {
@@ -28,20 +30,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const workspaceId = await getDefaultWorkspaceId();
-    const body = await request.json();
+    const data = await validateBody(request, createIdeaSchema);
+    if (data instanceof NextResponse) return data;
 
-    if (!body.title || typeof body.title !== "string") {
-      return NextResponse.json(
-        { error: "Title is required" },
-        { status: 400 }
-      );
-    }
-
-    const idea = await createIdea(workspaceId, {
-      title: body.title,
-      description: body.description,
-      tags: body.tags,
-    });
+    const idea = await createIdea(workspaceId, data);
 
     return NextResponse.json(idea, { status: 201 });
   } catch (error) {

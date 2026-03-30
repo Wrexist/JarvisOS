@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,9 +50,10 @@ export function CreateIdeaDialog() {
       setTitle("");
       setDescription("");
       setTags("");
+      toast.success("Idea created");
       router.refresh();
-    } catch (error) {
-      console.error("Failed to create idea:", error);
+    } catch {
+      toast.error("Failed to create idea");
     } finally {
       setLoading(false);
     }
