@@ -90,6 +90,38 @@ export async function createTask(projectId: string, data: CreateTaskInput) {
   return task;
 }
 
+export async function createManyTasks(
+  projectId: string,
+  tasks: CreateTaskInput[]
+) {
+  const created = [];
+  for (const data of tasks) {
+    const task = await prisma.task.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        acceptanceCriteria: data.acceptanceCriteria,
+        priority: data.priority ?? "MEDIUM",
+        estimateHours: data.estimateHours,
+        relevantFiles: data.relevantFiles ?? [],
+        aiGenerated: true,
+        projectId,
+      },
+    });
+    created.push(task);
+  }
+
+  await prisma.activityEvent.create({
+    data: {
+      type: "task.bulk_created",
+      message: `${created.length} tasks were generated from AI`,
+      projectId,
+    },
+  });
+
+  return created;
+}
+
 export async function updateTask(id: string, data: UpdateTaskInput) {
   const task = await prisma.task.update({
     where: { id },

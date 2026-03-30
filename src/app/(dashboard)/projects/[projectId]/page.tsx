@@ -2,7 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { getProject } from "@/server/services/project.service";
+import { computeHealthScore } from "@/server/services/health.service";
 import { StageBadge } from "@/components/projects/stage-badge";
+import { HealthIndicator } from "@/components/projects/health-indicator";
 import { ProjectTabs } from "@/components/projects/project-tabs";
 
 export default async function ProjectDetailPage({
@@ -14,6 +16,9 @@ export default async function ProjectDetailPage({
   const project = await getProject(projectId);
 
   if (!project) notFound();
+
+  // Compute health score (updates DB too)
+  const health = await computeHealthScore(projectId);
 
   const serialized = {
     id: project.id,
@@ -59,6 +64,7 @@ export default async function ProjectDetailPage({
           {project.name}
         </h1>
         <StageBadge stage={project.stage} />
+        <HealthIndicator score={health.score} />
       </div>
       <ProjectTabs project={serialized} />
     </div>

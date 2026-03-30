@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ActivityFeed } from "@/components/projects/activity-feed";
 import { TaskView } from "@/components/tasks/task-view";
+import { GenerateTasksButton } from "@/components/projects/generate-tasks-button";
 import { DocsView } from "@/components/docs/docs-view";
 import { RepoConnect } from "@/components/github/repo-connect";
 import { PRList } from "@/components/github/pr-list";
@@ -218,7 +219,12 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Tasks" && (
-        <TaskView tasks={project.tasks} projectId={project.id} />
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <GenerateTasksButton projectId={project.id} />
+          </div>
+          <TaskView tasks={project.tasks} projectId={project.id} />
+        </div>
       )}
 
       {activeTab === "Docs" && (
