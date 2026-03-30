@@ -36,6 +36,7 @@ export default async function ProjectDetailPage({
       id: d.id,
       title: d.title,
       type: d.type,
+      updatedAt: d.updatedAt.toISOString(),
     })),
     activities: project.activities.map((a) => ({
       id: a.id,

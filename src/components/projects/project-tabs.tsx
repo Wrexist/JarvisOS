@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ActivityFeed } from "@/components/projects/activity-feed";
 import { TaskView } from "@/components/tasks/task-view";
+import { DocsView } from "@/components/docs/docs-view";
 import {
   Select,
   SelectContent,
@@ -36,7 +37,8 @@ interface ProjectTabsProps {
     documents: Array<{
       id: string;
       title: string;
-      type: string;
+      type: "PRD" | "TECH_SPEC" | "NOTES" | "RETRO" | "SCRATCHPAD";
+      updatedAt: string;
     }>;
     activities: Array<{
       id: string;
@@ -218,12 +220,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Docs" && (
-        <div className="glass-panel p-8 text-center text-muted-foreground">
-          <p>Document management coming in Phase 6</p>
-          <p className="text-xs mt-2">
-            {project._count.documents} documents in this project
-          </p>
-        </div>
+        <DocsView documents={project.documents} projectId={project.id} />
       )}
 
       {activeTab === "GitHub" && (
