@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import {
   createAIRun,
   completeAIRun,
-  failAIRun,
 } from "@/server/services/ai-run.service";
 
 const DEFAULT_NEXT_ACTION_PROMPT = `Given this project state, suggest the single most important next action.
