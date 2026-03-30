@@ -4,6 +4,7 @@ import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MobileSidebar } from "@/components/layout/sidebar";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 export function Topbar() {
   return (
@@ -43,6 +44,7 @@ export function Topbar() {
         >
           <Search className="h-4 w-4" />
         </Button>
+        <NotificationBell />
         <Button size="sm" className="h-8 gap-1.5">
           <Plus className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">New</span>
