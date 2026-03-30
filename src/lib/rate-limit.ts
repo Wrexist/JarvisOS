@@ -3,6 +3,7 @@
  * For production, replace with Redis-backed implementation.
  */
 const buckets = new Map<string, { tokens: number; lastRefill: number }>();
+let lastCleanup = Date.now();
 
 interface RateLimitOptions {
   /** Max requests per window */
@@ -11,11 +12,27 @@ interface RateLimitOptions {
   window: number;
 }
 
+/** Clean up expired buckets every 60 seconds to prevent memory leak. */
+function cleanup(window: number) {
+  const now = Date.now();
+  if (now - lastCleanup < 60_000) return;
+  lastCleanup = now;
+
+  for (const [key, bucket] of buckets) {
+    if (now - bucket.lastRefill > window * 2) {
+      buckets.delete(key);
+    }
+  }
+}
+
 export function checkRateLimit(
   key: string,
   options: RateLimitOptions = { limit: 10, window: 60_000 }
 ): { allowed: boolean; remaining: number } {
   const now = Date.now();
+
+  cleanup(options.window);
+
   const bucket = buckets.get(key);
 
   if (!bucket || now - bucket.lastRefill > options.window) {

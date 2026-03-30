@@ -94,32 +94,28 @@ export async function createManyTasks(
   projectId: string,
   tasks: CreateTaskInput[]
 ) {
-  const created = [];
-  for (const data of tasks) {
-    const task = await prisma.task.create({
-      data: {
-        title: data.title,
-        description: data.description,
-        acceptanceCriteria: data.acceptanceCriteria,
-        priority: data.priority ?? "MEDIUM",
-        estimateHours: data.estimateHours,
-        relevantFiles: data.relevantFiles ?? [],
-        aiGenerated: true,
-        projectId,
-      },
-    });
-    created.push(task);
-  }
+  const result = await prisma.task.createMany({
+    data: tasks.map((data) => ({
+      title: data.title,
+      description: data.description,
+      acceptanceCriteria: data.acceptanceCriteria,
+      priority: data.priority ?? "MEDIUM",
+      estimateHours: data.estimateHours,
+      relevantFiles: data.relevantFiles ?? [],
+      aiGenerated: true,
+      projectId,
+    })),
+  });
 
   await prisma.activityEvent.create({
     data: {
       type: "task.bulk_created",
-      message: `${created.length} tasks were generated from AI`,
+      message: `${result.count} tasks were generated from AI`,
       projectId,
     },
   });
 
-  return created;
+  return result;
 }
 
 export async function updateTask(id: string, data: UpdateTaskInput) {

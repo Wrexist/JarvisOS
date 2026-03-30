@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getIdea, updateIdea, deleteIdea } from "@/server/services/idea.service";
+import { validateBody } from "@/lib/api-utils";
+import { updateIdeaSchema } from "@/lib/validations";
 
 export async function GET(
   _request: Request,
@@ -29,9 +31,10 @@ export async function PATCH(
 ) {
   try {
     const { ideaId } = await params;
-    const body = await request.json();
+    const data = await validateBody(request, updateIdeaSchema);
+    if (data instanceof NextResponse) return data;
 
-    const idea = await updateIdea(ideaId, body);
+    const idea = await updateIdea(ideaId, data);
     return NextResponse.json(idea);
   } catch (error) {
     console.error("Failed to update idea:", error);

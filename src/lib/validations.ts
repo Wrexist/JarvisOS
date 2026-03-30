@@ -42,3 +42,36 @@ export const bulkTasksSchema = z.object({
 export const searchSchema = z.object({
   q: z.string().min(2, "Query must be at least 2 characters"),
 });
+
+// Update schemas (partial versions of create schemas)
+export const updateIdeaSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  summary: z.string().max(5000).nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
+  problem: z.string().max(5000).nullable().optional(),
+  targetUser: z.string().max(1000).nullable().optional(),
+  whyNow: z.string().max(5000).nullable().optional(),
+  monetization: z.string().max(5000).nullable().optional(),
+  risks: z.string().max(5000).nullable().optional(),
+  assumptions: z.string().max(5000).nullable().optional(),
+  score: z.number().min(0).max(100).nullable().optional(),
+  status: z.enum(["INBOX", "REVIEWING", "VALIDATED", "CONVERTED", "ARCHIVED"]).optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export const updateProjectSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(5000).nullable().optional(),
+  stage: z.enum(["CLARIFYING", "PLANNING", "READY_TO_BUILD", "BUILDING", "TESTING", "SHIPPED", "PAUSED", "ARCHIVED"]).optional(),
+});
+
+export const updateTaskSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(5000).nullable().optional(),
+  acceptanceCriteria: z.string().max(5000).nullable().optional(),
+  status: z.enum(["TODO", "IN_PROGRESS", "BLOCKED", "DONE"]).optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  estimateHours: z.number().min(0).max(1000).nullable().optional(),
+  dueDate: z.string().nullable().optional(),
+  relevantFiles: z.array(z.string()).optional(),
+});

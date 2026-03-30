@@ -69,6 +69,7 @@ export async function getWeeklyReviewData(workspaceId: string) {
       where: {
         type: "project.stage_changed",
         createdAt: { gte: oneWeekAgo },
+        project: { workspaceId },
       },
     }),
   ]);
