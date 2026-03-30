@@ -1,0 +1,1082 @@
+You’re building an operating system for ideas, products, execution, and shipping.
+
+The right mental model is this:
+
+Idea → validation → planning → build → ship → measure → improve → repeat
+
+Your app should manage that entire loop, not just todos. That matters because roadmaps are shared sources of truth for a product’s direction and priorities, and modern AI coding workflows can now directly create PRs, review PRs, and automate parts of delivery through Codex, Claude Code, and GitHub checks.
+
+1. What this app should actually be
+
+A Founder/Product Studio OS for solo builders or small teams.
+
+It should answer, at all times:
+
+What ideas do I have?
+Which ones are worth building?
+What stage is each one in?
+What should happen next?
+What is blocked?
+What did AI already do?
+What got shipped?
+What improved results?
+What should Codex or Claude do next?
+
+That means the app needs 6 core layers:
+
+Idea intelligence
+Product planning
+Execution management
+AI coding workflow orchestration
+GitHub / PR / release control
+Learning and improvement loop
+
+If you nail those six, the app becomes insanely valuable.
+
+2. Core product philosophy
+
+Your app should optimize for:
+
+Zero friction capture
+Clarity of next action
+Deep detail without feeling heavy
+AI-first execution
+GitHub-native shipping
+Constant improvement suggestions
+Beautiful, obvious UX
+
+The trap is making it feel like Jira. Don’t.
+Make it feel like Linear + Notion + product brain + AI operator + GitHub cockpit, but simpler.
+
+3. The complete feature map
+A. Idea capture and idea database
+
+This is the intake brain.
+
+Must-have features
+Quick capture from:
+text input
+voice note
+screenshot/image
+pasted link
+imported note
+Inbox for raw ideas
+Structured idea cards
+Tags
+Categories
+Status
+Confidence score
+Opportunity score
+Problem severity score
+Market size estimate
+Technical difficulty estimate
+Time-to-MVP estimate
+Monetization model
+Strategic fit
+Dependencies
+Similar ideas detection
+Duplicate merging
+AI-generated enrichment
+Each idea should store
+Title
+One-line concept
+Full description
+Problem solved
+Target user
+Why now
+Competitive alternatives
+Differentiator
+Business model
+MVP definition
+Risks
+Assumptions
+Open questions
+Recommended next step
+Linked repos
+Linked documents
+Linked experiments
+Linked market research
+AI features here
+“Turn this messy note into a structured product idea”
+“Score this idea”
+“Find missing assumptions”
+“What should I validate before building?”
+“Compare this idea to existing projects”
+“Suggest 10 improvements”
+“Split this into MVP / V2 / later”
+“Detect if this overlaps another idea in my system”
+
+This becomes your long-term opportunity engine.
+
+B. Product lifecycle / stage system
+
+Every project should move through a defined pipeline.
+
+Suggested stages
+Inbox
+Clarifying
+Researching
+Validating
+Planning
+Ready to build
+Building
+Internal testing
+Beta
+Shipping
+Measuring
+Improving
+Paused
+Archived
+Killed
+Rules engine
+
+Each stage should have:
+
+Entry criteria
+Exit criteria
+Required checklist
+Required docs
+Suggested AI actions
+Suggested human actions
+
+Example:
+
+Ready to build only when:
+
+core problem is clear
+target user defined
+MVP scoped
+repository created
+tech stack chosen
+first milestone created
+
+This structure stops chaos.
+
+C. Project workspace
+
+Each idea that becomes real needs its own workspace.
+
+Workspace tabs
+Overview
+Roadmap
+Tasks
+Specs
+Decisions
+Research
+GitHub
+AI agents
+Metrics
+Risks
+Launch
+Retrospective
+Project overview should show
+Current stage
+Health score
+Next milestone
+Current blockers
+Next 3 recommended actions
+PR activity
+Recent AI activity
+Progress by phase
+Days since last progress
+Risk alerts
+
+This is the “single source of truth” layer.
+
+D. Roadmap and planning
+
+Product roadmaps exist to communicate direction, priorities, and progress over time. Quarterly planning is still one of the cleanest frameworks for turning that into action.
+
+Views
+Now / Next / Later
+Timeline view
+Milestone view
+Goal-based roadmap
+Release roadmap
+Kanban
+Calendar
+Dependency map
+Objects
+Goals
+Themes
+Initiatives
+Epics
+Features
+Stories
+Tasks
+Bugs
+Experiments
+Planning features
+Priority frameworks:
+RICE
+ICE
+Impact / effort
+Strategic fit
+Confidence-weighted prioritization
+Milestones
+Deadlines
+Resource estimates
+Capacity planning
+Dependencies
+Sequencing suggestions
+Scope splitting
+Auto-detect overstuffed milestone
+“What can ship in 7 days / 14 days / 30 days?”
+AI planning helpers
+“Generate MVP roadmap”
+“Break this feature into buildable tasks”
+“Re-sequence this roadmap to reduce risk”
+“What should come before this?”
+“What can be cut without hurting value?”
+“What are hidden dependencies?”
+E. Task and execution engine
+
+This is where most apps fail. They store tasks, but they don’t help you move.
+
+Every task should support
+title
+description
+type
+priority
+effort
+urgency
+impact
+owner
+due date
+dependencies
+linked PR
+linked spec
+linked files
+linked commits
+linked AI prompt
+recurrence
+blocker state
+outcome field
+acceptance criteria
+Task types
+Build
+Research
+Design
+Bug
+Refactor
+Review
+Test
+Launch
+Marketing
+Analytics
+Admin
+AI delegation
+Views
+Today
+This week
+Backlog
+Blocked
+Waiting
+High impact
+Quick wins
+By repo
+By product
+By energy needed
+Smart execution features
+Auto-suggest next task
+Auto-group related tasks
+Convert meeting notes into tasks
+Detect stale tasks
+Detect too-big tasks and split them
+Focus mode
+“What should I do now?” assistant
+Auto-rollover unfinished work with explanation
+Time estimate vs actual tracking
+F. Spec and documentation system
+
+A lot of build speed comes from clean specs. Atlassian’s design-doc guidance exists for a reason, clear design docs reduce ambiguity and wasted work.
+
+Document types
+PRD
+Feature spec
+Technical design doc
+API spec
+UX flow
+Database design
+Launch checklist
+Postmortem
+Research brief
+Meeting notes
+Decision log
+Features
+Rich editor
+Templates
+Version history
+Linked tasks
+Linked PRs
+Comments
+AI summarize
+AI improve clarity
+AI identify missing edge cases
+AI generate implementation plan
+AI convert spec into tasks
+AI convert tasks into GitHub issue pack
+Critical improvement
+
+Add a Decision Log with fields:
+
+decision
+date
+why
+alternatives considered
+consequences
+revisit date
+
+That becomes gold later.
+
+G. Research system
+
+You asked for “all research needed.” So the app itself should include a research layer.
+
+Research entities
+Competitors
+User pains
+Market signals
+Feature inspiration
+Technical options
+Pricing analysis
+User interviews
+Evidence snippets
+Links
+Screenshots
+AI summaries
+Features
+Save webpages
+Extract highlights
+Auto-summarize
+Tag claims by evidence strength
+Link research to ideas/features
+“What did we learn?”
+“What changed our mind?”
+Research confidence score
+Contradiction detection
+AI prompts built-in
+“Summarize this competitor”
+“What are they missing?”
+“What can we do better?”
+“Extract feature ideas from this”
+“Turn this into actionable insights”
+“Find weak assumptions”
+H. AI orchestration layer
+
+This is the killer feature.
+
+Your app should not just store prompts. It should manage AI workers.
+
+Agent types
+Product strategist
+Research analyst
+Tech architect
+UX assistant
+Backend planner
+QA reviewer
+PR reviewer
+Release writer
+Growth assistant
+Refactor agent
+For each AI agent
+
+Store:
+
+role
+system instructions
+scope
+allowed tools
+repo access
+preferred model
+cost profile
+output format
+approval level
+fallback behavior
+Actions
+Run task
+Propose plan
+Generate spec
+Write code prompt
+Review PR
+Write test cases
+Summarize repo diff
+Create release notes
+Suggest backlog items
+Flag architectural drift
+Improvement layer
+Track which prompts worked best
+Track which agents produced accepted outputs
+Score output quality
+Suggest better prompts
+Save reusable agent workflows
+
+This is where your app becomes a real multiplier.
+
+I. Codex integration layer
+
+OpenAI now supports Codex in the web app, CLI, IDE, and GitHub workflows. Codex can review PRs automatically, create PRs from its work, and the Codex CLI can read, edit, and run code locally. Codex also now supports plugins bundling skills, integrations, and MCP config for reusable workflows.
+
+What your app should do with Codex
+Generate task-ready prompts for Codex
+Push task context into Codex
+Store Codex session results
+Attach generated diffs to tasks
+Create PR drafts
+Trigger Codex review on selected PRs
+Trigger automatic reviews on every PR
+Store review summaries
+Track “accepted vs rejected” Codex suggestions
+Re-run Codex on failed implementation attempts
+Codex-specific features
+One-click “Send to Codex”
+Codex task packs:
+implement feature
+fix bug
+refactor module
+write tests
+explain codebase
+draft migration
+Branch naming automation
+PR title/body generation
+AI handoff context bundle
+Codex plugin support architecture
+AGENTS.md / instruction-file sync
+Review mode vs implementation mode
+Best UX
+
+Task page should have:
+
+Context
+Acceptance criteria
+Relevant files
+Constraints
+Suggested command
+“Open in Codex”
+“Copy optimized prompt”
+“Track completion”
+J. Claude Code integration layer
+
+Claude Code supports terminal, IDE, desktop, hooks, common workflows, and GitHub Actions. Anthropic also documents hooks for running commands or HTTP actions during Claude Code lifecycle, and their GitHub Actions flow supports @claude mentions in PRs and issues. Claude Code Desktop also supports CI-aware auto-fix and auto-merge patterns when configured.
+
+What your app should do with Claude Code
+Generate Claude-ready implementation prompts
+Maintain CLAUDE.md project memory
+Store reusable task recipes
+Launch tasks with repo context
+Sync architecture rules
+Capture Claude outputs and summaries
+Trigger repo hooks
+Link GitHub issue / PR / task to Claude session
+Claude-specific features
+“Open in Claude Code”
+Repo instruction sync
+Hook event log
+Prompt templates for:
+understand codebase
+implement spec
+patch bug
+update tests
+review architecture
+Session memory snapshots
+Branch and commit suggestion generator
+Auto-fix CI support mapping
+Important design choice
+
+Don’t treat Codex and Claude as interchangeable.
+
+Treat them as:
+
+Codex: repo-connected implementation + review + plugin workflows
+Claude: deep iterative coding + local reasoning + hooks + GitHub issue/PR actions
+
+That separation keeps the app sharp.
+
+K. GitHub operating layer
+
+GitHub PRs, reviews, checks, and check runs are the real delivery control plane. GitHub’s docs are very clear that PRs are the foundation for proposing and reviewing code changes, and that the Checks tab becomes powerful when you use checks rather than only commit statuses. GitHub Apps can also build CI checks around webhook events like check_run and check_suite.
+
+Must-have GitHub features
+Connect multiple repos
+Connect orgs
+Link project to repo(s)
+Read branches
+Read PRs
+Read commits
+Read issues
+Read Actions / checks
+Read review status
+Read labels
+Read releases
+Actions in app
+Create branch
+Create issue
+Create PR
+Create draft PR
+Update PR description
+Request reviewers
+Post comments
+Summarize diff
+Show failing checks
+Retry checks
+Convert task → issue
+Convert spec → issue pack
+Merge when rules pass
+PR cockpit
+
+Each PR page in your app should show:
+
+summary
+linked tasks
+linked milestone
+changed files
+AI review summary
+human review summary
+failing checks
+risk score
+release impact
+rollback risk
+doc update needed?
+test coverage warning?
+merge readiness score
+Workflow automation
+When task enters “in progress” → suggest branch
+When branch pushed → suggest draft PR
+When PR opened → run Codex review
+When check fails → assign Claude/Codex fix task
+When PR merged → update milestone and changelog
+When release shipped → mark related tasks done
+
+This is where real smoothness happens.
+
+L. QA and release management
+QA features
+Test case database
+Regression suite mapping
+Acceptance test checklist
+Edge case tracker
+Linked bugs
+Severity levels
+Reproduction steps
+Environment matrix
+AI-generated tests
+Auto-suggest regression areas from changed files
+Release features
+Release train planning
+Release candidate checklist
+Changelog generator
+Release notes generator
+Versioning
+Rollback checklist
+Post-release monitoring checklist
+Known issues section
+“Ship blocker” alerts
+AI release helpers
+“Summarize what changed”
+“Generate customer-facing release notes”
+“Generate internal release risk summary”
+“What should we monitor after deploy?”
+M. Metrics and learning loop
+
+Without this, the app stays a planner instead of becoming a system.
+
+Product metrics
+idea conversion rate
+validated-to-built rate
+shipped features per month
+cycle time
+PR merge time
+bug escape rate
+AI task success rate
+time saved by AI
+improvement suggestions accepted
+product health score
+Decision metrics
+which ideas scored high but stalled
+which features shipped but didn’t matter
+which tasks got reopened
+which prompts led to the best output
+which repos cause the most friction
+which stage becomes the bottleneck
+AI insight engine
+
+The app should continuously say things like:
+
+“You keep over-scoping MVPs”
+“Research stage is too long on 4 projects”
+“These 3 projects compete for the same user”
+“Your PR cycle is slowing because tests are underdefined”
+“Codex suggestions are accepted more often on frontend tasks than backend tasks”
+
+That’s the improvement moat.
+
+4. The overlooked features almost everyone forgets
+
+These are important.
+
+A. Blocker intelligence
+
+Track blockers as first-class objects:
+
+technical blocker
+decision blocker
+dependency blocker
+waiting on review
+waiting on data
+unclear scope
+
+Then add:
+
+blocker age
+blocker owner
+unblock suggestions
+AI-generated options
+B. Assumption tracking
+
+Every product dies from hidden assumptions.
+
+Track:
+
+assumption
+confidence
+how to test it
+current evidence
+status: untested / confirmed / disproved
+C. Decision debt
+
+Track bad or outdated decisions that should be revisited.
+
+D. Opportunity resurfacing
+
+Bring old ideas back when:
+
+a similar project succeeds
+new AI/tooling makes it easier
+a blocked dependency is solved
+market timing improves
+E. Context packs
+
+For any task, generate a clean context bundle:
+
+goal
+relevant docs
+repo info
+constraints
+recent PRs
+acceptance criteria
+open questions
+
+This is perfect for Codex and Claude.
+
+F. Project health scoring
+
+Score each project on:
+
+clarity
+momentum
+delivery risk
+technical debt
+research confidence
+market confidence
+AI readiness
+G. Personal operating layer
+
+Because you’re likely using this as founder/operator too:
+
+energy-aware scheduling
+deep work blocks
+quick wins list
+today’s top 3
+weekly review
+quarterly reset
+5. UX structure, what the app should feel like
+
+You said super smooth and user friendly. So the UX has to feel obvious.
+
+Main navigation
+Home
+Inbox
+Ideas
+Projects
+Roadmap
+Tasks
+Research
+Specs
+GitHub
+AI Agents
+Releases
+Analytics
+Settings
+Home dashboard
+
+Show:
+
+Today’s priorities
+Projects needing attention
+Stale projects
+PRs awaiting action
+Failing checks
+Recently active AI runs
+Suggested next moves
+Weekly momentum
+Key UX rules
+One-click capture everywhere
+Minimal mandatory fields at first
+Progressive detail, not giant forms
+Rich cards, not spreadsheet hell
+Every screen answers “what now?”
+Smart defaults everywhere
+Keyboard-first for power use
+Mobile capture, desktop execution
+Golden UX move
+
+Add a universal command bar:
+
+create project
+capture idea
+create task
+open repo
+run AI task
+review blockers
+start weekly review
+
+That alone makes it feel premium.
+
+6. Recommended data model
+
+High level only, but this is the backbone.
+
+Core entities
+User
+Workspace
+Idea
+Project
+Goal
+Milestone
+Initiative
+Epic
+Feature
+Task
+Blocker
+Assumption
+Decision
+ResearchItem
+Document
+Repository
+Branch
+PullRequest
+Commit
+CheckRun
+Release
+Agent
+AgentRun
+PromptTemplate
+Metric
+Tag
+Comment
+Attachment
+Notification
+ActivityEvent
+Important relationships
+Idea can become Project
+Project has many Goals, Milestones, Features, Tasks, Docs
+Task can link to PR, Branch, AgentRun, CheckRun
+PR links to Repo, Branch, Tasks, Reviews, Checks
+Research links to Ideas/Projects/Features
+Decision links to Project/Feature
+Assumption links to Idea/Project/Experiment
+AgentRun links to Task/PR/Repo/Doc
+Add event sourcing flavor
+
+Store timeline/activity events like:
+
+idea_captured
+stage_changed
+task_created
+branch_created
+pr_opened
+check_failed
+codex_review_posted
+claude_run_completed
+release_published
+
+That gives you auditability and powerful timelines.
+
+7. Suggested architecture
+Frontend
+Next.js or React app
+Desktop-first web app
+mobile capture companion later
+command palette
+rich editor
+timeline components
+kanban + list + roadmap views
+Backend
+API layer
+auth
+background jobs
+webhook ingestion
+AI orchestration service
+GitHub integration service
+search/indexing service
+analytics service
+notification service
+Database
+PostgreSQL for core relational data
+Redis for queues/cache
+object storage for files/attachments
+vector search only where it actually helps, mostly for doc/research retrieval
+Background job queues
+
+Needed for:
+
+GitHub sync
+webhook processing
+AI runs
+PR analysis
+changelog generation
+research processing
+summarization
+notifications
+Integrations
+GitHub first
+OpenAI/Codex
+Anthropic/Claude
+Calendar later
+Slack later
+Notion import maybe
+email notifications maybe
+8. GitHub and AI workflow design, the right way
+
+This part matters most for smooth coding.
+
+Ideal loop
+Idea becomes project
+Project gets MVP spec
+Spec becomes milestones/tasks
+Task gets AI-ready context pack
+Send to Codex or Claude
+AI produces code / branch / PR / review
+GitHub checks run
+Failures return to task queue
+Fixes applied
+PR merged
+Release notes generated
+Project state updated automatically
+You want the app to decide:
+which tool is best for this task
+what context to send
+what files matter
+whether human approval is needed
+what happens if checks fail
+what should be done next after merge
+
+That’s orchestration, not task storage.
+
+9. A practical “who does what” split between Codex and Claude
+Use Codex for
+PR reviews
+repo-connected task execution
+fast implementation bursts
+GitHub-native workflows
+plugin-based reusable workflows
+standardized code review and fix suggestions
+Use Claude Code for
+deeper repo understanding
+long iterative bug hunts
+architecture reasoning
+local coding loops
+hooks-based custom automation
+issue/PR workflows through GitHub Actions and local sessions
+App should decide with routing rules
+
+Example:
+
+frontend UI task → either
+large refactor → Claude preferred
+PR review → Codex first
+failing CI autofix → Claude or Codex based on repo/rule
+release note generation → whichever template performs best
+10. Security, permissions, and trust
+
+Do not bolt this on later.
+
+Must-have
+OAuth for GitHub
+least-privilege repo permissions
+encrypted tokens
+per-workspace access control
+audit logs
+approval settings for AI actions
+read-only vs write-enabled mode
+branch protection awareness
+secrets redaction
+safe prompt boundaries
+repo allowlist
+model usage logs
+cost tracking
+AI permission levels
+Suggest only
+Draft artifacts only
+Create branches
+Open draft PRs
+Review PRs
+Auto-fix safe failures
+Never merge without human approval, at least initially
+11. The best “improvement engine” features
+
+You specifically asked to always look for improvements. So build that into the product.
+
+Continuous improvement layer
+
+Every project and workflow should get:
+
+Improvement prompts
+What is missing?
+What is unclear?
+What is overcomplicated?
+What is risky?
+What can be automated?
+What can be removed?
+What can ship sooner?
+What should be tested first?
+Auto-suggestions
+missing acceptance criteria
+milestone too large
+task has no owner or no output definition
+PR lacks test plan
+project has no recent progress
+research has no evidence links
+idea has no monetization hypothesis
+duplicate feature detected
+tech debt cluster emerging
+Weekly review screen
+abandoned ideas worth revisiting
+stalled projects
+tasks aging badly
+PR bottlenecks
+highest leverage next actions
+easiest shippable wins
+biggest product risks
+
+This is one of the strongest retention features.
+
+12. What should be in v1, v2, v3
+
+You asked for everything, but shipping everything at once is a mistake.
+
+V1, build this first
+Idea inbox
+Idea database
+Project workspaces
+Roadmap
+Tasks
+Specs/docs
+GitHub repo + PR sync
+Codex/Claude context pack generation
+AI prompt templates
+Home dashboard
+Basic analytics
+Weekly review
+Decision log
+Blocker tracking
+V2
+AI agent runs
+deeper GitHub automation
+automatic PR analysis
+release management
+research database
+assumptions system
+project health scoring
+prompt quality tracking
+failing checks assistant
+V3
+auto-routing between Codex and Claude
+plugin ecosystem
+advanced workflow automations
+mobile capture app
+portfolio-level insights
+cross-project dependency intelligence
+cost/value analytics for AI work
+autonomous improvement suggestions
+13. What makes this app genuinely better than existing tools
+
+Your wedge is not “project management.”
+
+Your wedge is:
+
+AI-native product execution for builders who move from idea to shipped software using GitHub.
+
+That means your differentiation is:
+
+idea-to-shipping continuity
+AI context packs
+Codex + Claude orchestration
+GitHub-aware execution
+improvement suggestions
+founder-centric UX
+less clutter than enterprise tools
+
+That’s strong.
+
+14. Biggest mistakes to avoid
+Don’t do this
+Too many required fields up front
+Overly enterprise language
+Generic task app UX
+Too many disconnected modules
+No opinionated stages
+No “next best action”
+Weak GitHub integration
+Weak AI handoff structure
+Overusing vector search where relational structure is enough
+Letting AI write directly everywhere without permission controls
+Also don’t
+Build for teams first
+Copy Jira
+Copy Notion databases blindly
+Add every productivity gimmick
+Treat “ideas” and “execution” as separate products
+15. My strongest recommendation for the product shape
+
+Build it around these 5 screens first:
+
+1. Home
+
+The command center.
+
+2. Ideas
+
+Capture, score, enrich, and convert to project.
+
+3. Project workspace
+
+Overview, roadmap, docs, GitHub, AI actions.
+
+4. Execution
+
+Tasks, blockers, milestones, next actions.
+
+5. GitHub/PR cockpit
+
+PRs, checks, reviews, merge readiness, AI review.
+
+If those 5 are excellent, the whole product works.
+
+16. Best internal mantra for building it
+
+Every object in the system should answer:
+
+What is it?
+Why does it matter?
+What’s the next step?
+What is blocking it?
+What changed recently?
+What should AI do with it?
+What should I do with it?
+
+If a screen does not answer those, it’s noise.
+
+17. Final product definition in one sentence
+
+A founder-grade AI-native operating system for turning ideas into shipped products, with roadmap planning, execution control, GitHub integration, and Codex/Claude-powered delivery loops.
