@@ -37,7 +37,7 @@ export function TaskBoard({
         body: JSON.stringify({ status: newStatus }),
       });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }

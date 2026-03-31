@@ -60,7 +60,7 @@ export function TemplateList() {
       setNewName("");
       setNewDescription("");
       setNewContent("");
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }
@@ -76,7 +76,7 @@ export function TemplateList() {
         prev.map((t) => (t.id === id ? { ...t, content: editContent } : t))
       );
       setEditingId(null);
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }
@@ -86,7 +86,7 @@ export function TemplateList() {
     try {
       await fetch(`/api/prompt-templates/${id}`, { method: "DELETE" });
       setTemplates((prev) => prev.filter((t) => t.id !== id));
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }

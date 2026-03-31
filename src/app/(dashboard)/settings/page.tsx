@@ -2,6 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { TemplateList } from "@/components/settings/template-list";
 import { ClaudeMdGenerator } from "@/components/settings/claude-md-generator";
 import { HooksTemplate } from "@/components/settings/hooks-template";
+import { WebhookConfig } from "@/components/settings/webhook-config";
 
 export default function SettingsPage() {
   return (
@@ -14,6 +15,10 @@ export default function SettingsPage() {
       </div>
 
       <TemplateList />
+
+      <Separator />
+
+      <WebhookConfig />
 
       <Separator />
 

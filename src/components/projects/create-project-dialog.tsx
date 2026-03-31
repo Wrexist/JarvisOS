@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { TemplateSelector } from "@/components/projects/template-selector";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -96,6 +98,8 @@ export function CreateProjectDialog() {
               />
             </div>
           </div>
+          <Separator className="my-4" />
+          <TemplateSelector />
           <DialogFooter className="mt-6">
             <Button
               type="button"

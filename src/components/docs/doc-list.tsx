@@ -63,7 +63,7 @@ export function DocList({
       setTitle("");
       onDocSelect(doc.id);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }
@@ -81,7 +81,7 @@ export function DocList({
       const { document } = await res.json();
       onDocSelect(document.id);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setGenerating(false);
@@ -94,7 +94,7 @@ export function DocList({
     try {
       await fetch(`/api/documents/${docId}`, { method: "DELETE" });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }

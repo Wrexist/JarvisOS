@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { deliverWebhook } from "@/server/services/webhook.service";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 export interface CreateTaskInput {
@@ -144,6 +145,21 @@ export async function moveTaskStatus(id: string, status: TaskStatus) {
       taskId: task.id,
     },
   });
+
+  // Deliver webhook on task completion
+  if (status === "DONE") {
+    const project = await prisma.project.findUnique({
+      where: { id: task.projectId },
+      select: { workspaceId: true, name: true },
+    });
+    if (project) {
+      deliverWebhook(project.workspaceId, "task.completed", {
+        id: task.id,
+        title: task.title,
+        project: { id: task.projectId, name: project.name },
+      }).catch(() => {}); // Fire and forget
+    }
+  }
 
   return task;
 }
