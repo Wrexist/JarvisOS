@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getTask, updateTask, deleteTask } from "@/server/services/task.service";
+import { validateBody } from "@/lib/api-utils";
+import { updateTaskSchema } from "@/lib/validations";
 
 export async function GET(
   _request: Request,
@@ -24,8 +26,9 @@ export async function PATCH(
 ) {
   try {
     const { taskId } = await params;
-    const body = await request.json();
-    const task = await updateTask(taskId, body);
+    const data = await validateBody(request, updateTaskSchema);
+    if (data instanceof NextResponse) return data;
+    const task = await updateTask(taskId, data);
     return NextResponse.json(task);
   } catch (error) {
     console.error("Failed to update task:", error);

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import {
   syncPullRequest,
   syncCheckRun,
+  autoCompleteLinkedTasks,
 } from "@/server/services/github-sync.service";
 import type { PRStatus, CheckConclusion } from "@/generated/prisma/client";
 
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
 
     if (event === "pull_request" && payload.pull_request) {
       const pr = payload.pull_request;
-      await syncPullRequest(repo.id, projectId, {
+      const syncedPr = await syncPullRequest(repo.id, projectId, {
         number: pr.number,
         title: pr.title,
         url: pr.html_url,
@@ -84,6 +85,11 @@ export async function POST(request: Request) {
         createdAt: new Date(pr.created_at),
         updatedAt: new Date(pr.updated_at),
       });
+
+      // Auto-complete linked tasks when PR is merged
+      if (pr.merged) {
+        await autoCompleteLinkedTasks(syncedPr.id);
+      }
     }
 
     if (event === "check_run" && payload.check_run) {

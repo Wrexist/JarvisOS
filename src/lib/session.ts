@@ -40,7 +40,7 @@ export async function requireAuth(): Promise<
 
 /**
  * Gets the workspace ID for server components.
- * Falls back to the first workspace if no auth (for development).
+ * Requires authenticated session — no fallback.
  */
 export async function getSessionWorkspaceId(): Promise<string> {
   const session = await auth();
@@ -53,10 +53,7 @@ export async function getSessionWorkspaceId(): Promise<string> {
     if (workspace) return workspace.id;
   }
 
-  // Fallback for development: return first workspace
-  const fallback = await prisma.workspace.findFirst({
-    select: { id: true },
-  });
-  if (!fallback) throw new Error("No workspace found. Run prisma db seed.");
-  return fallback.id;
+  throw new Error(
+    "No authenticated workspace. Please sign in."
+  );
 }

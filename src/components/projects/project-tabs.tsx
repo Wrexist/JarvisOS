@@ -12,6 +12,7 @@ import { DocsView } from "@/components/docs/docs-view";
 import { RepoConnect } from "@/components/github/repo-connect";
 import { PRList } from "@/components/github/pr-list";
 import { ProjectSettings } from "@/components/projects/project-settings";
+import { TimelineView } from "@/components/projects/timeline-view";
 import {
   Select,
   SelectContent,
@@ -72,6 +73,7 @@ interface ProjectTabsProps {
 const tabs = [
   "Overview",
   "Tasks",
+  "Timeline",
   "Docs",
   "GitHub",
   "AI Runs",
@@ -236,6 +238,10 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
           </div>
           <TaskView tasks={project.tasks} projectId={project.id} />
         </div>
+      )}
+
+      {activeTab === "Timeline" && (
+        <TimelineView tasks={project.tasks} />
       )}
 
       {activeTab === "Docs" && (

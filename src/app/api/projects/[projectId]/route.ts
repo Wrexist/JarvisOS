@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { validateBody } from "@/lib/api-utils";
+import { updateProjectSchema } from "@/lib/validations";
 import {
   getProject,
   updateProject,
@@ -37,15 +39,16 @@ export async function PATCH(
 ) {
   try {
     const { projectId } = await params;
-    const body = await request.json();
+    const data = await validateBody(request, updateProjectSchema);
+    if (data instanceof NextResponse) return data;
 
     // Handle stage update separately
-    if (body.stage) {
-      const project = await updateProjectStage(projectId, body.stage);
+    if (data.stage) {
+      const project = await updateProjectStage(projectId, data.stage);
       return NextResponse.json(project);
     }
 
-    const project = await updateProject(projectId, body);
+    const project = await updateProject(projectId, data);
     return NextResponse.json(project);
   } catch (error) {
     console.error("Failed to update project:", error);
