@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { deliverWebhook } from "@/server/services/webhook.service";
 import type { ProjectStage } from "@/generated/prisma/client";
 import slugify from "slugify";
 
@@ -100,6 +101,12 @@ export async function updateProjectStage(id: string, stage: ProjectStage) {
       metadata: { stage },
     },
   });
+
+  deliverWebhook(project.workspaceId, "project.stage_changed", {
+    id: project.id,
+    name: project.name,
+    stage,
+  }).catch(() => {});
 
   return project;
 }

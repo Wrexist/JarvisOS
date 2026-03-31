@@ -84,9 +84,10 @@ export function GenerateTasksButton({ projectId }: { projectId: string }) {
 
       setDialogOpen(false);
       setTasks([]);
+      toast.success(`${selected.length} tasks created`);
       router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create tasks");
+    } catch {
+      toast.error("Failed to create tasks");
     } finally {
       setCreating(false);
     }

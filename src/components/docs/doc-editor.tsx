@@ -51,7 +51,7 @@ export function DocEditor({
           body: JSON.stringify(data),
         });
         router.refresh();
-      } catch (error) {
+      } catch {
         toast.error("Something went wrong");
       } finally {
         setSaving(false);

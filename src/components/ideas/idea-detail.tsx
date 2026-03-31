@@ -124,7 +124,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
       if (!res.ok) throw new Error("Failed to save");
       setEditing(false);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setSaving(false);
@@ -137,7 +137,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
     try {
       await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
       router.push("/ideas");
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
       setDeleting(false);
     }

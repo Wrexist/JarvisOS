@@ -75,7 +75,7 @@ export function TaskDrawer({
         setTask((prev) => (prev ? { ...prev, ...updated } : prev));
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setSaving(false);
@@ -92,7 +92,7 @@ export function TaskDrawer({
       });
       setTask((prev) => (prev ? { ...prev, status: status as TaskStatus } : prev));
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }
@@ -103,7 +103,7 @@ export function TaskDrawer({
       await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
       onClose();
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   }

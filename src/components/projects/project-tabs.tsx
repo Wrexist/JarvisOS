@@ -12,6 +12,7 @@ import { DocsView } from "@/components/docs/docs-view";
 import { RepoConnect } from "@/components/github/repo-connect";
 import { PRList } from "@/components/github/pr-list";
 import { ProjectSettings } from "@/components/projects/project-settings";
+import { SaveAsTemplate } from "@/components/projects/save-as-template";
 import { TimelineView } from "@/components/projects/timeline-view";
 import {
   Select,
@@ -107,7 +108,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
         body: JSON.stringify({ stage }),
       });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setChangingStage(false);
@@ -278,7 +279,14 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Settings" && (
-        <ProjectSettings project={{ id: project.id, name: project.name, description: project.description }} />
+        <div className="space-y-6">
+          <ProjectSettings project={{ id: project.id, name: project.name, description: project.description }} />
+          <SaveAsTemplate
+            project={{ id: project.id, name: project.name, description: project.description }}
+            taskCount={project._count.tasks}
+            docCount={project._count.documents}
+          />
+        </div>
       )}
     </div>
   );
