@@ -1,5 +1,29 @@
 # Changelog
 
+## v8.0 — Advanced Features & Quality Gate
+
+- Advanced search with filter syntax (status:blocked, priority:high, project:name)
+- Idea comparison view (side-by-side, score visualization)
+- Project templates (save structure, create from template)
+- Outgoing webhooks (HMAC signed, delivery tracking)
+- E2E tests with Playwright
+- Search now covers descriptions and summaries
+
+## v7.0 — Intelligence & Automation
+
+- Comments system on tasks and ideas
+- Auto-complete tasks when linked PR is merged
+- Project timeline view (scheduled vs unscheduled, deadline tracking)
+- Schema migration for Comment model
+
+## v6.2 — Audit Fixes
+
+- Rate limiter memory leak fixed
+- Session fallback removed (security)
+- N+1 query in createManyTasks fixed
+- Zod validation on all PATCH routes
+- Dead code cleanup
+
 ## v6.0 — Professional Installer & v1.0 Release
 
 - One-command setup script (`./setup.sh`)

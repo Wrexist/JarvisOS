@@ -25,6 +25,12 @@ export async function PATCH(
   try {
     const { endpointId } = await params;
     const { active } = await request.json();
+    if (typeof active !== "boolean") {
+      return NextResponse.json(
+        { error: "active must be a boolean" },
+        { status: 400 }
+      );
+    }
     const endpoint = await toggleEndpoint(endpointId, active);
     return NextResponse.json(endpoint);
   } catch (error) {
