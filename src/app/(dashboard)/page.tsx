@@ -13,6 +13,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { NextActionCard } from "@/components/dashboard/next-action-card";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { OnboardingChecklist } from "@/components/onboarding/onboarding-checklist";
 import { StageBadge } from "@/components/projects/stage-badge";
 import Link from "next/link";
 
@@ -151,6 +152,13 @@ export default async function HomePage() {
           Your command center. Here&apos;s what needs attention.
         </p>
       </div>
+
+      {/* Onboarding */}
+      <OnboardingChecklist
+        ideaCount={data.ideaCount}
+        projectCount={data.projects.length}
+        taskCount={data.totalTasks}
+      />
 
       {/* Next Action */}
       <NextActionCard

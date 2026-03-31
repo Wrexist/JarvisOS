@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 
-/**
- * Parses filter syntax from search query.
- * Example: "status:blocked my search" → { text: "my search", filters: { status: "blocked" } }
- */
+const VALID_STATUSES = ["INBOX", "REVIEWING", "VALIDATED", "CONVERTED", "ARCHIVED", "TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
+const VALID_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+const VALID_STAGES = ["CLARIFYING", "PLANNING", "READY_TO_BUILD", "BUILDING", "TESTING", "SHIPPED", "PAUSED", "ARCHIVED"];
+const VALID_TYPES = ["PRD", "TECH_SPEC", "NOTES", "RETRO", "SCRATCHPAD"];
+
 function parseSearchQuery(raw: string): {
   text: string;
   filters: Record<string, string>;
@@ -13,7 +14,7 @@ function parseSearchQuery(raw: string): {
   const filters: Record<string, string> = {};
   const text = raw
     .replace(/(\w+):(\S+)/g, (_, key: string, value: string) => {
-      filters[key.toLowerCase()] = value.toLowerCase();
+      if (value) filters[key.toLowerCase()] = value.toUpperCase();
       return "";
     })
     .trim();
@@ -43,8 +44,8 @@ export async function GET(request: Request) {
       prisma.idea.findMany({
         where: {
           workspaceId,
-          ...(filters.status && {
-            status: filters.status.toUpperCase() as never,
+          ...(filters.status && VALID_STATUSES.includes(filters.status) && {
+            status: filters.status as never,
           }),
           ...(textFilter && {
             OR: [
@@ -64,8 +65,8 @@ export async function GET(request: Request) {
       prisma.project.findMany({
         where: {
           workspaceId,
-          ...(filters.stage && {
-            stage: filters.stage.toUpperCase() as never,
+          ...(filters.stage && VALID_STAGES.includes(filters.stage) && {
+            stage: filters.stage as never,
           }),
           ...(textFilter && {
             OR: [
@@ -93,11 +94,11 @@ export async function GET(request: Request) {
               },
             }),
           },
-          ...(filters.status && {
-            status: filters.status.toUpperCase() as never,
+          ...(filters.status && VALID_STATUSES.includes(filters.status) && {
+            status: filters.status as never,
           }),
-          ...(filters.priority && {
-            priority: filters.priority.toUpperCase() as never,
+          ...(filters.priority && VALID_PRIORITIES.includes(filters.priority) && {
+            priority: filters.priority as never,
           }),
           ...(textFilter && {
             OR: [
@@ -123,8 +124,8 @@ export async function GET(request: Request) {
       prisma.document.findMany({
         where: {
           project: { workspaceId },
-          ...(filters.type && {
-            type: filters.type.toUpperCase() as never,
+          ...(filters.type && VALID_TYPES.includes(filters.type) && {
+            type: filters.type as never,
           }),
           ...(textFilter && {
             OR: [

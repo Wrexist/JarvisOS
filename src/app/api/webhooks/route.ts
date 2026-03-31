@@ -28,6 +28,22 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate URL format and protocol
+    try {
+      const parsed = new URL(url);
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        return NextResponse.json(
+          { error: "URL must use http or https protocol" },
+          { status: 400 }
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid URL format" },
+        { status: 400 }
+      );
+    }
+
     const endpoint = await createEndpoint(workspaceId, { url, events, secret });
     return NextResponse.json(endpoint, { status: 201 });
   } catch (error) {

@@ -22,7 +22,14 @@ export async function POST(
   try {
     const { templateId } = await params;
     const workspaceId = await getSessionWorkspaceId();
-    const { projectName } = await request.json();
+
+    let projectName: string | undefined;
+    try {
+      const body = await request.json();
+      projectName = typeof body.projectName === "string" ? body.projectName : undefined;
+    } catch {
+      // Empty body is ok — will use template name
+    }
 
     const template = await prisma.projectTemplate.findUnique({
       where: { id: templateId },
