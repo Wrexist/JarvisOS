@@ -148,8 +148,10 @@ model Workspace {
   ideas           Idea[]
   projects        Project[]
   repositories    Repository[]
-  promptTemplates PromptTemplate[]
-  aiRuns          AIRun[]
+  promptTemplates  PromptTemplate[]
+  aiRuns           AIRun[]
+  projectTemplates ProjectTemplate[]
+  webhookEndpoints WebhookEndpoint[]
   notifications   Notification[]
 }
 
@@ -390,4 +392,45 @@ model Comment {
 
   ideaId String?
   idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+}
+
+model ProjectTemplate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  taskTemplates Json     @default("[]")
+  docTemplates  Json     @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model WebhookEndpoint {
+  id        String   @id @default(cuid())
+  url       String
+  events    String[]
+  secret    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  deliveries WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id        String   @id @default(cuid())
+  event     String
+  payload   Json
+  status    Int
+  response  String?
+  attempts  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  endpointId String
+  endpoint   WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 }

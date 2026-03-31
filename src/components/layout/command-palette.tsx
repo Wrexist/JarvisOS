@@ -123,8 +123,11 @@ export function CommandPalette() {
             )}
 
             {query.length < 2 && !loading && (
-              <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                Type to search across your workspace...
+              <div className="px-2 py-4 text-sm text-muted-foreground text-center space-y-2">
+                <p>Type to search across your workspace...</p>
+                <p className="text-[10px] opacity-70">
+                  Filters: <code>status:blocked</code> <code>priority:high</code> <code>project:name</code> <code>type:prd</code>
+                </p>
               </div>
             )}
 
