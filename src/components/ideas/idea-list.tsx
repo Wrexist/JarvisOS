@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, GitCompareArrows } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { IdeaCard } from "@/components/ideas/idea-card";
 import {
   Select,
@@ -24,8 +26,25 @@ interface IdeaListItem {
 }
 
 export function IdeaList({ ideas }: { ideas: IdeaListItem[] }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < 4) next.add(id);
+      return next;
+    });
+  }
+
+  function handleCompare() {
+    if (selected.size >= 2) {
+      router.push(`/ideas/compare?ids=${Array.from(selected).join(",")}`);
+    }
+  }
 
   const filtered = ideas.filter((idea) => {
     const matchesSearch =
@@ -64,6 +83,17 @@ export function IdeaList({ ideas }: { ideas: IdeaListItem[] }) {
             <SelectItem value="ARCHIVED">Archived</SelectItem>
           </SelectContent>
         </Select>
+        {selected.size >= 2 && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleCompare}
+            className="gap-1.5"
+          >
+            <GitCompareArrows className="h-3.5 w-3.5" />
+            Compare ({selected.size})
+          </Button>
+        )}
       </div>
 
       {filtered.length === 0 ? (
@@ -77,16 +107,29 @@ export function IdeaList({ ideas }: { ideas: IdeaListItem[] }) {
       ) : (
         <div className="grid gap-3">
           {filtered.map((idea) => (
-            <IdeaCard
-              key={idea.id}
-              id={idea.id}
-              title={idea.title}
-              summary={idea.summary}
-              status={idea.status}
-              score={idea.score}
-              tags={idea.tags}
-              createdAt={idea.createdAt}
-            />
+            <div key={idea.id} className="flex items-start gap-2">
+              <button
+                onClick={(e) => { e.preventDefault(); toggleSelect(idea.id); }}
+                className={`mt-5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
+                  selected.has(idea.id)
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : "border-border hover:border-muted-foreground"
+                }`}
+              >
+                {selected.has(idea.id) && <span className="text-xs">✓</span>}
+              </button>
+              <div className="flex-1">
+                <IdeaCard
+                  id={idea.id}
+                  title={idea.title}
+                  summary={idea.summary}
+                  status={idea.status}
+                  score={idea.score}
+                  tags={idea.tags}
+                  createdAt={idea.createdAt}
+                />
+              </div>
+            </div>
           ))}
         </div>
       )}
