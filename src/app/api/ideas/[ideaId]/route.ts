@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getIdea, updateIdea, deleteIdea } from "@/server/services/idea.service";
 import { validateBody } from "@/lib/api-utils";
 import { updateIdeaSchema } from "@/lib/validations";
@@ -17,7 +18,7 @@ export async function GET(
 
     return NextResponse.json(idea);
   } catch (error) {
-    console.error("Failed to get idea:", error);
+    logger.error("Failed to get idea:", error);
     return NextResponse.json(
       { error: "Failed to get idea" },
       { status: 500 }
@@ -37,7 +38,7 @@ export async function PATCH(
     const idea = await updateIdea(ideaId, data);
     return NextResponse.json(idea);
   } catch (error) {
-    console.error("Failed to update idea:", error);
+    logger.error("Failed to update idea:", error);
     return NextResponse.json(
       { error: "Failed to update idea" },
       { status: 500 }
@@ -54,7 +55,7 @@ export async function DELETE(
     await deleteIdea(ideaId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete idea:", error);
+    logger.error("Failed to delete idea:", error);
     return NextResponse.json(
       { error: "Failed to delete idea" },
       { status: 500 }

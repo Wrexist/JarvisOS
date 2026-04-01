@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { listProjectTasks, createTask } from "@/server/services/task.service";
 
 export async function GET(
@@ -10,7 +11,7 @@ export async function GET(
     const tasks = await listProjectTasks(projectId);
     return NextResponse.json(tasks);
   } catch (error) {
-    console.error("Failed to list tasks:", error);
+    logger.error("Failed to list tasks:", error);
     return NextResponse.json(
       { error: "Failed to list tasks" },
       { status: 500 }
@@ -36,7 +37,7 @@ export async function POST(
     const task = await createTask(projectId, body);
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
-    console.error("Failed to create task:", error);
+    logger.error("Failed to create task:", error);
     return NextResponse.json(
       { error: "Failed to create task" },
       { status: 500 }

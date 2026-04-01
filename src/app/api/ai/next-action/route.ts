@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate } from "@/lib/ai/prompts";
 import { getSessionWorkspaceId } from "@/lib/session";
@@ -34,6 +36,8 @@ Return JSON:
 }`;
 
 export async function POST() {
+  const { allowed } = checkRateLimit("ai", { limit: 10, window: 60_000 });
+  if (!allowed) return rateLimitResponse();
   try {
     const workspaceId = await getSessionWorkspaceId();
 
@@ -140,7 +144,7 @@ export async function POST() {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Next action failed";
-    console.error("Next action failed:", error);
+    logger.error("Next action failed:", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

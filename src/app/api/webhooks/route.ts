@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { listEndpoints, createEndpoint } from "@/server/services/webhook.service";
 
@@ -8,7 +9,7 @@ export async function GET() {
     const endpoints = await listEndpoints(workspaceId);
     return NextResponse.json(endpoints);
   } catch (error) {
-    console.error("Failed to list webhooks:", error);
+    logger.error("Failed to list webhooks:", error);
     return NextResponse.json(
       { error: "Failed to list webhooks" },
       { status: 500 }
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const endpoint = await createEndpoint(workspaceId, { url, events, secret });
     return NextResponse.json(endpoint, { status: 201 });
   } catch (error) {
-    console.error("Failed to create webhook:", error);
+    logger.error("Failed to create webhook:", error);
     return NextResponse.json(
       { error: "Failed to create webhook" },
       { status: 500 }

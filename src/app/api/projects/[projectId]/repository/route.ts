@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getSessionWorkspaceId } from "@/lib/session";
 import {
   upsertRepository,
@@ -32,7 +33,7 @@ export async function POST(
     const project = await connectRepoToProject(projectId, repo.id);
     return NextResponse.json({ project, repository: repo });
   } catch (error) {
-    console.error("Failed to connect repository:", error);
+    logger.error("Failed to connect repository:", error);
     return NextResponse.json(
       { error: "Failed to connect repository" },
       { status: 500 }

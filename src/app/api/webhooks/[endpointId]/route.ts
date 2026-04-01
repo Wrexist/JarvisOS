@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { deleteEndpoint, toggleEndpoint } from "@/server/services/webhook.service";
 
 export async function DELETE(
@@ -10,7 +11,7 @@ export async function DELETE(
     await deleteEndpoint(endpointId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete webhook:", error);
+    logger.error("Failed to delete webhook:", error);
     return NextResponse.json(
       { error: "Failed to delete webhook" },
       { status: 500 }
@@ -34,7 +35,7 @@ export async function PATCH(
     const endpoint = await toggleEndpoint(endpointId, active);
     return NextResponse.json(endpoint);
   } catch (error) {
-    console.error("Failed to update webhook:", error);
+    logger.error("Failed to update webhook:", error);
     return NextResponse.json(
       { error: "Failed to update webhook" },
       { status: 500 }

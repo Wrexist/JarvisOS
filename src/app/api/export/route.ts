@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 
@@ -44,7 +45,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Export failed:", error);
+    logger.error("Export failed:", error);
     return NextResponse.json(
       { error: "Export failed" },
       { status: 500 }

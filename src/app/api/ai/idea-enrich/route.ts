@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate, IDEA_ENRICH_PROMPT } from "@/lib/ai/prompts";
 import { getSessionWorkspaceId } from "@/lib/session";
@@ -11,6 +13,9 @@ import {
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
+  const { allowed } = checkRateLimit("ai", { limit: 10, window: 60_000 });
+  if (!allowed) return rateLimitResponse();
+
   const { ideaId } = await request.json();
 
   if (!ideaId) {
@@ -111,7 +116,7 @@ export async function POST(request: Request) {
     const message =
       error instanceof Error ? error.message : "AI enrichment failed";
     await failAIRun(aiRun.id, message);
-    console.error("AI enrichment failed:", error);
+    logger.error("AI enrichment failed:", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { validateBody } from "@/lib/api-utils";
 import { bulkTasksSchema } from "@/lib/validations";
@@ -34,7 +35,7 @@ export async function PATCH(request: Request) {
       updated: data.taskIds.length,
     });
   } catch (error) {
-    console.error("Bulk update failed:", error);
+    logger.error("Bulk update failed:", error);
     return NextResponse.json(
       { error: "Bulk update failed" },
       { status: 500 }
@@ -56,7 +57,7 @@ export async function DELETE(request: Request) {
       deleted: data.taskIds.length,
     });
   } catch (error) {
-    console.error("Bulk delete failed:", error);
+    logger.error("Bulk delete failed:", error);
     return NextResponse.json(
       { error: "Bulk delete failed" },
       { status: 500 }

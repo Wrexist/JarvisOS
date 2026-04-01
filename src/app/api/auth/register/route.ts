@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import slugify from "slugify";
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Registration failed:", error);
+    logger.error("Registration failed:", error);
     return NextResponse.json(
       { error: "Registration failed" },
       { status: 500 }

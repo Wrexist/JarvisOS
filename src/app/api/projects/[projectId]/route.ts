@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { validateBody } from "@/lib/api-utils";
 import { updateProjectSchema } from "@/lib/validations";
 import {
@@ -25,7 +26,7 @@ export async function GET(
 
     return NextResponse.json(project);
   } catch (error) {
-    console.error("Failed to get project:", error);
+    logger.error("Failed to get project:", error);
     return NextResponse.json(
       { error: "Failed to get project" },
       { status: 500 }
@@ -51,7 +52,7 @@ export async function PATCH(
     const project = await updateProject(projectId, data);
     return NextResponse.json(project);
   } catch (error) {
-    console.error("Failed to update project:", error);
+    logger.error("Failed to update project:", error);
     return NextResponse.json(
       { error: "Failed to update project" },
       { status: 500 }
@@ -68,7 +69,7 @@ export async function DELETE(
     await deleteProject(projectId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete project:", error);
+    logger.error("Failed to delete project:", error);
     return NextResponse.json(
       { error: "Failed to delete project" },
       { status: 500 }

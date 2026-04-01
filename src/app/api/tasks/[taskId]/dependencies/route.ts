@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -41,7 +42,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to add dependency:", error);
+    logger.error("Failed to add dependency:", error);
     return NextResponse.json(
       { error: "Failed to add dependency" },
       { status: 500 }
@@ -73,7 +74,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to remove dependency:", error);
+    logger.error("Failed to remove dependency:", error);
     return NextResponse.json(
       { error: "Failed to remove dependency" },
       { status: 500 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   listProjectDocuments,
   createDocument,
@@ -13,7 +14,7 @@ export async function GET(
     const docs = await listProjectDocuments(projectId);
     return NextResponse.json(docs);
   } catch (error) {
-    console.error("Failed to list documents:", error);
+    logger.error("Failed to list documents:", error);
     return NextResponse.json(
       { error: "Failed to list documents" },
       { status: 500 }
@@ -39,7 +40,7 @@ export async function POST(
     const doc = await createDocument(projectId, body);
     return NextResponse.json(doc, { status: 201 });
   } catch (error) {
-    console.error("Failed to create document:", error);
+    logger.error("Failed to create document:", error);
     return NextResponse.json(
       { error: "Failed to create document" },
       { status: 500 }

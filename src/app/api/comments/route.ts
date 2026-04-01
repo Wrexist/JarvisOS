@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(comments);
   } catch (error) {
-    console.error("Failed to list comments:", error);
+    logger.error("Failed to list comments:", error);
     return NextResponse.json(
       { error: "Failed to list comments" },
       { status: 500 }
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
-    console.error("Failed to create comment:", error);
+    logger.error("Failed to create comment:", error);
     return NextResponse.json(
       { error: "Failed to create comment" },
       { status: 500 }

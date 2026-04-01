@@ -2,6 +2,7 @@
 
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { DeadlineBadge } from "@/components/tasks/deadline-badge";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -48,11 +49,7 @@ export function TaskList({
           <div className="flex items-center gap-2 shrink-0">
             <TaskPriorityBadge priority={task.priority} />
             <TaskStatusBadge status={task.status} />
-            {task.dueDate && (
-              <span className="text-xs text-muted-foreground">
-                {new Date(task.dueDate).toLocaleDateString()}
-              </span>
-            )}
+            <DeadlineBadge dueDate={task.dueDate} />
           </div>
         </div>
       ))}

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 
@@ -151,7 +152,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ ideas, projects, tasks, documents });
   } catch (error) {
-    console.error("Search failed:", error);
+    logger.error("Search failed:", error);
     return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }
 }

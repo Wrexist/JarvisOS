@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { convertIdeaToProject } from "@/server/services/idea.service";
 
@@ -15,7 +16,7 @@ export async function POST(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to convert idea";
-    console.error("Failed to convert idea:", error);
+    logger.error("Failed to convert idea:", error);
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

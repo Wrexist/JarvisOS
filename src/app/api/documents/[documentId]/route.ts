@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   getDocument,
   updateDocument,
@@ -20,7 +21,7 @@ export async function GET(
     }
     return NextResponse.json(doc);
   } catch (error) {
-    console.error("Failed to get document:", error);
+    logger.error("Failed to get document:", error);
     return NextResponse.json(
       { error: "Failed to get document" },
       { status: 500 }
@@ -38,7 +39,7 @@ export async function PATCH(
     const doc = await updateDocument(documentId, body);
     return NextResponse.json(doc);
   } catch (error) {
-    console.error("Failed to update document:", error);
+    logger.error("Failed to update document:", error);
     return NextResponse.json(
       { error: "Failed to update document" },
       { status: 500 }
@@ -55,7 +56,7 @@ export async function DELETE(
     await deleteDocument(documentId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete document:", error);
+    logger.error("Failed to delete document:", error);
     return NextResponse.json(
       { error: "Failed to delete document" },
       { status: 500 }

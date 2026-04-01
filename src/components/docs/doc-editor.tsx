@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, Pencil } from "lucide-react";
+import { ArrowLeft, Eye, Pencil, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +31,27 @@ export function DocEditor({
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
+  const [generatingTasks, setGeneratingTasks] = useState(false);
+
+  async function handleGenerateTasks() {
+    if (!doc) return;
+    setGeneratingTasks(true);
+    try {
+      const res = await fetch("/api/ai/spec-to-tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId: doc.id }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      toast.success(`Generated ${data.tasks?.length ?? 0} task suggestions`);
+      router.refresh();
+    } catch {
+      toast.error("Failed to generate tasks from spec");
+    } finally {
+      setGeneratingTasks(false);
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/documents/${documentId}`)
@@ -85,6 +106,18 @@ export function DocEditor({
           Back
         </Button>
         <div className="flex-1" />
+        {doc.type === "TECH_SPEC" && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="gap-1.5 h-7"
+            onClick={handleGenerateTasks}
+            disabled={generatingTasks}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {generatingTasks ? "Generating..." : "Generate Tasks"}
+          </Button>
+        )}
         <DocTypeBadge type={doc.type} />
         <div className="flex items-center gap-1 rounded-lg border border-border/50 p-0.5">
           <Button

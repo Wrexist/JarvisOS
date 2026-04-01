@@ -14,6 +14,7 @@ import { NextActionCard } from "@/components/dashboard/next-action-card";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
 import { OnboardingChecklist } from "@/components/onboarding/onboarding-checklist";
+import { AINextActionButton } from "@/components/dashboard/ai-next-action";
 import { StageBadge } from "@/components/projects/stage-badge";
 import Link from "next/link";
 
@@ -166,6 +167,7 @@ export default async function HomePage() {
         reason={nextAction.reason}
         href={nextAction.href}
       />
+      <AINextActionButton />
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

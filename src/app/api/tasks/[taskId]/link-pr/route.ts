@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   linkTaskToPR,
   unlinkTaskPR,
@@ -22,7 +23,7 @@ export async function POST(
     const task = await linkTaskToPR(taskId, prId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to link PR:", error);
+    logger.error("Failed to link PR:", error);
     return NextResponse.json(
       { error: "Failed to link PR" },
       { status: 500 }
@@ -39,7 +40,7 @@ export async function DELETE(
     const task = await unlinkTaskPR(taskId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to unlink PR:", error);
+    logger.error("Failed to unlink PR:", error);
     return NextResponse.json(
       { error: "Failed to unlink PR" },
       { status: 500 }

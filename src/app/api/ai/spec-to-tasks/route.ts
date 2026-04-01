@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { anthropic } from "@/lib/ai/anthropic";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -107,7 +108,7 @@ ${existingTasks}`;
     const message =
       error instanceof Error ? error.message : "Spec-to-tasks failed";
     await failAIRun(aiRun.id, message);
-    console.error("Spec-to-tasks failed:", error);
+    logger.error("Spec-to-tasks failed:", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

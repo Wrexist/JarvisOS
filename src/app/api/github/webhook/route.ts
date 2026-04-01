@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import crypto from "crypto";
 import { getGitHubAppConfig } from "@/lib/github/app";
 import { prisma } from "@/lib/prisma";
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook processing failed:", error);
+    logger.error("Webhook processing failed:", error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }

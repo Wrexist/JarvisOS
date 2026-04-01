@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { moveTaskStatus } from "@/server/services/task.service";
 import type { TaskStatus } from "@/generated/prisma/client";
 
@@ -22,7 +23,7 @@ export async function PATCH(
     const task = await moveTaskStatus(taskId, status);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to update task status:", error);
+    logger.error("Failed to update task status:", error);
     return NextResponse.json(
       { error: "Failed to update task status" },
       { status: 500 }

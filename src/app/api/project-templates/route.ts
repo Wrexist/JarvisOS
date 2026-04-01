@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 
@@ -11,7 +12,7 @@ export async function GET() {
     });
     return NextResponse.json(templates);
   } catch (error) {
-    console.error("Failed to list templates:", error);
+    logger.error("Failed to list templates:", error);
     return NextResponse.json(
       { error: "Failed to list templates" },
       { status: 500 }
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(template, { status: 201 });
   } catch (error) {
-    console.error("Failed to create template:", error);
+    logger.error("Failed to create template:", error);
     return NextResponse.json(
       { error: "Failed to create template" },
       { status: 500 }

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { DeadlineBadge } from "@/components/tasks/deadline-badge";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -11,6 +12,7 @@ interface TaskItem {
   description: string | null;
   status: TaskStatus;
   priority: Priority;
+  dueDate: string | null;
 }
 
 const columns: { status: TaskStatus; label: string }[] = [
@@ -81,6 +83,7 @@ export function TaskBoard({
                   </p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <TaskPriorityBadge priority={task.priority} />
+                    <DeadlineBadge dueDate={task.dueDate} />
                   </div>
                 </div>
               ))}
