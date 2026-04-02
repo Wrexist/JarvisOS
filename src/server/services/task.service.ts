@@ -70,6 +70,8 @@ export async function getTask(id: string) {
       linkedPullRequest: {
         select: { number: true, title: true, url: true, status: true },
       },
+      blockedByTasks: { select: { id: true, title: true, status: true } },
+      blockingTasks: { select: { id: true, title: true, status: true } },
       aiRuns: { orderBy: { createdAt: "desc" }, take: 5 },
       activities: { orderBy: { createdAt: "desc" }, take: 10 },
     },

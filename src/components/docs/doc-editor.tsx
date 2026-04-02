@@ -3,20 +3,37 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, Pencil, Sparkles, RefreshCw } from "lucide-react";
+import { ArrowLeft, Eye, Pencil, Sparkles, RefreshCw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DocTypeBadge } from "@/components/docs/doc-type-badge";
+import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { DocumentType } from "@/generated/prisma/client";
+import type { DocumentType, Priority } from "@/generated/prisma/client";
 
 interface DocData {
   id: string;
   title: string;
   type: DocumentType;
   content: string;
+}
+
+interface GeneratedTask {
+  title: string;
+  description: string;
+  priority: string;
+  acceptanceCriteria: string;
+  selected: boolean;
 }
 
 export function DocEditor({
@@ -34,6 +51,9 @@ export function DocEditor({
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [specTasks, setSpecTasks] = useState<GeneratedTask[]>([]);
+  const [specDialogOpen, setSpecDialogOpen] = useState(false);
+  const [specCreating, setSpecCreating] = useState(false);
 
   useEffect(() => {
     fetch(`/api/documents/${documentId}`)
@@ -62,6 +82,73 @@ export function DocEditor({
     },
     [doc, router]
   );
+
+  async function handleGenerateFromSpec() {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/ai/spec-to-tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Generation failed");
+      }
+      const data = await res.json();
+      if (!data.tasks || data.tasks.length === 0) {
+        toast.error("AI didn't generate any tasks. Try adding more detail to the spec.");
+        return;
+      }
+      setSpecTasks(
+        data.tasks.map((t: Omit<GeneratedTask, "selected">) => ({
+          ...t,
+          selected: true,
+        }))
+      );
+      setSpecDialogOpen(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate tasks");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function handleCreateSpecTasks() {
+    const selected = specTasks.filter((t) => t.selected);
+    if (selected.length === 0) return;
+    setSpecCreating(true);
+    try {
+      for (const task of selected) {
+        await fetch(`/api/projects/${projectId}/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            acceptanceCriteria: task.acceptanceCriteria,
+          }),
+        });
+      }
+      setSpecDialogOpen(false);
+      setSpecTasks([]);
+      toast.success(`${selected.length} task${selected.length !== 1 ? "s" : ""} created from spec`);
+      router.refresh();
+    } catch {
+      toast.error("Failed to create tasks");
+    } finally {
+      setSpecCreating(false);
+    }
+  }
+
+  function toggleSpecTask(index: number) {
+    setSpecTasks((prev) =>
+      prev.map((t, i) => (i === index ? { ...t, selected: !t.selected } : t))
+    );
+  }
+
+  const selectedSpecCount = specTasks.filter((t) => t.selected).length;
 
   if (loading) {
     return (
@@ -94,24 +181,7 @@ export function DocEditor({
             size="sm"
             className="gap-1.5 h-7"
             disabled={generating}
-            onClick={async () => {
-              setGenerating(true);
-              try {
-                const res = await fetch("/api/ai/spec-to-tasks", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ projectId, documentId }),
-                });
-                if (!res.ok) throw new Error("Failed");
-                const data = await res.json();
-                toast.success(`Generated ${data.count ?? ""} tasks from spec`);
-                router.refresh();
-              } catch {
-                toast.error("Failed to generate tasks");
-              } finally {
-                setGenerating(false);
-              }
-            }}
+            onClick={handleGenerateFromSpec}
           >
             {generating ? (
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -177,6 +247,72 @@ export function DocEditor({
           )}
         </div>
       )}
+
+      {/* Spec-to-Tasks Review Dialog */}
+      <Dialog open={specDialogOpen} onOpenChange={setSpecDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Tasks from Spec</DialogTitle>
+            <DialogDescription>
+              Review and select which tasks to add. {selectedSpecCount} of{" "}
+              {specTasks.length} selected.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 my-4">
+            {specTasks.map((task, i) => (
+              <div
+                key={i}
+                onClick={() => toggleSpecTask(i)}
+                className={`glass-panel p-4 cursor-pointer transition-colors ${
+                  task.selected ? "border-primary/30" : "opacity-50"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                      task.selected
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "border-border"
+                    }`}
+                  >
+                    {task.selected && <Check className="h-3 w-3" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">{task.title}</p>
+                      {["LOW", "MEDIUM", "HIGH", "URGENT"].includes(
+                        task.priority
+                      ) && (
+                        <TaskPriorityBadge
+                          priority={task.priority as Priority}
+                        />
+                      )}
+                    </div>
+                    {task.description && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSpecDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateSpecTasks}
+              disabled={specCreating || selectedSpecCount === 0}
+            >
+              {specCreating
+                ? "Creating..."
+                : `Create ${selectedSpecCount} Task${selectedSpecCount !== 1 ? "s" : ""}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
