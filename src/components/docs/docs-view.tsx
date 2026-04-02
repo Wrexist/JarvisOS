@@ -25,6 +25,7 @@ export function DocsView({
     return (
       <DocEditor
         documentId={selectedDocId}
+        projectId={projectId}
         onBack={() => setSelectedDocId(null)}
       />
     );

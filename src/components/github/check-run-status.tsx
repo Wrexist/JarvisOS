@@ -38,7 +38,7 @@ export function CheckRunStatus({
 export function CheckRunsSummary({
   checkRuns,
 }: {
-  checkRuns: Array<{ conclusion: CheckConclusion; name: string }>;
+  checkRuns: Array<{ conclusion: string; name: string }>;
 }) {
   if (checkRuns.length === 0) return null;
 

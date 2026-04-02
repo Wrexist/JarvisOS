@@ -17,6 +17,12 @@ interface TaskItem {
   priority: Priority;
   estimateHours: number | null;
   dueDate: string | null;
+  linkedPullRequest: {
+    number: number;
+    title: string;
+    url: string;
+    status: string;
+  } | null;
 }
 
 export function TaskView({

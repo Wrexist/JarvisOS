@@ -33,6 +33,11 @@ export async function listProjectTasks(
       ...(filters?.status && { status: filters.status }),
       ...(filters?.priority && { priority: filters.priority }),
     },
+    include: {
+      linkedPullRequest: {
+        select: { number: true, title: true, url: true, status: true },
+      },
+    },
     orderBy: [{ status: "asc" }, { priority: "desc" }, { createdAt: "desc" }],
   });
 }
@@ -49,6 +54,9 @@ export async function listAllTasks(
     },
     include: {
       project: { select: { id: true, name: true } },
+      linkedPullRequest: {
+        select: { number: true, title: true, url: true, status: true },
+      },
     },
     orderBy: [{ status: "asc" }, { priority: "desc" }, { createdAt: "desc" }],
   });
@@ -59,6 +67,9 @@ export async function getTask(id: string) {
     where: { id },
     include: {
       project: { select: { id: true, name: true, slug: true } },
+      linkedPullRequest: {
+        select: { number: true, title: true, url: true, status: true },
+      },
       aiRuns: { orderBy: { createdAt: "desc" }, take: 5 },
       activities: { orderBy: { createdAt: "desc" }, take: 10 },
     },

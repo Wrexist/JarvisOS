@@ -4,6 +4,8 @@ import { getSessionWorkspaceId } from "@/lib/session";
 import { listAllTasks } from "@/server/services/task.service";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { DeadlineBadge } from "@/components/tasks/deadline-badge";
+import { LinkedPRIcon } from "@/components/tasks/linked-pr-badge";
 import Link from "next/link";
 
 export default async function TasksPage() {
@@ -38,8 +40,12 @@ export default async function TasksPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {task.linkedPullRequest && (
+                  <LinkedPRIcon status={task.linkedPullRequest.status} />
+                )}
                 <TaskPriorityBadge priority={task.priority} />
                 <TaskStatusBadge status={task.status} />
+                <DeadlineBadge dueDate={task.dueDate?.toISOString() ?? null} />
               </div>
             </Link>
           ))}

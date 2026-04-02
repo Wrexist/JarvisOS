@@ -24,11 +24,23 @@ export async function getProject(id: string) {
     where: { id },
     include: {
       idea: { select: { id: true, title: true, status: true } },
-      tasks: { orderBy: { createdAt: "desc" } },
+      tasks: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          linkedPullRequest: {
+            select: { number: true, title: true, url: true, status: true },
+          },
+        },
+      },
       documents: { orderBy: { createdAt: "desc" } },
       activities: { orderBy: { createdAt: "desc" }, take: 20 },
       aiRuns: { orderBy: { createdAt: "desc" }, take: 10 },
-      pullRequests: { orderBy: { updatedAt: "desc" } },
+      pullRequests: {
+        orderBy: { updatedAt: "desc" },
+        include: {
+          checkRuns: { select: { conclusion: true, name: true } },
+        },
+      },
       repository: true,
       _count: { select: { tasks: true, documents: true, pullRequests: true } },
     },

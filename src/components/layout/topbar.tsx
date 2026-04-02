@@ -1,11 +1,52 @@
 "use client";
 
-import { Search, Plus } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, Plus, Lightbulb, FolderKanban } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MobileSidebar } from "@/components/layout/sidebar";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+
+function NewMenu() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  const items = [
+    { label: "New Idea", icon: Lightbulb, href: "/ideas" },
+    { label: "New Project", icon: FolderKanban, href: "/projects" },
+  ];
+
+  return (
+    <div className="relative">
+      <Button size="sm" className="h-8 gap-1.5" onClick={() => setOpen(!open)}>
+        <Plus className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">New</span>
+      </Button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 z-50 w-48 rounded-xl border border-border bg-background shadow-xl py-1">
+            {items.map((item) => (
+              <button
+                key={item.label}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted/30 transition-colors"
+                onClick={() => {
+                  router.push(item.href);
+                  setOpen(false);
+                }}
+              >
+                <item.icon className="h-4 w-4 text-muted-foreground" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function Topbar() {
   return (
@@ -47,10 +88,7 @@ export function Topbar() {
         </Button>
         <ThemeToggle />
         <NotificationBell />
-        <Button size="sm" className="h-8 gap-1.5">
-          <Plus className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">New</span>
-        </Button>
+        <NewMenu />
       </div>
     </header>
   );

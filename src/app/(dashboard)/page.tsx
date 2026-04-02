@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { NextActionCard } from "@/components/dashboard/next-action-card";
+import { AINextActionButton } from "@/components/dashboard/ai-next-action";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
 import { OnboardingChecklist } from "@/components/onboarding/onboarding-checklist";
@@ -161,11 +162,16 @@ export default async function HomePage() {
       />
 
       {/* Next Action */}
-      <NextActionCard
-        action={nextAction.action}
-        reason={nextAction.reason}
-        href={nextAction.href}
-      />
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <NextActionCard
+            action={nextAction.action}
+            reason={nextAction.reason}
+            href={nextAction.href}
+          />
+        </div>
+        <AINextActionButton />
+      </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, Pencil } from "lucide-react";
+import { ArrowLeft, Eye, Pencil, Sparkles, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,9 +21,11 @@ interface DocData {
 
 export function DocEditor({
   documentId,
+  projectId,
   onBack,
 }: {
   documentId: string;
+  projectId: string;
   onBack: () => void;
 }) {
   const router = useRouter();
@@ -31,6 +33,7 @@ export function DocEditor({
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     fetch(`/api/documents/${documentId}`)
@@ -85,6 +88,39 @@ export function DocEditor({
           Back
         </Button>
         <div className="flex-1" />
+        {doc.type === "TECH_SPEC" && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 h-7"
+            disabled={generating}
+            onClick={async () => {
+              setGenerating(true);
+              try {
+                const res = await fetch("/api/ai/spec-to-tasks", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ projectId, documentId }),
+                });
+                if (!res.ok) throw new Error("Failed");
+                const data = await res.json();
+                toast.success(`Generated ${data.count ?? ""} tasks from spec`);
+                router.refresh();
+              } catch {
+                toast.error("Failed to generate tasks");
+              } finally {
+                setGenerating(false);
+              }
+            }}
+          >
+            {generating ? (
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {generating ? "Generating..." : "Generate Tasks"}
+          </Button>
+        )}
         <DocTypeBadge type={doc.type} />
         <div className="flex items-center gap-1 rounded-lg border border-border/50 p-0.5">
           <Button

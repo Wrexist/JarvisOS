@@ -36,6 +36,14 @@ export default async function ProjectDetailPage({
       priority: t.priority,
       estimateHours: t.estimateHours,
       dueDate: t.dueDate?.toISOString() ?? null,
+      linkedPullRequest: t.linkedPullRequest
+        ? {
+            number: t.linkedPullRequest.number,
+            title: t.linkedPullRequest.title,
+            url: t.linkedPullRequest.url,
+            status: t.linkedPullRequest.status,
+          }
+        : null,
     })),
     documents: project.documents.map((d) => ({
       id: d.id,
@@ -63,6 +71,10 @@ export default async function ProjectDetailPage({
       status: pr.status,
       url: pr.url,
       updatedAt: pr.updatedAt.toISOString(),
+      checkRuns: pr.checkRuns.map((c) => ({
+        conclusion: c.conclusion,
+        name: c.name,
+      })),
     })),
   };
 

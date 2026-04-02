@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { DeadlineBadge } from "@/components/tasks/deadline-badge";
+import { LinkedPRIcon } from "@/components/tasks/linked-pr-badge";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -11,6 +13,13 @@ interface TaskItem {
   description: string | null;
   status: TaskStatus;
   priority: Priority;
+  dueDate: string | null;
+  linkedPullRequest: {
+    number: number;
+    title: string;
+    url: string;
+    status: string;
+  } | null;
 }
 
 const columns: { status: TaskStatus; label: string }[] = [
@@ -43,7 +52,7 @@ export function TaskBoard({
   }
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {columns.map((col) => {
         const columnTasks = tasks.filter((t) => t.status === col.status);
         return (
@@ -79,8 +88,12 @@ export function TaskBoard({
                   <p className="text-sm font-medium line-clamp-2">
                     {task.title}
                   </p>
-                  <div className="mt-2 flex items-center gap-1.5">
+                  <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                     <TaskPriorityBadge priority={task.priority} />
+                    <DeadlineBadge dueDate={task.dueDate} />
+                    {task.linkedPullRequest && (
+                      <LinkedPRIcon status={task.linkedPullRequest.status} />
+                    )}
                   </div>
                 </div>
               ))}

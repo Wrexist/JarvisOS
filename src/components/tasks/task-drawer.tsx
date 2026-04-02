@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CommentSection } from "@/components/comments/comment-list";
+import { LinkedPRBadge } from "@/components/tasks/linked-pr-badge";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,12 @@ interface TaskDetail {
   relevantFiles: string[];
   createdAt: string;
   project: { id: string; name: string } | null;
+  linkedPullRequest: {
+    number: number;
+    title: string;
+    url: string;
+    status: string;
+  } | null;
 }
 
 export function TaskDrawer({
@@ -44,6 +52,7 @@ export function TaskDrawer({
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setSaving] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   useEffect(() => {
     if (!taskId) {
@@ -97,19 +106,26 @@ export function TaskDrawer({
     }
   }
 
-  async function handleDelete() {
-    if (!task || !confirm("Delete this task?")) return;
-    try {
-      await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
-      onClose();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    }
+  function handleDelete() {
+    if (!task) return;
+    confirm({
+      title: "Delete task",
+      description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
+          onClose();
+          router.refresh();
+        } catch {
+          toast.error("Something went wrong");
+        }
+      },
+    });
   }
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg border-l border-border/50 bg-background shadow-2xl">
+      <ConfirmDialog />
       <div className="flex h-full flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/50">
@@ -296,6 +312,24 @@ export function TaskDrawer({
                 placeholder="src/app/page.tsx, src/lib/utils.ts"
               />
             </div>
+
+            {/* Linked PR */}
+            {task.linkedPullRequest && (
+              <>
+                <Separator />
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">
+                    Linked Pull Request
+                  </label>
+                  <LinkedPRBadge
+                    prNumber={task.linkedPullRequest.number}
+                    prTitle={task.linkedPullRequest.title}
+                    prUrl={task.linkedPullRequest.url}
+                    prStatus={task.linkedPullRequest.status}
+                  />
+                </div>
+              </>
+            )}
 
             {/* Claude Prompt */}
             <Separator />

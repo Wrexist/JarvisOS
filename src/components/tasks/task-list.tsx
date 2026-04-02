@@ -2,6 +2,8 @@
 
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
+import { DeadlineBadge } from "@/components/tasks/deadline-badge";
+import { LinkedPRBadge } from "@/components/tasks/linked-pr-badge";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -12,6 +14,12 @@ interface TaskItem {
   priority: Priority;
   estimateHours: number | null;
   dueDate: string | null;
+  linkedPullRequest: {
+    number: number;
+    title: string;
+    url: string;
+    status: string;
+  } | null;
 }
 
 export function TaskList({
@@ -46,13 +54,17 @@ export function TaskList({
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {task.linkedPullRequest && (
+              <LinkedPRBadge
+                prNumber={task.linkedPullRequest.number}
+                prTitle={task.linkedPullRequest.title}
+                prUrl={task.linkedPullRequest.url}
+                prStatus={task.linkedPullRequest.status}
+              />
+            )}
             <TaskPriorityBadge priority={task.priority} />
             <TaskStatusBadge status={task.status} />
-            {task.dueDate && (
-              <span className="text-xs text-muted-foreground">
-                {new Date(task.dueDate).toLocaleDateString()}
-              </span>
-            )}
+            <DeadlineBadge dueDate={task.dueDate} />
           </div>
         </div>
       ))}

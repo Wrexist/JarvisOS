@@ -40,6 +40,12 @@ interface ProjectTabsProps {
       priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
       estimateHours: number | null;
       dueDate: string | null;
+      linkedPullRequest: {
+        number: number;
+        title: string;
+        url: string;
+        status: string;
+      } | null;
     }>;
     documents: Array<{
       id: string;
@@ -67,6 +73,10 @@ interface ProjectTabsProps {
       status: "OPEN" | "DRAFT" | "MERGED" | "CLOSED";
       url: string;
       updatedAt: string;
+      checkRuns: Array<{
+        conclusion: string;
+        name: string;
+      }>;
     }>;
   };
 }
