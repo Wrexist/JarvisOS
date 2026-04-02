@@ -58,16 +58,6 @@ export async function connectRepoToProject(
 }
 
 /**
- * Lists repositories for a workspace.
- */
-export async function listRepositories(workspaceId: string) {
-  return prisma.repository.findMany({
-    where: { workspaceId },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-/**
  * Syncs a pull request from a GitHub webhook payload.
  */
 export async function syncPullRequest(

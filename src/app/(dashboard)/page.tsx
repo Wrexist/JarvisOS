@@ -67,6 +67,11 @@ async function getDashboardData(workspaceId: string) {
     prisma.aIRun.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
+      include: {
+        idea: { select: { id: true, title: true } },
+        project: { select: { id: true, name: true } },
+        task: { select: { id: true, title: true, projectId: true } },
+      },
       take: 5,
     }),
   ]);
@@ -252,7 +257,7 @@ export default async function HomePage() {
               {data.blockedTasks.map((task) => (
                 <Link
                   key={task.id}
-                  href={`/projects/${task.project.id}`}
+                  href={`/projects/${task.project.id}?task=${task.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
@@ -282,7 +287,7 @@ export default async function HomePage() {
               {data.inProgressTasks.map((task) => (
                 <Link
                   key={task.id}
-                  href={`/projects/${task.project.id}`}
+                  href={`/projects/${task.project.id}?task=${task.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
@@ -300,32 +305,48 @@ export default async function HomePage() {
 
         {/* Recent AI Runs */}
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Recent AI Runs
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-muted-foreground">
+              Recent AI Runs
+            </h2>
+            <Link href="/ai-runs" className="text-xs text-primary hover:underline">
+              View all
+            </Link>
+          </div>
           {data.recentAIRuns.length === 0 ? (
             <div className="glass-panel p-6 text-center text-sm text-muted-foreground">
               No AI runs yet.
             </div>
           ) : (
             <div className="glass-panel divide-y divide-border/50">
-              {data.recentAIRuns.map((run) => (
-                <div
-                  key={run.id}
-                  className="flex items-center gap-3 px-4 py-3"
-                >
-                  <Bot className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{run.type}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {run.status}
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {run.createdAt.toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
+              {data.recentAIRuns.map((run) => {
+                const href = run.idea
+                  ? `/ideas/${run.idea.id}`
+                  : run.task?.projectId
+                    ? `/projects/${run.task.projectId}?task=${run.task.id}`
+                    : run.project
+                      ? `/projects/${run.project.id}`
+                      : "/ai-runs";
+                const entityName = run.idea?.title ?? run.task?.title ?? run.project?.name;
+                return (
+                  <Link
+                    key={run.id}
+                    href={href}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+                  >
+                    <Bot className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{run.type}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {entityName ? `${run.status} · ${entityName}` : run.status}
+                      </p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {run.createdAt.toLocaleDateString()}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

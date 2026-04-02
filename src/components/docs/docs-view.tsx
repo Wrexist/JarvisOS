@@ -15,11 +15,15 @@ interface DocItem {
 export function DocsView({
   documents,
   projectId,
+  initialDocId,
 }: {
   documents: DocItem[];
   projectId: string;
+  initialDocId?: string;
 }) {
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(
+    initialDocId ?? null
+  );
 
   if (selectedDocId) {
     return (

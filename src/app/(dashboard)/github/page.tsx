@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { GitBranch } from "lucide-react";
 import { PRList } from "@/components/github/pr-list";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 
 export default async function GitHubPage() {
@@ -34,13 +35,13 @@ export default async function GitHubPage() {
       </div>
 
       {repositories.length === 0 ? (
-        <div className="glass-panel p-12 text-center text-muted-foreground">
-          <GitBranch className="h-8 w-8 mx-auto mb-3 opacity-50" />
-          <p>No repositories connected yet.</p>
-          <p className="text-sm mt-1">
-            Connect a repo from a project&apos;s GitHub tab.
-          </p>
-        </div>
+        <EmptyState
+          icon={GitBranch}
+          title="No repositories connected"
+          description="Connect a repo from a project's GitHub tab to start tracking PRs."
+          actionLabel="Go to Projects"
+          actionHref="/projects"
+        />
       ) : (
         <div className="space-y-6">
           {repositories.map((repo) => (

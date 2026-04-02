@@ -7,6 +7,7 @@ import {
   createAIRun,
   completeAIRun,
 } from "@/server/services/ai-run.service";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const DEFAULT_NEXT_ACTION_PROMPT = `Given this project state, suggest the single most important next action.
 
@@ -36,6 +37,9 @@ Return JSON:
 export async function POST() {
   try {
     const workspaceId = await getSessionWorkspaceId();
+
+    const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
+    if (!allowed) return rateLimitResponse();
 
     // Gather context across all active projects
     const projects = await prisma.project.findMany({

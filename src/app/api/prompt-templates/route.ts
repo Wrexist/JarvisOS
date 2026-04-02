@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
+import { createTemplateSchema } from "@/lib/validations";
 
 export async function GET() {
   try {
@@ -23,19 +24,20 @@ export async function POST(request: Request) {
   try {
     const workspaceId = await getSessionWorkspaceId();
     const body = await request.json();
+    const parsed = createTemplateSchema.safeParse(body);
 
-    if (!body.name || !body.content) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Name and content are required" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid input" },
         { status: 400 }
       );
     }
 
     const template = await prisma.promptTemplate.create({
       data: {
-        name: body.name,
-        description: body.description,
-        content: body.content,
+        name: parsed.data.name,
+        description: parsed.data.description,
+        content: parsed.data.content,
         workspaceId,
       },
     });

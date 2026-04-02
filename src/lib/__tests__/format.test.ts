@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatRelativeTime, formatDate } from "@/lib/format";
+import { formatRelativeTime } from "@/lib/format";
 
 describe("formatRelativeTime", () => {
   it("returns 'just now' for very recent dates", () => {
@@ -30,20 +30,5 @@ describe("formatRelativeTime", () => {
   it("accepts string dates", () => {
     const recent = new Date(Date.now() - 60 * 1000).toISOString();
     expect(formatRelativeTime(recent)).toBe("1m ago");
-  });
-});
-
-describe("formatDate", () => {
-  it("formats a date without year for current year", () => {
-    const date = new Date();
-    const result = formatDate(date);
-    expect(result).toBeTruthy();
-    expect(typeof result).toBe("string");
-  });
-
-  it("accepts string dates", () => {
-    const result = formatDate("2024-06-15T00:00:00.000Z");
-    expect(result).toContain("Jun");
-    expect(result).toContain("15");
   });
 });

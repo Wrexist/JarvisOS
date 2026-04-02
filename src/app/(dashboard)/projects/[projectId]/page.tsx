@@ -9,10 +9,13 @@ import { ProjectTabs } from "@/components/projects/project-tabs";
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ task?: string; doc?: string }>;
 }) {
   const { projectId } = await params;
+  const { task: initialTaskId, doc: initialDocId } = await searchParams;
   const project = await getProject(projectId);
 
   if (!project) notFound();
@@ -61,6 +64,7 @@ export default async function ProjectDetailPage({
       id: r.id,
       type: r.type,
       status: r.status,
+      output: r.output,
       createdAt: r.createdAt.toISOString(),
     })),
     pullRequests: project.pullRequests.map((pr) => ({
@@ -87,7 +91,7 @@ export default async function ProjectDetailPage({
         <StageBadge stage={project.stage} />
         <HealthIndicator score={health.score} />
       </div>
-      <ProjectTabs project={serialized} />
+      <ProjectTabs project={serialized} initialTaskId={initialTaskId} initialDocId={initialDocId} />
     </div>
   );
 }

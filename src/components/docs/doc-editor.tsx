@@ -119,18 +119,19 @@ export function DocEditor({
     if (selected.length === 0) return;
     setSpecCreating(true);
     try {
-      for (const task of selected) {
-        await fetch(`/api/projects/${projectId}/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: task.title,
-            description: task.description,
-            priority: task.priority,
-            acceptanceCriteria: task.acceptanceCriteria,
-          }),
-        });
-      }
+      const res = await fetch(`/api/projects/${projectId}/tasks/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tasks: selected.map((t) => ({
+            title: t.title,
+            description: t.description,
+            priority: t.priority,
+            acceptanceCriteria: t.acceptanceCriteria,
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error("Batch creation failed");
       setSpecDialogOpen(false);
       setSpecTasks([]);
       toast.success(`${selected.length} task${selected.length !== 1 ? "s" : ""} created from spec`);

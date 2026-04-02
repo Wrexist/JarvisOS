@@ -133,16 +133,3 @@ export async function deleteProject(id: string) {
     },
   });
 }
-
-export async function getProjectStats(id: string) {
-  const [totalTasks, doneTasks, blockedTasks, openPRs] = await Promise.all([
-    prisma.task.count({ where: { projectId: id } }),
-    prisma.task.count({ where: { projectId: id, status: "DONE" } }),
-    prisma.task.count({ where: { projectId: id, status: "BLOCKED" } }),
-    prisma.pullRequest.count({
-      where: { projectId: id, status: "OPEN" },
-    }),
-  ]);
-
-  return { totalTasks, doneTasks, blockedTasks, openPRs };
-}

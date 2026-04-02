@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { DocTypeBadge } from "@/components/docs/doc-type-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { FileText } from "lucide-react";
 import Link from "next/link";
 
@@ -24,15 +25,19 @@ export default async function DocsPage() {
       </div>
 
       {documents.length === 0 ? (
-        <div className="glass-panel p-12 text-center text-muted-foreground">
-          No documents yet. Create docs from within a project.
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="No documents yet"
+          description="Create docs from within a project to get started."
+          actionLabel="Go to Projects"
+          actionHref="/projects"
+        />
       ) : (
         <div className="glass-panel divide-y divide-border/50">
           {documents.map((doc) => (
             <Link
               key={doc.id}
-              href={`/projects/${doc.project.id}`}
+              href={`/projects/${doc.project.id}?doc=${doc.id}`}
               className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
             >
               <FileText className="h-4 w-4 text-muted-foreground shrink-0" />

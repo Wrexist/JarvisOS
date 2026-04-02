@@ -28,12 +28,16 @@ interface TaskItem {
 export function TaskView({
   tasks,
   projectId,
+  initialTaskId,
 }: {
   tasks: TaskItem[];
   projectId: string;
+  initialTaskId?: string;
 }) {
   const [view, setView] = useState<"list" | "board">("board");
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(
+    initialTaskId ?? null
+  );
 
   return (
     <div className="space-y-4">
