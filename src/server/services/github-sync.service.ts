@@ -203,6 +203,7 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
   const pr = await prisma.pullRequest.findUnique({
     where: { id: pullRequestId },
     include: {
+      repository: { select: { workspaceId: true } },
       linkedTasks: {
         where: { status: { not: "DONE" } },
         select: { id: true, title: true, projectId: true },
@@ -232,19 +233,14 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
   }
 
   if (completed.length > 0) {
-    const project = await prisma.project.findFirst({
-      where: { id: completed[0].projectId },
-      select: { workspaceId: true },
-    });
-    if (project) {
-      for (const task of completed) {
-        createNotification(project.workspaceId, {
-          type: "task.auto_completed",
-          title: `Task auto-completed: ${task.title}`,
-          message: `PR #${pr.number} was merged`,
-          href: `/projects/${task.projectId}?task=${task.id}`,
-        }).catch(() => {});
-      }
+    const workspaceId = pr.repository.workspaceId;
+    for (const task of completed) {
+      createNotification(workspaceId, {
+        type: "task.auto_completed",
+        title: `Task auto-completed: ${task.title}`,
+        message: `PR #${pr.number} was merged`,
+        href: `/projects/${task.projectId}?task=${task.id}`,
+      }).catch((err) => console.error("Failed to create notification:", err));
     }
   }
 

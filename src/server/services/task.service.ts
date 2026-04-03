@@ -149,6 +149,7 @@ export async function moveTaskStatus(id: string, status: TaskStatus) {
   const task = await prisma.task.update({
     where: { id },
     data: { status },
+    include: { project: { select: { id: true, name: true, workspaceId: true } } },
   });
 
   await prisma.activityEvent.create({
@@ -160,26 +161,20 @@ export async function moveTaskStatus(id: string, status: TaskStatus) {
     },
   });
 
-  // Deliver webhook on task completion
+  // Deliver webhook + notification on task completion
   if (status === "DONE") {
-    const project = await prisma.project.findUnique({
-      where: { id: task.projectId },
-      select: { workspaceId: true, name: true },
-    });
-    if (project) {
-      deliverWebhook(project.workspaceId, "task.completed", {
-        id: task.id,
-        title: task.title,
-        project: { id: task.projectId, name: project.name },
-      }).catch(() => {});
+    deliverWebhook(task.project.workspaceId, "task.completed", {
+      id: task.id,
+      title: task.title,
+      project: { id: task.project.id, name: task.project.name },
+    }).catch((err) => console.error("Failed to deliver webhook:", err));
 
-      createNotification(project.workspaceId, {
-        type: "task.completed",
-        title: `Task completed: ${task.title}`,
-        message: `in ${project.name}`,
-        href: `/projects/${task.projectId}?task=${task.id}`,
-      }).catch(() => {});
-    }
+    createNotification(task.project.workspaceId, {
+      type: "task.completed",
+      title: `Task completed: ${task.title}`,
+      message: `in ${task.project.name}`,
+      href: `/projects/${task.projectId}?task=${task.id}`,
+    }).catch((err) => console.error("Failed to create notification:", err));
   }
 
   return task;

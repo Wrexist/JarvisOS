@@ -42,7 +42,7 @@ export async function completeAIRun(id: string, output: string) {
     type: "ai.completed",
     title: `AI run completed: ${run.type.replace(/_/g, " ").toLowerCase()}`,
     href,
-  }).catch(() => {});
+  }).catch((err) => console.error("Failed to create notification:", err));
 
   return run;
 }

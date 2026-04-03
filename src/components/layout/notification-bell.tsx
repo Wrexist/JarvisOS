@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,14 @@ interface Notification {
   createdAt: string;
 }
 
+const POLL_INTERVAL = 30_000; // 30 seconds
+
 export function NotificationBell() {
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchNotifications = useCallback(() => {
     fetch("/api/notifications")
       .then((res) => res.json())
       .then((data) => {
@@ -28,9 +30,25 @@ export function NotificationBell() {
       .catch(() => {});
   }, []);
 
+  // Fetch on mount + poll every 30s
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Refetch when dropdown opens so data is always fresh
+  useEffect(() => {
+    if (open) fetchNotifications();
+  }, [open, fetchNotifications]);
+
   async function handleMarkAllRead() {
-    await fetch("/api/notifications", { method: "PATCH" });
-    setNotifications([]);
+    try {
+      await fetch("/api/notifications", { method: "PATCH" });
+      setNotifications([]);
+    } catch {
+      // keep current state on failure
+    }
     setOpen(false);
   }
 

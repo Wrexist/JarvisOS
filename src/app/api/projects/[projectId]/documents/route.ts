@@ -3,12 +3,17 @@ import {
   listProjectDocuments,
   createDocument,
 } from "@/server/services/document.service";
+import { requireAuth } from "@/lib/session";
+import { validateBody } from "@/lib/api-utils";
+import { createDocumentSchema } from "@/lib/validations";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
     const docs = await listProjectDocuments(projectId);
     return NextResponse.json(docs);
@@ -26,17 +31,13 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
-    const body = await request.json();
+    const data = await validateBody(request, createDocumentSchema);
+    if (data instanceof NextResponse) return data;
 
-    if (!body.title || !body.type) {
-      return NextResponse.json(
-        { error: "Title and type are required" },
-        { status: 400 }
-      );
-    }
-
-    const doc = await createDocument(projectId, body);
+    const doc = await createDocument(projectId, data);
     return NextResponse.json(doc, { status: 201 });
   } catch (error) {
     console.error("Failed to create document:", error);

@@ -153,14 +153,14 @@ export async function convertIdeaToProject(ideaId: string, workspaceId: string) 
     ideaTitle: idea.title,
     projectId: project.id,
     projectName: project.name,
-  }).catch(() => {});
+  }).catch((err) => console.error("Failed to deliver webhook:", err));
 
   createNotification(workspaceId, {
     type: "idea.converted",
     title: `Idea converted: ${idea.title}`,
     message: `New project "${project.name}" created`,
     href: `/projects/${project.id}`,
-  }).catch(() => {});
+  }).catch((err) => console.error("Failed to create notification:", err));
 
   return project;
 }
