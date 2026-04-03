@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
 import { renderTemplate, IDEA_ENRICH_PROMPT } from "@/lib/ai/prompts";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { getIdea, updateIdea } from "@/server/services/idea.service";
 import {
   createAIRun,
@@ -23,7 +23,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Idea not found" }, { status: 404 });
   }
 
-  const workspaceId = await getSessionWorkspaceId();
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

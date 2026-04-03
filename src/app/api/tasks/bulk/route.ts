@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/session";
 import { validateBody } from "@/lib/api-utils";
 import { bulkTasksSchema } from "@/lib/validations";
 import { z } from "zod";
@@ -10,6 +11,9 @@ const bulkDeleteSchema = z.object({
 
 export async function PATCH(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const data = await validateBody(request, bulkTasksSchema);
     if (data instanceof NextResponse) return data;
 
@@ -44,6 +48,9 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const data = await validateBody(request, bulkDeleteSchema);
     if (data instanceof NextResponse) return data;
 

@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/session";
+import { validateBody } from "@/lib/api-utils";
+import { updateTemplateSchema } from "@/lib/validations";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ templateId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { templateId } = await params;
     const template = await prisma.promptTemplate.findUnique({
       where: { id: templateId },
@@ -31,11 +36,14 @@ export async function PATCH(
   { params }: { params: Promise<{ templateId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { templateId } = await params;
-    const body = await request.json();
+    const data = await validateBody(request, updateTemplateSchema);
+    if (data instanceof NextResponse) return data;
     const template = await prisma.promptTemplate.update({
       where: { id: templateId },
-      data: body,
+      data,
     });
     return NextResponse.json(template);
   } catch (error) {
@@ -52,6 +60,8 @@ export async function DELETE(
   { params }: { params: Promise<{ templateId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { templateId } = await params;
     await prisma.promptTemplate.delete({ where: { id: templateId } });
     return NextResponse.json({ success: true });

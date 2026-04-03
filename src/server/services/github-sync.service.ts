@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/server/services/notification.service";
 import type { PRStatus, CheckConclusion } from "@/generated/prisma/client";
 
 /**
@@ -202,6 +203,7 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
   const pr = await prisma.pullRequest.findUnique({
     where: { id: pullRequestId },
     include: {
+      repository: { select: { workspaceId: true } },
       linkedTasks: {
         where: { status: { not: "DONE" } },
         select: { id: true, title: true, projectId: true },
@@ -228,6 +230,18 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
     });
 
     completed.push(task);
+  }
+
+  if (completed.length > 0) {
+    const workspaceId = pr.repository.workspaceId;
+    for (const task of completed) {
+      createNotification(workspaceId, {
+        type: "task.auto_completed",
+        title: `Task auto-completed: ${task.title}`,
+        message: `PR #${pr.number} was merged`,
+        href: `/projects/${task.projectId}?task=${task.id}`,
+      }).catch((err) => console.error("Failed to create notification:", err));
+    }
   }
 
   return completed;

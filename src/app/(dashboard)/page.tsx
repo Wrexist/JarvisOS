@@ -27,6 +27,7 @@ async function getDashboardData(workspaceId: string) {
     blockedTasks,
     inProgressTasks,
     urgentTodoTasks,
+    aiRunCount,
     recentAIRuns,
   ] = await Promise.all([
     prisma.idea.count({ where: { workspaceId } }),
@@ -64,6 +65,7 @@ async function getDashboardData(workspaceId: string) {
       include: { project: { select: { id: true, name: true } } },
       take: 3,
     }),
+    prisma.aIRun.count({ where: { workspaceId } }),
     prisma.aIRun.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
@@ -84,6 +86,7 @@ async function getDashboardData(workspaceId: string) {
     blockedTasks,
     inProgressTasks,
     urgentTodoTasks,
+    aiRunCount,
     recentAIRuns,
   };
 }
@@ -203,7 +206,7 @@ export default async function HomePage() {
         />
         <StatCard
           label="AI Runs"
-          value={data.recentAIRuns.length}
+          value={data.aiRunCount}
           icon={Bot}
         />
       </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createManyTasks } from "@/server/services/task.service";
+import { requireAuth } from "@/lib/session";
 import { z } from "zod";
 
 const batchSchema = z.object({
@@ -18,6 +19,8 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
     const body = await request.json();
     const parsed = batchSchema.safeParse(body);

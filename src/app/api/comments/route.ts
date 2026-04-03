@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/session";
 
 export async function GET(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const taskId = searchParams.get("taskId");
     const ideaId = searchParams.get("ideaId");
@@ -34,6 +38,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const { content, taskId, ideaId } = await request.json();
 
     if (!content || typeof content !== "string" || content.trim().length === 0) {
@@ -53,6 +60,7 @@ export async function POST(request: Request) {
     const comment = await prisma.comment.create({
       data: {
         content: content.trim(),
+        authorName: auth.userName,
         taskId: taskId || undefined,
         ideaId: ideaId || undefined,
       },

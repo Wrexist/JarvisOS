@@ -14,7 +14,7 @@ export async function getSession() {
  * Use in API routes: `const result = await requireAuth(); if (result instanceof NextResponse) return result;`
  */
 export async function requireAuth(): Promise<
-  | { userId: string; workspaceId: string }
+  | { userId: string; workspaceId: string; userName: string }
   | NextResponse
 > {
   const session = await auth();
@@ -35,7 +35,11 @@ export async function requireAuth(): Promise<
     );
   }
 
-  return { userId: session.user.id, workspaceId: workspace.id };
+  return {
+    userId: session.user.id,
+    workspaceId: workspace.id,
+    userName: session.user.name ?? "Unknown",
+  };
 }
 
 /**

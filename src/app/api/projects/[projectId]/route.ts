@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/session";
 import { validateBody } from "@/lib/api-utils";
 import { updateProjectSchema } from "@/lib/validations";
 import {
@@ -13,6 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
     const project = await getProject(projectId);
 
@@ -38,6 +41,8 @@ export async function PATCH(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
     const data = await validateBody(request, updateProjectSchema);
     if (data instanceof NextResponse) return data;
@@ -64,6 +69,8 @@ export async function DELETE(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
     await deleteProject(projectId);
     return NextResponse.json({ success: true });

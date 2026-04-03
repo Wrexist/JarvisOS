@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
   createAIRun,
@@ -36,7 +36,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const workspaceId = await getSessionWorkspaceId();
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

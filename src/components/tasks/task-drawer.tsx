@@ -67,8 +67,7 @@ export function TaskDrawer({
 }) {
   const router = useRouter();
   const [task, setTask] = useState<TaskDetail | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [, setSaving] = useState(false);
+  const [loading, setLoading] = useState(!!taskId);
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [projectTasks, setProjectTasks] = useState<TaskDep[]>([]);
   const [projectPRs, setProjectPRs] = useState<PROption[]>([]);
@@ -88,24 +87,29 @@ export function TaskDrawer({
   }, [task?.project?.id]);
 
   useEffect(() => {
-    if (!taskId) {
-      setTask(null);
-      return;
-    }
+    if (!taskId) return;
 
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/tasks/${taskId}`)
       .then((res) => res.json())
-      .then((data) => setTask(data))
+      .then((data) => {
+        if (!cancelled) setTask(data);
+      })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      setTask(null);
+      setLoading(true);
+    };
   }, [taskId]);
 
   if (!taskId) return null;
 
   async function handleUpdate(field: string, value: unknown) {
     if (!task) return;
-    setSaving(true);
     try {
       const res = await fetch(`/api/tasks/${task.id}`, {
         method: "PATCH",
@@ -119,8 +123,6 @@ export function TaskDrawer({
       }
     } catch {
       toast.error("Something went wrong");
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -151,6 +153,7 @@ export function TaskDrawer({
       const res = await fetch(`/api/tasks/${task.id}`);
       if (res.ok) setTask(await res.json());
       setShowAddBlocker(false);
+      toast.success("Dependency added");
       router.refresh();
     } catch {
       toast.error("Failed to add dependency");
@@ -175,6 +178,7 @@ export function TaskDrawer({
             }
           : prev
       );
+      toast.success("Dependency removed");
       router.refresh();
     } catch {
       toast.error("Failed to remove dependency");
@@ -192,6 +196,7 @@ export function TaskDrawer({
       const res = await fetch(`/api/tasks/${task.id}`);
       if (res.ok) setTask(await res.json());
       setShowLinkPR(false);
+      toast.success("PR linked");
       router.refresh();
     } catch {
       toast.error("Failed to link PR");
@@ -205,6 +210,7 @@ export function TaskDrawer({
       setTask((prev) =>
         prev ? { ...prev, linkedPullRequest: null } : prev
       );
+      toast.success("PR unlinked");
       router.refresh();
     } catch {
       toast.error("Failed to unlink PR");

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { createProject } from "@/server/services/project.service";
 
 interface TaskTemplate {
@@ -21,7 +21,9 @@ export async function POST(
 ) {
   try {
     const { templateId } = await params;
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
 
     let projectName: string | undefined;
     try {

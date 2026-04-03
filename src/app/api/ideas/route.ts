@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { listIdeas, createIdea } from "@/server/services/idea.service";
 import { validateBody } from "@/lib/api-utils";
 import { createIdeaSchema } from "@/lib/validations";
@@ -7,7 +7,9 @@ import type { IdeaStatus } from "@/generated/prisma/client";
 
 export async function GET(request: Request) {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as IdeaStatus | null;
     const search = searchParams.get("search") ?? undefined;
@@ -29,7 +31,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const data = await validateBody(request, createIdeaSchema);
     if (data instanceof NextResponse) return data;
 

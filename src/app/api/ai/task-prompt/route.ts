@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { renderTemplate } from "@/lib/ai/prompts";
 import { createAIRun, completeAIRun } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
@@ -53,7 +53,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  const workspaceId = await getSessionWorkspaceId();
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

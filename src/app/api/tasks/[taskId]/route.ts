@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getTask, updateTask, deleteTask } from "@/server/services/task.service";
+import { requireAuth } from "@/lib/session";
 import { validateBody } from "@/lib/api-utils";
 import { updateTaskSchema } from "@/lib/validations";
 
@@ -8,6 +9,8 @@ export async function GET(
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
     const task = await getTask(taskId);
     if (!task) {
@@ -25,6 +28,8 @@ export async function PATCH(
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
     const data = await validateBody(request, updateTaskSchema);
     if (data instanceof NextResponse) return data;
@@ -44,6 +49,8 @@ export async function DELETE(
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
     await deleteTask(taskId);
     return NextResponse.json({ success: true });

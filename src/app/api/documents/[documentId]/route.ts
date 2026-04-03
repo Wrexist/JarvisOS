@@ -4,12 +4,17 @@ import {
   updateDocument,
   deleteDocument,
 } from "@/server/services/document.service";
+import { requireAuth } from "@/lib/session";
+import { validateBody } from "@/lib/api-utils";
+import { updateDocumentSchema } from "@/lib/validations";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ documentId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { documentId } = await params;
     const doc = await getDocument(documentId);
     if (!doc) {
@@ -33,9 +38,12 @@ export async function PATCH(
   { params }: { params: Promise<{ documentId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { documentId } = await params;
-    const body = await request.json();
-    const doc = await updateDocument(documentId, body);
+    const data = await validateBody(request, updateDocumentSchema);
+    if (data instanceof NextResponse) return data;
+    const doc = await updateDocument(documentId, data);
     return NextResponse.json(doc);
   } catch (error) {
     console.error("Failed to update document:", error);
@@ -51,6 +59,8 @@ export async function DELETE(
   { params }: { params: Promise<{ documentId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { documentId } = await params;
     await deleteDocument(documentId);
     return NextResponse.json({ success: true });
