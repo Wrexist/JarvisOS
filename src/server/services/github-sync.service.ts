@@ -58,44 +58,6 @@ export async function connectRepoToProject(
 }
 
 /**
- * Lists pull requests for a repository.
- */
-export async function listRepoPullRequests(repositoryId: string) {
-  return prisma.pullRequest.findMany({
-    where: { repositoryId },
-    include: {
-      checkRuns: { orderBy: { completedAt: "desc" } },
-      linkedTasks: { select: { id: true, title: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
-}
-
-/**
- * Lists pull requests for a project (via its repository).
- */
-export async function listProjectPullRequests(projectId: string) {
-  return prisma.pullRequest.findMany({
-    where: { projectId },
-    include: {
-      checkRuns: { orderBy: { completedAt: "desc" } },
-      linkedTasks: { select: { id: true, title: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
-}
-
-/**
- * Lists repositories for a workspace.
- */
-export async function listRepositories(workspaceId: string) {
-  return prisma.repository.findMany({
-    where: { workspaceId },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-/**
  * Syncs a pull request from a GitHub webhook payload.
  */
 export async function syncPullRequest(

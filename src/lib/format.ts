@@ -17,16 +17,3 @@ export function formatRelativeTime(date: Date | string): string {
   if (diffDay < 30) return `${Math.floor(diffDay / 7)}w ago`;
   return d.toLocaleDateString();
 }
-
-/**
- * Formats a date as a short date string.
- */
-export function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year:
-      d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
-  });
-}

@@ -83,7 +83,7 @@ export function IdeaList({ ideas }: { ideas: IdeaListItem[] }) {
             <SelectItem value="ARCHIVED">Archived</SelectItem>
           </SelectContent>
         </Select>
-        {selected.size >= 2 && (
+        {selected.size >= 2 ? (
           <Button
             size="sm"
             variant="secondary"
@@ -93,6 +93,12 @@ export function IdeaList({ ideas }: { ideas: IdeaListItem[] }) {
             <GitCompareArrows className="h-3.5 w-3.5" />
             Compare ({selected.size})
           </Button>
+        ) : (
+          ideas.length >= 2 && (
+            <span className="text-xs text-muted-foreground">
+              Select 2-4 ideas to compare
+            </span>
+          )
         )}
       </div>
 

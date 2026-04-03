@@ -39,10 +39,6 @@ export const bulkTasksSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
 });
 
-export const searchSchema = z.object({
-  q: z.string().min(2, "Query must be at least 2 characters"),
-});
-
 // Update schemas (partial versions of create schemas)
 export const updateIdeaSchema = z.object({
   title: z.string().min(1).max(200).optional(),

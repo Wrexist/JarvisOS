@@ -17,9 +17,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function CreateIdeaDialog() {
+export function CreateIdeaDialog({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

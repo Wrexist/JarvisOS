@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CommentSection } from "@/components/comments/comment-list";
-import { X, Trash2 } from "lucide-react";
+import { LinkedPRBadge } from "@/components/tasks/linked-pr-badge";
+import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
+import { X, Trash2, Plus, Unlink, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +22,20 @@ import {
 import { Separator } from "@/components/ui/separator";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
+interface TaskDep {
+  id: string;
+  title: string;
+  status: TaskStatus;
+}
+
+interface PROption {
+  id: string;
+  number: number;
+  title: string;
+  url: string;
+  status: string;
+}
+
 interface TaskDetail {
   id: string;
   title: string;
@@ -31,6 +48,14 @@ interface TaskDetail {
   relevantFiles: string[];
   createdAt: string;
   project: { id: string; name: string } | null;
+  linkedPullRequest: {
+    number: number;
+    title: string;
+    url: string;
+    status: string;
+  } | null;
+  blockedByTasks: TaskDep[];
+  blockingTasks: TaskDep[];
 }
 
 export function TaskDrawer({
@@ -44,6 +69,23 @@ export function TaskDrawer({
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setSaving] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirmDialog();
+  const [projectTasks, setProjectTasks] = useState<TaskDep[]>([]);
+  const [projectPRs, setProjectPRs] = useState<PROption[]>([]);
+  const [showAddBlocker, setShowAddBlocker] = useState(false);
+  const [showLinkPR, setShowLinkPR] = useState(false);
+
+  // Fetch sibling tasks + PRs for pickers when task loads
+  useEffect(() => {
+    if (!task?.project?.id) return;
+    fetch(`/api/projects/${task.project.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.tasks) setProjectTasks(data.tasks);
+        if (data.pullRequests) setProjectPRs(data.pullRequests);
+      })
+      .catch(() => {});
+  }, [task?.project?.id]);
 
   useEffect(() => {
     if (!taskId) {
@@ -97,19 +139,98 @@ export function TaskDrawer({
     }
   }
 
-  async function handleDelete() {
-    if (!task || !confirm("Delete this task?")) return;
+  async function handleAddBlocker(blockedById: string) {
+    if (!task) return;
     try {
-      await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
-      onClose();
+      await fetch(`/api/tasks/${task.id}/dependencies`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blockedById }),
+      });
+      // Refetch task to get updated dependencies
+      const res = await fetch(`/api/tasks/${task.id}`);
+      if (res.ok) setTask(await res.json());
+      setShowAddBlocker(false);
       router.refresh();
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Failed to add dependency");
     }
+  }
+
+  async function handleRemoveBlocker(blockedById: string) {
+    if (!task) return;
+    try {
+      await fetch(`/api/tasks/${task.id}/dependencies`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blockedById }),
+      });
+      setTask((prev) =>
+        prev
+          ? {
+              ...prev,
+              blockedByTasks: prev.blockedByTasks.filter(
+                (t) => t.id !== blockedById
+              ),
+            }
+          : prev
+      );
+      router.refresh();
+    } catch {
+      toast.error("Failed to remove dependency");
+    }
+  }
+
+  async function handleLinkPR(prId: string) {
+    if (!task) return;
+    try {
+      await fetch(`/api/tasks/${task.id}/link-pr`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prId }),
+      });
+      const res = await fetch(`/api/tasks/${task.id}`);
+      if (res.ok) setTask(await res.json());
+      setShowLinkPR(false);
+      router.refresh();
+    } catch {
+      toast.error("Failed to link PR");
+    }
+  }
+
+  async function handleUnlinkPR() {
+    if (!task) return;
+    try {
+      await fetch(`/api/tasks/${task.id}/link-pr`, { method: "DELETE" });
+      setTask((prev) =>
+        prev ? { ...prev, linkedPullRequest: null } : prev
+      );
+      router.refresh();
+    } catch {
+      toast.error("Failed to unlink PR");
+    }
+  }
+
+  function handleDelete() {
+    if (!task) return;
+    confirm({
+      title: "Delete task",
+      description: `Are you sure you want to delete "${task.title}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
+          onClose();
+          router.refresh();
+        } catch {
+          toast.error("Something went wrong");
+        }
+      },
+    });
   }
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg border-l border-border/50 bg-background shadow-2xl">
+      <ConfirmDialog />
       <div className="flex h-full flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/50">
@@ -295,6 +416,135 @@ export function TaskDrawer({
                 }
                 placeholder="src/app/page.tsx, src/lib/utils.ts"
               />
+            </div>
+
+            {/* Dependencies */}
+            <Separator />
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground">
+                Dependencies
+              </label>
+              {task.blockedByTasks?.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    Blocked by
+                  </p>
+                  {task.blockedByTasks.map((dep) => (
+                    <div
+                      key={dep.id}
+                      className="flex items-center gap-2 rounded-md bg-muted/30 px-2 py-1.5 text-xs"
+                    >
+                      <TaskStatusBadge status={dep.status} />
+                      <span className="truncate flex-1">{dep.title}</span>
+                      <button
+                        onClick={() => handleRemoveBlocker(dep.id)}
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {task.blockingTasks?.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    Blocking
+                  </p>
+                  {task.blockingTasks.map((dep) => (
+                    <div
+                      key={dep.id}
+                      className="flex items-center gap-2 rounded-md bg-muted/30 px-2 py-1.5 text-xs"
+                    >
+                      <TaskStatusBadge status={dep.status} />
+                      <span className="truncate flex-1">{dep.title}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showAddBlocker ? (
+                <Select
+                  onValueChange={(v) => {
+                    handleAddBlocker(v);
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Select a blocking task..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectTasks
+                      .filter(
+                        (t) =>
+                          t.id !== task.id &&
+                          !task.blockedByTasks?.some((b) => b.id === t.id)
+                      )
+                      .map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.title}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setShowAddBlocker(true)}
+                >
+                  <Plus className="h-3 w-3" />
+                  Add blocker
+                </Button>
+              )}
+            </div>
+
+            {/* Linked PR */}
+            <Separator />
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground">
+                Linked Pull Request
+              </label>
+              {task.linkedPullRequest ? (
+                <div className="flex items-center gap-2">
+                  <LinkedPRBadge
+                    prNumber={task.linkedPullRequest.number}
+                    prTitle={task.linkedPullRequest.title}
+                    prUrl={task.linkedPullRequest.url}
+                    prStatus={task.linkedPullRequest.status}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs gap-1 text-muted-foreground"
+                    onClick={handleUnlinkPR}
+                  >
+                    <Unlink className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : showLinkPR ? (
+                <Select onValueChange={(v) => handleLinkPR(v)}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Select a PR..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectPRs.map((pr) => (
+                      <SelectItem key={pr.id} value={pr.id}>
+                        #{pr.number} {pr.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => setShowLinkPR(true)}
+                >
+                  <Link className="h-3 w-3" />
+                  Link PR
+                </Button>
+              )}
             </div>
 
             {/* Claude Prompt */}

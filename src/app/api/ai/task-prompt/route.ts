@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { renderTemplate } from "@/lib/ai/prompts";
 import { createAIRun, completeAIRun } from "@/server/services/ai-run.service";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const DEFAULT_TASK_PROMPT = `Implement this task in ForgeOS.
 
@@ -53,6 +54,9 @@ export async function POST(request: Request) {
   }
 
   const workspaceId = await getSessionWorkspaceId();
+
+  const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
+  if (!allowed) return rateLimitResponse();
 
   // Try loading template from DB
   const dbTemplate = await prisma.promptTemplate.findFirst({

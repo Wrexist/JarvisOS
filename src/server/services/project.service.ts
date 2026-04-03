@@ -24,11 +24,23 @@ export async function getProject(id: string) {
     where: { id },
     include: {
       idea: { select: { id: true, title: true, status: true } },
-      tasks: { orderBy: { createdAt: "desc" } },
+      tasks: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          linkedPullRequest: {
+            select: { number: true, title: true, url: true, status: true },
+          },
+        },
+      },
       documents: { orderBy: { createdAt: "desc" } },
       activities: { orderBy: { createdAt: "desc" }, take: 20 },
       aiRuns: { orderBy: { createdAt: "desc" }, take: 10 },
-      pullRequests: { orderBy: { updatedAt: "desc" } },
+      pullRequests: {
+        orderBy: { updatedAt: "desc" },
+        include: {
+          checkRuns: { select: { conclusion: true, name: true } },
+        },
+      },
       repository: true,
       _count: { select: { tasks: true, documents: true, pullRequests: true } },
     },
@@ -120,17 +132,4 @@ export async function deleteProject(id: string) {
       message: `Project "${project.name}" was deleted`,
     },
   });
-}
-
-export async function getProjectStats(id: string) {
-  const [totalTasks, doneTasks, blockedTasks, openPRs] = await Promise.all([
-    prisma.task.count({ where: { projectId: id } }),
-    prisma.task.count({ where: { projectId: id, status: "DONE" } }),
-    prisma.task.count({ where: { projectId: id, status: "BLOCKED" } }),
-    prisma.pullRequest.count({
-      where: { projectId: id, status: "OPEN" },
-    }),
-  ]);
-
-  return { totalTasks, doneTasks, blockedTasks, openPRs };
 }

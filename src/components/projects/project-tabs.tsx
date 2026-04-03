@@ -40,6 +40,12 @@ interface ProjectTabsProps {
       priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
       estimateHours: number | null;
       dueDate: string | null;
+      linkedPullRequest: {
+        number: number;
+        title: string;
+        url: string;
+        status: string;
+      } | null;
     }>;
     documents: Array<{
       id: string;
@@ -57,6 +63,7 @@ interface ProjectTabsProps {
       id: string;
       type: string;
       status: string;
+      output: string | null;
       createdAt: string;
     }>;
     pullRequests: Array<{
@@ -67,6 +74,10 @@ interface ProjectTabsProps {
       status: "OPEN" | "DRAFT" | "MERGED" | "CLOSED";
       url: string;
       updatedAt: string;
+      checkRuns: Array<{
+        conclusion: string;
+        name: string;
+      }>;
     }>;
   };
 }
@@ -94,9 +105,15 @@ const stages: ProjectStage[] = [
   "ARCHIVED",
 ];
 
-export function ProjectTabs({ project }: ProjectTabsProps) {
+export function ProjectTabs({
+  project,
+  initialTaskId,
+  initialDocId,
+}: ProjectTabsProps & { initialTaskId?: string; initialDocId?: string }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [activeTab, setActiveTab] = useState<Tab>(
+    initialTaskId ? "Tasks" : initialDocId ? "Docs" : "Overview"
+  );
   const [changingStage, setChangingStage] = useState(false);
 
   async function handleStageChange(stage: string) {
@@ -237,7 +254,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
           <div className="flex justify-end">
             <GenerateTasksButton projectId={project.id} />
           </div>
-          <TaskView tasks={project.tasks} projectId={project.id} />
+          <TaskView tasks={project.tasks} projectId={project.id} initialTaskId={initialTaskId} />
         </div>
       )}
 
@@ -246,7 +263,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "Docs" && (
-        <DocsView documents={project.documents} projectId={project.id} />
+        <DocsView documents={project.documents} projectId={project.id} initialDocId={initialDocId} />
       )}
 
       {activeTab === "GitHub" && (
@@ -257,25 +274,7 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
       )}
 
       {activeTab === "AI Runs" && (
-        <div className="space-y-2">
-          {project.aiRuns.length === 0 ? (
-            <div className="glass-panel p-8 text-center text-muted-foreground">
-              No AI runs for this project yet.
-            </div>
-          ) : (
-            project.aiRuns.map((run) => (
-              <div key={run.id} className="glass-panel p-4 flex items-center justify-between">
-                <div>
-                  <Badge variant="outline" className="text-xs">{run.type}</Badge>
-                  <span className="ml-2 text-sm text-muted-foreground">{run.status}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(run.createdAt).toLocaleString()}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+        <AIRunsList runs={project.aiRuns} />
       )}
 
       {activeTab === "Settings" && (
@@ -288,6 +287,85 @@ export function ProjectTabs({ project }: ProjectTabsProps) {
           />
         </div>
       )}
+    </div>
+  );
+}
+
+function AIRunsList({
+  runs,
+}: {
+  runs: Array<{
+    id: string;
+    type: string;
+    status: string;
+    output: string | null;
+    createdAt: string;
+  }>;
+}) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggle(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  if (runs.length === 0) {
+    return (
+      <div className="glass-panel p-8 text-center text-muted-foreground">
+        No AI runs for this project yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {runs.map((run) => (
+        <div
+          key={run.id}
+          className="glass-panel p-4 space-y-2 cursor-pointer hover:bg-muted/30 transition-colors"
+          onClick={() => run.output && toggle(run.id)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {run.type}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  run.status === "COMPLETED"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    : run.status === "FAILED"
+                      ? "bg-red-500/10 text-red-400 border-red-500/20"
+                      : ""
+                }
+              >
+                {run.status}
+              </Badge>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {new Date(run.createdAt).toLocaleString()}
+            </span>
+          </div>
+          {run.output && (
+            <pre className="text-xs text-muted-foreground/80 whitespace-pre-wrap bg-muted/20 rounded p-2 overflow-auto max-h-24">
+              {expanded.has(run.id)
+                ? run.output
+                : run.output.slice(0, 300) +
+                  (run.output.length > 300 ? "..." : "")}
+            </pre>
+          )}
+          {run.output && run.output.length > 300 && (
+            <button className="text-xs text-primary hover:underline">
+              {expanded.has(run.id) ? "Show less" : "Show more"}
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

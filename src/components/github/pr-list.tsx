@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { CheckRunsSummary } from "@/components/github/check-run-status";
 import type { PRStatus } from "@/generated/prisma/client";
 
 const prStatusConfig: Record<PRStatus, { label: string; className: string }> = {
@@ -16,6 +17,7 @@ interface PRItem {
   status: PRStatus;
   url: string;
   updatedAt: string;
+  checkRuns: Array<{ conclusion: string; name: string }>;
 }
 
 export function PRList({ pullRequests }: { pullRequests: PRItem[] }) {
@@ -46,6 +48,7 @@ export function PRList({ pullRequests }: { pullRequests: PRItem[] }) {
               <p className="text-sm font-medium truncate">{pr.title}</p>
               <p className="text-xs text-muted-foreground">{pr.headBranch}</p>
             </div>
+            <CheckRunsSummary checkRuns={pr.checkRuns} />
             <Badge variant="outline" className={config.className}>
               {config.label}
             </Badge>

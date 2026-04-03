@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { GitBranch } from "lucide-react";
+import { PRList } from "@/components/github/pr-list";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 
 export default async function GitHubPage() {
@@ -12,6 +14,13 @@ export default async function GitHubPage() {
     include: {
       _count: { select: { pullRequests: true } },
       projects: { select: { id: true, name: true } },
+      pullRequests: {
+        orderBy: { updatedAt: "desc" },
+        take: 10,
+        include: {
+          checkRuns: { select: { conclusion: true, name: true } },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -26,46 +35,64 @@ export default async function GitHubPage() {
       </div>
 
       {repositories.length === 0 ? (
-        <div className="glass-panel p-12 text-center text-muted-foreground">
-          <GitBranch className="h-8 w-8 mx-auto mb-3 opacity-50" />
-          <p>No repositories connected yet.</p>
-          <p className="text-sm mt-1">
-            Connect a repo from a project&apos;s GitHub tab.
-          </p>
-        </div>
+        <EmptyState
+          icon={GitBranch}
+          title="No repositories connected"
+          description="Connect a repo from a project's GitHub tab to start tracking PRs."
+          actionLabel="Go to Projects"
+          actionHref="/projects"
+        />
       ) : (
-        <div className="glass-panel divide-y divide-border/50">
+        <div className="space-y-6">
           {repositories.map((repo) => (
-            <div
-              key={repo.id}
-              className="flex items-center gap-4 px-4 py-3"
-            >
-              <GitBranch className="h-4 w-4 text-muted-foreground shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{repo.fullName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {repo._count.pullRequests} PRs
-                  {repo.projects.length > 0 && (
-                    <>
-                      {" · Linked to "}
-                      {repo.projects.map((p, i) => (
-                        <span key={p.id}>
-                          {i > 0 && ", "}
-                          <Link
-                            href={`/projects/${p.id}`}
-                            className="text-primary hover:underline"
-                          >
-                            {p.name}
-                          </Link>
-                        </span>
-                      ))}
-                    </>
-                  )}
-                </p>
+            <div key={repo.id} className="space-y-3">
+              <div className="flex items-center gap-3">
+                <GitBranch className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">{repo.fullName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {repo._count.pullRequests} PRs
+                    {repo.isPrivate ? " · Private" : " · Public"}
+                    {repo.projects.length > 0 && (
+                      <>
+                        {" · "}
+                        {repo.projects.map((p, i) => (
+                          <span key={p.id}>
+                            {i > 0 && ", "}
+                            <Link
+                              href={`/projects/${p.id}`}
+                              className="text-primary hover:underline"
+                            >
+                              {p.name}
+                            </Link>
+                          </span>
+                        ))}
+                      </>
+                    )}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground">
-                {repo.isPrivate ? "Private" : "Public"}
-              </span>
+              {repo.pullRequests.length > 0 ? (
+                <PRList
+                  pullRequests={repo.pullRequests.map((pr) => ({
+                    id: pr.id,
+                    number: pr.number,
+                    title: pr.title,
+                    headBranch: pr.headBranch,
+                    status: pr.status,
+                    url: pr.url,
+                    updatedAt: pr.updatedAt.toISOString(),
+                    checkRuns: pr.checkRuns.map((c) => ({
+                      conclusion: c.conclusion,
+                      name: c.name,
+                    })),
+                  }))}
+                />
+              ) : (
+                <div className="glass-panel p-4 text-center text-xs text-muted-foreground">
+                  No pull requests yet
+                </div>
+              )}
             </div>
           ))}
         </div>

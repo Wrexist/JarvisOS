@@ -19,9 +19,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function CreateProjectDialog() {
+export function CreateProjectDialog({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

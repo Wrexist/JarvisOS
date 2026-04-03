@@ -176,7 +176,7 @@ export function CommandPalette() {
                     key={task.id}
                     value={task.title}
                     onSelect={() =>
-                      navigate(`/projects/${task.project.id}`)
+                      navigate(`/projects/${task.project.id}?task=${task.id}`)
                     }
                     className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer aria-selected:bg-accent text-sm"
                   >
@@ -197,7 +197,7 @@ export function CommandPalette() {
                     key={doc.id}
                     value={doc.title}
                     onSelect={() =>
-                      navigate(`/projects/${doc.project.id}`)
+                      navigate(`/projects/${doc.project.id}?doc=${doc.id}`)
                     }
                     className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer aria-selected:bg-accent text-sm"
                   >
