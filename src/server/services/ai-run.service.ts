@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/server/services/notification.service";
 import type { AIRunStatus, AIRunType } from "@/generated/prisma/client";
 
 export async function createAIRun(data: {
@@ -26,10 +27,24 @@ export async function createAIRun(data: {
 }
 
 export async function completeAIRun(id: string, output: string) {
-  return prisma.aIRun.update({
+  const run = await prisma.aIRun.update({
     where: { id },
     data: { status: "COMPLETED", output },
   });
+
+  const href = run.ideaId
+    ? `/ideas/${run.ideaId}`
+    : run.projectId
+      ? `/projects/${run.projectId}`
+      : "/ai-runs";
+
+  createNotification(run.workspaceId, {
+    type: "ai.completed",
+    title: `AI run completed: ${run.type.replace(/_/g, " ").toLowerCase()}`,
+    href,
+  }).catch(() => {});
+
+  return run;
 }
 
 export async function failAIRun(id: string, error: string) {

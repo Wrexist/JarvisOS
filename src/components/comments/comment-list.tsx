@@ -10,6 +10,7 @@ import { formatRelativeTime } from "@/lib/format";
 interface Comment {
   id: string;
   content: string;
+  authorName: string | null;
   createdAt: string;
 }
 
@@ -83,10 +84,15 @@ export function CommentSection({
               key={c.id}
               className="rounded-lg bg-muted/30 px-3 py-2 text-sm"
             >
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-medium">
+                  {c.authorName ?? "Anonymous"}
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {formatRelativeTime(c.createdAt)}
+                </span>
+              </div>
               <p className="whitespace-pre-wrap">{c.content}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {formatRelativeTime(c.createdAt)}
-              </p>
             </div>
           ))}
         </div>

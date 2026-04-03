@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { deliverWebhook } from "@/server/services/webhook.service";
+import { createNotification } from "@/server/services/notification.service";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 export interface CreateTaskInput {
@@ -170,7 +171,14 @@ export async function moveTaskStatus(id: string, status: TaskStatus) {
         id: task.id,
         title: task.title,
         project: { id: task.projectId, name: project.name },
-      }).catch(() => {}); // Fire and forget
+      }).catch(() => {});
+
+      createNotification(project.workspaceId, {
+        type: "task.completed",
+        title: `Task completed: ${task.title}`,
+        message: `in ${project.name}`,
+        href: `/projects/${task.projectId}?task=${task.id}`,
+      }).catch(() => {});
     }
   }
 

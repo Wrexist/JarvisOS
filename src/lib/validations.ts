@@ -61,6 +61,18 @@ export const updateProjectSchema = z.object({
   stage: z.enum(["CLARIFYING", "PLANNING", "READY_TO_BUILD", "BUILDING", "TESTING", "SHIPPED", "PAUSED", "ARCHIVED"]).optional(),
 });
 
+export const updateDocumentSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  type: z.enum(["PRD", "TECH_SPEC", "NOTES", "RETRO", "SCRATCHPAD"]).optional(),
+  content: z.string().optional(),
+});
+
+export const updateTemplateSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  description: z.string().max(500).nullable().optional(),
+  content: z.string().min(1).optional(),
+});
+
 export const updateTaskSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().max(5000).nullable().optional(),

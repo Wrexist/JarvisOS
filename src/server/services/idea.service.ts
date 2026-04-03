@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { deliverWebhook } from "@/server/services/webhook.service";
+import { createNotification } from "@/server/services/notification.service";
 import type { IdeaStatus } from "@/generated/prisma/client";
 import slugify from "slugify";
 
@@ -152,6 +153,13 @@ export async function convertIdeaToProject(ideaId: string, workspaceId: string) 
     ideaTitle: idea.title,
     projectId: project.id,
     projectName: project.name,
+  }).catch(() => {});
+
+  createNotification(workspaceId, {
+    type: "idea.converted",
+    title: `Idea converted: ${idea.title}`,
+    message: `New project "${project.name}" created`,
+    href: `/projects/${project.id}`,
   }).catch(() => {});
 
   return project;

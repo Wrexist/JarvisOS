@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { deleteEndpoint, toggleEndpoint } from "@/server/services/webhook.service";
+import { requireAuth } from "@/lib/session";
 
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ endpointId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { endpointId } = await params;
     await deleteEndpoint(endpointId);
     return NextResponse.json({ success: true });
@@ -23,6 +26,8 @@ export async function PATCH(
   { params }: { params: Promise<{ endpointId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { endpointId } = await params;
     const { active } = await request.json();
     if (typeof active !== "boolean") {

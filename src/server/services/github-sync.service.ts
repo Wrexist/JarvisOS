@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/server/services/notification.service";
 import type { PRStatus, CheckConclusion } from "@/generated/prisma/client";
 
 /**
@@ -228,6 +229,23 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
     });
 
     completed.push(task);
+  }
+
+  if (completed.length > 0) {
+    const project = await prisma.project.findFirst({
+      where: { id: completed[0].projectId },
+      select: { workspaceId: true },
+    });
+    if (project) {
+      for (const task of completed) {
+        createNotification(project.workspaceId, {
+          type: "task.auto_completed",
+          title: `Task auto-completed: ${task.title}`,
+          message: `PR #${pr.number} was merged`,
+          href: `/projects/${task.projectId}?task=${task.id}`,
+        }).catch(() => {});
+      }
+    }
   }
 
   return completed;

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { moveTaskStatus } from "@/server/services/task.service";
+import { requireAuth } from "@/lib/session";
 import type { TaskStatus } from "@/generated/prisma/client";
 
 const validStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
@@ -9,6 +10,8 @@ export async function PATCH(
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
     const { status } = await request.json();
 

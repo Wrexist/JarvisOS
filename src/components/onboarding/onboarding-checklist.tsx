@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CheckCircle, Circle, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -82,7 +83,7 @@ export function OnboardingChecklist({
 
       <div className="space-y-2">
         {steps.map((step) => (
-          <a
+          <Link
             key={step.id}
             href={step.href}
             className="flex items-center gap-3 text-sm py-1 hover:text-foreground transition-colors"
@@ -101,7 +102,7 @@ export function OnboardingChecklist({
             >
               {step.label}
             </span>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

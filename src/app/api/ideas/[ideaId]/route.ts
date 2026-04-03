@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getIdea, updateIdea, deleteIdea } from "@/server/services/idea.service";
+import { requireAuth } from "@/lib/session";
 import { validateBody } from "@/lib/api-utils";
 import { updateIdeaSchema } from "@/lib/validations";
 
@@ -8,6 +9,8 @@ export async function GET(
   { params }: { params: Promise<{ ideaId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
     const idea = await getIdea(ideaId);
 
@@ -30,6 +33,8 @@ export async function PATCH(
   { params }: { params: Promise<{ ideaId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
     const data = await validateBody(request, updateIdeaSchema);
     if (data instanceof NextResponse) return data;
@@ -50,6 +55,8 @@ export async function DELETE(
   { params }: { params: Promise<{ ideaId: string }> }
 ) {
   try {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
     await deleteIdea(ideaId);
     return NextResponse.json({ success: true });
