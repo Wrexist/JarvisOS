@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { listProjects, createProject } from "@/server/services/project.service";
 
 export async function GET() {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const projects = await listProjects(workspaceId);
     return NextResponse.json(projects);
   } catch (error) {
@@ -18,7 +20,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const body = await request.json();
 
     if (!body.name || typeof body.name !== "string") {

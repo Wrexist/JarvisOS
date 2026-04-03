@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { listEndpoints, createEndpoint } from "@/server/services/webhook.service";
 
 export async function GET() {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const endpoints = await listEndpoints(workspaceId);
     return NextResponse.json(endpoints);
   } catch (error) {
@@ -18,7 +20,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const { url, events, secret } = await request.json();
 
     if (!url || !events?.length) {

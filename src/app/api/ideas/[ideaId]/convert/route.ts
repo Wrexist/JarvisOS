@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import { convertIdeaToProject } from "@/server/services/idea.service";
 
 export async function POST(
@@ -8,7 +8,9 @@ export async function POST(
 ) {
   try {
     const { ideaId } = await params;
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
 
     const project = await convertIdeaToProject(ideaId, workspaceId);
     return NextResponse.json(project, { status: 201 });

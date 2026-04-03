@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 import {
   upsertRepository,
   connectRepoToProject,
@@ -11,7 +11,9 @@ export async function POST(
 ) {
   try {
     const { projectId } = await params;
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const { fullName } = await request.json();
 
     if (!fullName || typeof fullName !== "string" || !fullName.includes("/")) {

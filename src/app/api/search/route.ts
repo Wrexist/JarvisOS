@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 
 const VALID_STATUSES = ["INBOX", "REVIEWING", "VALIDATED", "CONVERTED", "ARCHIVED", "TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
 const VALID_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"];
@@ -35,7 +35,9 @@ export async function GET(request: Request) {
       });
     }
 
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const { text, filters } = parseSearchQuery(q);
 
     const textFilter = text.length >= 2 ? text : undefined;

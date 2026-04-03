@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionWorkspaceId } from "@/lib/session";
+import { requireAuth } from "@/lib/session";
 
 export async function GET() {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const templates = await prisma.projectTemplate.findMany({
       where: { workspaceId },
       orderBy: { createdAt: "desc" },
@@ -21,7 +23,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const workspaceId = await getSessionWorkspaceId();
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+    const { workspaceId } = auth;
     const { name, description, taskTemplates, docTemplates } =
       await request.json();
 
