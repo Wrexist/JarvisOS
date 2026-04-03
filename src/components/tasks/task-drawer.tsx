@@ -67,7 +67,7 @@ export function TaskDrawer({
 }) {
   const router = useRouter();
   const [task, setTask] = useState<TaskDetail | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!taskId);
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [projectTasks, setProjectTasks] = useState<TaskDep[]>([]);
   const [projectPRs, setProjectPRs] = useState<PROption[]>([]);
@@ -87,17 +87,23 @@ export function TaskDrawer({
   }, [task?.project?.id]);
 
   useEffect(() => {
-    if (!taskId) {
-      setTask(null);
-      return;
-    }
+    if (!taskId) return;
 
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/tasks/${taskId}`)
       .then((res) => res.json())
-      .then((data) => setTask(data))
+      .then((data) => {
+        if (!cancelled) setTask(data);
+      })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      setTask(null);
+      setLoading(true);
+    };
   }, [taskId]);
 
   if (!taskId) return null;
