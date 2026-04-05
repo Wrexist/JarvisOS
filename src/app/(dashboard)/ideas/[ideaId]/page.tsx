@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getIdea } from "@/server/services/idea.service";
 import { IdeaDetail } from "@/components/ideas/idea-detail";
 
@@ -28,5 +30,16 @@ export default async function IdeaDetailPage({
     })),
   };
 
-  return <IdeaDetail idea={serialized} />;
+  return (
+    <div className="space-y-4">
+      <Link
+        href="/ideas"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Ideas
+      </Link>
+      <IdeaDetail idea={serialized} />
+    </div>
+  );
 }

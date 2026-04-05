@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { deliverWebhook } from "@/server/services/webhook.service";
+import { createNotification } from "@/server/services/notification.service";
 import type { ProjectStage } from "@/generated/prisma/client";
 import slugify from "slugify";
 
@@ -118,6 +119,12 @@ export async function updateProjectStage(id: string, stage: ProjectStage) {
     id: project.id,
     name: project.name,
     stage,
+  }).catch(() => {});
+
+  createNotification(project.workspaceId, {
+    type: "project.stage_changed",
+    title: `${project.name} moved to ${stage.replace(/_/g, " ")}`,
+    href: `/projects/${project.id}`,
   }).catch(() => {});
 
   return project;

@@ -14,8 +14,3 @@ export function getGitHubAppConfig() {
   };
 }
 
-export function isGitHubConfigured(): boolean {
-  return !!(
-    process.env.GITHUB_APP_ID && process.env.GITHUB_PRIVATE_KEY
-  );
-}

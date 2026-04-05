@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getProject } from "@/server/services/project.service";
 import { computeHealthScore } from "@/server/services/health.service";
 import { StageBadge } from "@/components/projects/stage-badge";
@@ -84,12 +86,21 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {project.name}
-        </h1>
-        <StageBadge stage={project.stage} />
-        <HealthIndicator score={health.score} />
+      <div className="space-y-3">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Projects
+        </Link>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {project.name}
+          </h1>
+          <StageBadge stage={project.stage} />
+          <HealthIndicator score={health.score} factors={health.factors} />
+        </div>
       </div>
       <ProjectTabs project={serialized} initialTaskId={initialTaskId} initialDocId={initialDocId} />
     </div>
