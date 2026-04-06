@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -23,6 +24,7 @@ export function ProjectSettings({
   const [description, setDescription] = useState(project.description ?? "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   async function handleSave() {
     setSaving(true);
@@ -42,21 +44,27 @@ export function ProjectSettings({
     }
   }
 
-  async function handleDelete() {
-    if (!confirm("Delete this project? All tasks, docs, and activity will be lost.")) return;
-    setDeleting(true);
-    try {
-      await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
-      toast.success("Project deleted");
-      router.push("/projects");
-    } catch {
-      toast.error("Failed to delete project");
-      setDeleting(false);
-    }
+  function handleDelete() {
+    confirm({
+      title: "Delete project",
+      description: `Delete "${project.name}"? All tasks, docs, and activity will be permanently lost.`,
+      onConfirm: async () => {
+        setDeleting(true);
+        try {
+          await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
+          toast.success("Project deleted");
+          router.push("/projects");
+        } catch {
+          toast.error("Failed to delete project");
+          setDeleting(false);
+        }
+      },
+    });
   }
 
   return (
     <div className="space-y-6 max-w-xl">
+      <ConfirmDialog />
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-muted-foreground">
           General

@@ -42,6 +42,11 @@ export function CommandPalette() {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
+      if (e.key === "Escape") {
+        setOpen(false);
+        setQuery("");
+        setResults(null);
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);

@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AI_RUN_STATUS_OPTIONS } from "@/lib/constants";
 
 interface AIRun {
   id: string;
@@ -75,10 +76,9 @@ export function AIRunsClient({ runs }: { runs: AIRun[] }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="QUEUED">Queued</SelectItem>
-            <SelectItem value="RUNNING">Running</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="FAILED">Failed</SelectItem>
+            {AI_RUN_STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {filtered.length !== runs.length && (
@@ -87,6 +87,11 @@ export function AIRunsClient({ runs }: { runs: AIRun[] }) {
           </span>
         )}
       </div>
+      {filtered.length === 0 ? (
+        <div className="glass-panel p-12 text-center">
+          <p className="text-muted-foreground">No AI runs match your filters.</p>
+        </div>
+      ) : (
       <div className="glass-panel divide-y divide-border/50">
       {filtered.map((run) => (
         <div key={run.id} className="px-4 py-3 space-y-2">
@@ -161,6 +166,7 @@ export function AIRunsClient({ runs }: { runs: AIRun[] }) {
         </div>
       ))}
       </div>
+      )}
     </div>
   );
 }

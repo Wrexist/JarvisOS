@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
 import { TaskPriorityBadge } from "@/components/tasks/task-priority-badge";
 import { DeadlineBadge } from "@/components/tasks/deadline-badge";
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { TASK_STATUS_OPTIONS, PRIORITY_OPTIONS } from "@/lib/constants";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -60,10 +62,9 @@ export function TaskListGlobal({ tasks }: { tasks: TaskItem[] }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="TODO">To Do</SelectItem>
-            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-            <SelectItem value="BLOCKED">Blocked</SelectItem>
-            <SelectItem value="DONE">Done</SelectItem>
+            {TASK_STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -72,21 +73,25 @@ export function TaskListGlobal({ tasks }: { tasks: TaskItem[] }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All priorities</SelectItem>
-            <SelectItem value="URGENT">Urgent</SelectItem>
-            <SelectItem value="HIGH">High</SelectItem>
-            <SelectItem value="MEDIUM">Medium</SelectItem>
-            <SelectItem value="LOW">Low</SelectItem>
+            {PRIORITY_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass-panel p-12 text-center">
+        <div className="glass-panel p-12 text-center space-y-3">
           <p className="text-muted-foreground">
             {tasks.length === 0
               ? "No tasks yet. Create tasks from within a project to get started."
               : "No tasks match your filters."}
           </p>
+          {tasks.length === 0 && (
+            <Link href="/projects">
+              <Button variant="outline" size="sm">Go to Projects</Button>
+            </Link>
+          )}
         </div>
       ) : (
         <div className="glass-panel divide-y divide-border/50">

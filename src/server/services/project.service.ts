@@ -119,13 +119,13 @@ export async function updateProjectStage(id: string, stage: ProjectStage) {
     id: project.id,
     name: project.name,
     stage,
-  }).catch(() => {});
+  }).catch((err) => console.error("Failed to deliver webhook:", err));
 
   createNotification(project.workspaceId, {
     type: "project.stage_changed",
     title: `${project.name} moved to ${stage.replace(/_/g, " ")}`,
     href: `/projects/${project.id}`,
-  }).catch(() => {});
+  }).catch((err) => console.error("Failed to create notification:", err));
 
   return project;
 }

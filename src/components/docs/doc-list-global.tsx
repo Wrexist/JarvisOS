@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { DocTypeBadge } from "@/components/docs/doc-type-badge";
 import {
   Select,
@@ -62,12 +63,17 @@ export function DocListGlobal({ documents }: { documents: DocItem[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="glass-panel p-12 text-center">
+        <div className="glass-panel p-12 text-center space-y-3">
           <p className="text-muted-foreground">
             {documents.length === 0
               ? "No documents yet. Create docs from within a project to get started."
               : "No documents match your filters."}
           </p>
+          {documents.length === 0 && (
+            <Link href="/projects">
+              <Button variant="outline" size="sm">Go to Projects</Button>
+            </Link>
+          )}
         </div>
       ) : (
         <div className="glass-panel divide-y divide-border/50">
