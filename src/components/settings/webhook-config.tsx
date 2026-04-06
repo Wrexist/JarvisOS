@@ -46,7 +46,9 @@ export function WebhookConfig() {
       .then((data) => {
         if (Array.isArray(data)) setEndpoints(data);
       })
-      .catch(() => {})
+      .catch(() => {
+        toast.error("Failed to load webhooks");
+      })
       .finally(() => setLoading(false));
   }, []);
 

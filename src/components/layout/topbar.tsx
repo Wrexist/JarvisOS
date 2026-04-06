@@ -71,10 +71,7 @@ export function Topbar() {
             readOnly
             onClick={() => {
               document.dispatchEvent(
-                new KeyboardEvent("keydown", {
-                  key: "k",
-                  metaKey: true,
-                })
+                new CustomEvent("open-command-palette")
               );
             }}
           />
@@ -85,10 +82,7 @@ export function Topbar() {
           className="sm:hidden h-8 w-8"
           onClick={() => {
             document.dispatchEvent(
-              new KeyboardEvent("keydown", {
-                key: "k",
-                metaKey: true,
-              })
+              new CustomEvent("open-command-palette")
             );
           }}
         >

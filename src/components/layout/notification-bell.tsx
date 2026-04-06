@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check } from "lucide-react";
+import { Bell, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Notification {
@@ -30,7 +30,7 @@ export function NotificationBell() {
       .then((data) => {
         if (Array.isArray(data)) setNotifications(data);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch notifications:", err));
   }, []);
 
   // Fetch on mount + poll every 30s
@@ -53,6 +53,16 @@ export function NotificationBell() {
       // keep current state on failure
     }
     setOpen(false);
+  }
+
+  async function handleDismiss(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/notifications/${id}`, { method: "PATCH" });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch {
+      // keep current state on failure
+    }
   }
 
   function handleClick(n: Notification) {
@@ -109,17 +119,27 @@ export function NotificationBell() {
                   <div
                     key={n.id}
                     onClick={() => handleClick(n)}
-                    className="px-4 py-3 hover:bg-muted/30 cursor-pointer border-b border-border/30 last:border-0"
+                    className="group flex items-start gap-2 px-4 py-3 hover:bg-muted/30 cursor-pointer border-b border-border/30 last:border-0"
                   >
-                    <p className="text-sm font-medium">{n.title}</p>
-                    {n.message && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {n.message}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{n.title}</p>
+                      {n.message && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {n.message}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {new Date(n.createdAt).toLocaleString()}
                       </p>
-                    )}
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {new Date(n.createdAt).toLocaleString()}
-                    </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => handleDismiss(e, n.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
                 ))
               )}

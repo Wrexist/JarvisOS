@@ -48,8 +48,15 @@ export function CommandPalette() {
         setResults(null);
       }
     }
+    function handleOpenEvent() {
+      setOpen(true);
+    }
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("open-command-palette", handleOpenEvent);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("open-command-palette", handleOpenEvent);
+    };
   }, []);
 
   // Search on query change

@@ -99,7 +99,12 @@ export function TemplateList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Prompt Templates</h2>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <Dialog open={createOpen} onOpenChange={(open) => {
+          if (!open && (newName || newContent)) {
+            if (!confirm("Discard unsaved template?")) return;
+          }
+          setCreateOpen(open);
+        }}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <Plus className="h-4 w-4" />
@@ -181,7 +186,12 @@ export function TemplateList() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => setEditingId(null)}
+                        onClick={() => {
+                          if (editContent !== template.content) {
+                            if (!confirm("You have unsaved changes. Discard?")) return;
+                          }
+                          setEditingId(null);
+                        }}
                       >
                         <X className="h-3.5 w-3.5" />
                       </Button>
