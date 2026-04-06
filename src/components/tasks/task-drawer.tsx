@@ -84,7 +84,7 @@ export function TaskDrawer({
         if (data.tasks) setProjectTasks(data.tasks);
         if (data.pullRequests) setProjectPRs(data.pullRequests);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch project data:", err));
   }, [task?.project?.id]);
 
   useEffect(() => {

@@ -28,7 +28,9 @@ export function TemplateSelector() {
       .then((data) => {
         if (Array.isArray(data)) setTemplates(data);
       })
-      .catch(() => {})
+      .catch(() => {
+        toast.error("Failed to load templates");
+      })
       .finally(() => setLoading(false));
   }, []);
 

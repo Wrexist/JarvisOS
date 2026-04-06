@@ -71,10 +71,7 @@ export function Topbar() {
             readOnly
             onClick={() => {
               document.dispatchEvent(
-                new KeyboardEvent("keydown", {
-                  key: "k",
-                  metaKey: true,
-                })
+                new CustomEvent("open-command-palette")
               );
             }}
           />

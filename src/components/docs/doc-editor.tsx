@@ -50,6 +50,7 @@ export function DocEditor({
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [specTasks, setSpecTasks] = useState<GeneratedTask[]>([]);
   const [specDialogOpen, setSpecDialogOpen] = useState(false);
@@ -78,6 +79,8 @@ export function DocEditor({
           throw new Error(err?.error ?? "Failed to save");
         }
         router.refresh();
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to save");
       } finally {
@@ -218,7 +221,16 @@ export function DocEditor({
           </Button>
         </div>
         {saving && (
-          <span className="text-xs text-muted-foreground">Saving...</span>
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <RefreshCw className="h-3 w-3 animate-spin" />
+            Saving...
+          </span>
+        )}
+        {!saving && saved && (
+          <span className="text-xs text-emerald-400 flex items-center gap-1">
+            <Check className="h-3 w-3" />
+            Saved
+          </span>
         )}
       </div>
 
