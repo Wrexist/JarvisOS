@@ -28,14 +28,17 @@ export async function PATCH(request: Request) {
       );
     }
 
-    await prisma.task.updateMany({
-      where: { id: { in: data.taskIds } },
+    const result = await prisma.task.updateMany({
+      where: {
+        id: { in: data.taskIds },
+        project: { workspaceId: auth.workspaceId },
+      },
       data: updateData,
     });
 
     return NextResponse.json({
       success: true,
-      updated: data.taskIds.length,
+      updated: result.count,
     });
   } catch (error) {
     console.error("Bulk update failed:", error);
@@ -54,13 +57,16 @@ export async function DELETE(request: Request) {
     const data = await validateBody(request, bulkDeleteSchema);
     if (data instanceof NextResponse) return data;
 
-    await prisma.task.deleteMany({
-      where: { id: { in: data.taskIds } },
+    const result = await prisma.task.deleteMany({
+      where: {
+        id: { in: data.taskIds },
+        project: { workspaceId: auth.workspaceId },
+      },
     });
 
     return NextResponse.json({
       success: true,
-      deleted: data.taskIds.length,
+      deleted: result.count,
     });
   } catch (error) {
     console.error("Bulk delete failed:", error);

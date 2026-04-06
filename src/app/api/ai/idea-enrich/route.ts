@@ -12,20 +12,20 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
+
   const { ideaId } = await request.json();
 
   if (!ideaId) {
     return NextResponse.json({ error: "ideaId is required" }, { status: 400 });
   }
 
-  const idea = await getIdea(ideaId);
+  const idea = await getIdea(ideaId, workspaceId);
   if (!idea) {
     return NextResponse.json({ error: "Idea not found" }, { status: 404 });
   }
-
-  const auth = await requireAuth();
-  if (auth instanceof NextResponse) return auth;
-  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

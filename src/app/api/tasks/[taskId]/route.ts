@@ -12,7 +12,7 @@ export async function GET(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
-    const task = await getTask(taskId);
+    const task = await getTask(taskId, auth.workspaceId);
     if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
@@ -33,7 +33,7 @@ export async function PATCH(
     const { taskId } = await params;
     const data = await validateBody(request, updateTaskSchema);
     if (data instanceof NextResponse) return data;
-    const task = await updateTask(taskId, data);
+    const task = await updateTask(taskId, data, auth.workspaceId);
     return NextResponse.json(task);
   } catch (error) {
     console.error("Failed to update task:", error);
@@ -52,7 +52,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
-    await deleteTask(taskId);
+    await deleteTask(taskId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete task:", error);

@@ -23,7 +23,10 @@ export function NotificationBell() {
 
   const fetchNotifications = useCallback(() => {
     fetch("/api/notifications")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) setNotifications(data);
       })

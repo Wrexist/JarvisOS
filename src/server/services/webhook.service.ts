@@ -23,11 +23,19 @@ export async function createEndpoint(
   });
 }
 
-export async function deleteEndpoint(id: string) {
+export async function deleteEndpoint(id: string, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.webhookEndpoint.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Webhook endpoint not found");
+  }
   return prisma.webhookEndpoint.delete({ where: { id } });
 }
 
-export async function toggleEndpoint(id: string, active: boolean) {
+export async function toggleEndpoint(id: string, active: boolean, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.webhookEndpoint.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Webhook endpoint not found");
+  }
   return prisma.webhookEndpoint.update({
     where: { id },
     data: { active },

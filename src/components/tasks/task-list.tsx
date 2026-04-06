@@ -68,11 +68,12 @@ export function TaskList({
   async function handleBulkStatus(status: string) {
     setBulkLoading(true);
     try {
-      await fetch("/api/tasks/bulk", {
+      const res = await fetch("/api/tasks/bulk", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], status }),
       });
+      if (!res.ok) throw new Error("Bulk update failed");
       setSelected(new Set());
       router.refresh();
     } catch {
@@ -85,11 +86,12 @@ export function TaskList({
   async function handleBulkPriority(priority: string) {
     setBulkLoading(true);
     try {
-      await fetch("/api/tasks/bulk", {
+      const res = await fetch("/api/tasks/bulk", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], priority }),
       });
+      if (!res.ok) throw new Error("Bulk update failed");
       setSelected(new Set());
       router.refresh();
     } catch {

@@ -20,9 +20,9 @@ export async function listProjects(workspaceId: string) {
   });
 }
 
-export async function getProject(id: string) {
-  return prisma.project.findUnique({
-    where: { id },
+export async function getProject(id: string, workspaceId?: string) {
+  return prisma.project.findFirst({
+    where: { id, ...(workspaceId && { workspaceId }) },
     include: {
       idea: { select: { id: true, title: true, status: true } },
       tasks: {
@@ -82,8 +82,13 @@ export async function createProject(
 
 export async function updateProject(
   id: string,
-  data: { name?: string; description?: string | null }
+  data: { name?: string; description?: string | null },
+  workspaceId?: string
 ) {
+  if (workspaceId) {
+    const exists = await prisma.project.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Project not found");
+  }
   const project = await prisma.project.update({
     where: { id },
     data,
@@ -100,7 +105,11 @@ export async function updateProject(
   return project;
 }
 
-export async function updateProjectStage(id: string, stage: ProjectStage) {
+export async function updateProjectStage(id: string, stage: ProjectStage, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.project.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Project not found");
+  }
   const project = await prisma.project.update({
     where: { id },
     data: { stage },
@@ -130,13 +139,21 @@ export async function updateProjectStage(id: string, stage: ProjectStage) {
   return project;
 }
 
-export async function deleteProject(id: string) {
-  const project = await prisma.project.delete({ where: { id } });
+export async function deleteProject(id: string, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.project.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Project not found");
+  }
 
-  await prisma.activityEvent.create({
-    data: {
-      type: "project.deleted",
-      message: `Project "${project.name}" was deleted`,
-    },
-  });
+  const [project] = await prisma.$transaction([
+    prisma.project.delete({ where: { id } }),
+    prisma.activityEvent.create({
+      data: {
+        type: "project.deleted",
+        message: "Project was deleted",
+      },
+    }),
+  ]);
+
+  return project;
 }

@@ -10,6 +10,10 @@ import {
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
+
   const { documentId } = await request.json();
 
   if (!documentId) {
@@ -19,8 +23,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const doc = await prisma.document.findUnique({
-    where: { id: documentId },
+  const doc = await prisma.document.findFirst({
+    where: { id: documentId, project: { workspaceId } },
     include: {
       project: {
         select: { id: true, name: true },
@@ -35,10 +39,6 @@ export async function POST(request: Request) {
       { status: 404 }
     );
   }
-
-  const auth = await requireAuth();
-  if (auth instanceof NextResponse) return auth;
-  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

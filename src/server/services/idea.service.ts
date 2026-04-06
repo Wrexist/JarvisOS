@@ -47,9 +47,9 @@ export async function listIdeas(
   });
 }
 
-export async function getIdea(id: string) {
-  return prisma.idea.findUnique({
-    where: { id },
+export async function getIdea(id: string, workspaceId?: string) {
+  return prisma.idea.findFirst({
+    where: { id, ...(workspaceId && { workspaceId }) },
     include: {
       project: { select: { id: true, name: true, slug: true } },
       aiRuns: { orderBy: { createdAt: "desc" }, take: 10 },
@@ -77,7 +77,11 @@ export async function createIdea(workspaceId: string, data: CreateIdeaInput) {
   return idea;
 }
 
-export async function updateIdea(id: string, data: UpdateIdeaInput) {
+export async function updateIdea(id: string, data: UpdateIdeaInput, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.idea.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Idea not found");
+  }
   const idea = await prisma.idea.update({
     where: { id },
     data,
@@ -93,7 +97,11 @@ export async function updateIdea(id: string, data: UpdateIdeaInput) {
   return idea;
 }
 
-export async function deleteIdea(id: string) {
+export async function deleteIdea(id: string, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.idea.findFirst({ where: { id, workspaceId } });
+    if (!exists) throw new Error("Idea not found");
+  }
   const idea = await prisma.idea.delete({ where: { id } });
 
   await prisma.activityEvent.create({
@@ -105,7 +113,7 @@ export async function deleteIdea(id: string) {
 }
 
 export async function convertIdeaToProject(ideaId: string, workspaceId: string) {
-  const idea = await prisma.idea.findUnique({ where: { id: ideaId } });
+  const idea = await prisma.idea.findFirst({ where: { id: ideaId, workspaceId } });
   if (!idea) throw new Error("Idea not found");
   if (idea.status === "CONVERTED") throw new Error("Idea already converted");
 

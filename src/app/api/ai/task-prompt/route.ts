@@ -31,6 +31,10 @@ Instructions:
 - Briefly explain what changed`;
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
+
   const { taskId } = await request.json();
 
   if (!taskId) {
@@ -40,8 +44,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const task = await prisma.task.findUnique({
-    where: { id: taskId },
+  const task = await prisma.task.findFirst({
+    where: { id: taskId, project: { workspaceId } },
     include: {
       project: {
         select: { id: true, name: true, description: true },
@@ -52,10 +56,6 @@ export async function POST(request: Request) {
   if (!task) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
-
-  const auth = await requireAuth();
-  if (auth instanceof NextResponse) return auth;
-  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

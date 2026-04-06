@@ -16,7 +16,7 @@ export async function GET(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { documentId } = await params;
-    const doc = await getDocument(documentId);
+    const doc = await getDocument(documentId, auth.workspaceId);
     if (!doc) {
       return NextResponse.json(
         { error: "Document not found" },
@@ -43,7 +43,7 @@ export async function PATCH(
     const { documentId } = await params;
     const data = await validateBody(request, updateDocumentSchema);
     if (data instanceof NextResponse) return data;
-    const doc = await updateDocument(documentId, data);
+    const doc = await updateDocument(documentId, data, auth.workspaceId);
     return NextResponse.json(doc);
   } catch (error) {
     console.error("Failed to update document:", error);
@@ -62,7 +62,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { documentId } = await params;
-    await deleteDocument(documentId);
+    await deleteDocument(documentId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete document:", error);

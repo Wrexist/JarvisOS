@@ -10,7 +10,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { endpointId } = await params;
-    await deleteEndpoint(endpointId);
+    await deleteEndpoint(endpointId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete webhook:", error);
@@ -36,7 +36,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
-    const endpoint = await toggleEndpoint(endpointId, active);
+    const endpoint = await toggleEndpoint(endpointId, active, auth.workspaceId);
     return NextResponse.json(endpoint);
   } catch (error) {
     console.error("Failed to update webhook:", error);

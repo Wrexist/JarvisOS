@@ -63,9 +63,9 @@ export async function listAllTasks(
   });
 }
 
-export async function getTask(id: string) {
-  return prisma.task.findUnique({
-    where: { id },
+export async function getTask(id: string, workspaceId?: string) {
+  return prisma.task.findFirst({
+    where: { id, ...(workspaceId && { project: { workspaceId } }) },
     include: {
       project: { select: { id: true, name: true, slug: true } },
       linkedPullRequest: {
@@ -133,7 +133,11 @@ export async function createManyTasks(
   return result;
 }
 
-export async function updateTask(id: string, data: UpdateTaskInput) {
+export async function updateTask(id: string, data: UpdateTaskInput, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
+    if (!exists) throw new Error("Task not found");
+  }
   const task = await prisma.task.update({
     where: { id },
     data: {
@@ -145,7 +149,11 @@ export async function updateTask(id: string, data: UpdateTaskInput) {
   return task;
 }
 
-export async function moveTaskStatus(id: string, status: TaskStatus) {
+export async function moveTaskStatus(id: string, status: TaskStatus, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
+    if (!exists) throw new Error("Task not found");
+  }
   const task = await prisma.task.update({
     where: { id },
     data: { status },
@@ -180,7 +188,11 @@ export async function moveTaskStatus(id: string, status: TaskStatus) {
   return task;
 }
 
-export async function deleteTask(id: string) {
+export async function deleteTask(id: string, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
+    if (!exists) throw new Error("Task not found");
+  }
   const task = await prisma.task.delete({ where: { id } });
 
   await prisma.activityEvent.create({
