@@ -49,15 +49,18 @@ export function CreateProjectDialog({
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create project");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Failed to create project");
+      }
 
       setOpen(false);
       setName("");
       setDescription("");
       toast.success("Project created");
       router.refresh();
-    } catch {
-      toast.error("Failed to create project");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create project");
     } finally {
       setLoading(false);
     }

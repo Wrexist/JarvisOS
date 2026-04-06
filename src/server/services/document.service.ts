@@ -14,9 +14,9 @@ export async function listProjectDocuments(projectId: string) {
   });
 }
 
-export async function getDocument(id: string) {
-  return prisma.document.findUnique({
-    where: { id },
+export async function getDocument(id: string, workspaceId?: string) {
+  return prisma.document.findFirst({
+    where: { id, ...(workspaceId && { project: { workspaceId } }) },
     include: { project: { select: { id: true, name: true } } },
   });
 }
@@ -47,15 +47,24 @@ export async function createDocument(
 
 export async function updateDocument(
   id: string,
-  data: { title?: string; content?: string; type?: DocumentType }
+  data: { title?: string; content?: string; type?: DocumentType },
+  workspaceId?: string
 ) {
+  if (workspaceId) {
+    const exists = await prisma.document.findFirst({ where: { id, project: { workspaceId } } });
+    if (!exists) throw new Error("Document not found");
+  }
   return prisma.document.update({
     where: { id },
     data,
   });
 }
 
-export async function deleteDocument(id: string) {
+export async function deleteDocument(id: string, workspaceId?: string) {
+  if (workspaceId) {
+    const exists = await prisma.document.findFirst({ where: { id, project: { workspaceId } } });
+    if (!exists) throw new Error("Document not found");
+  }
   const doc = await prisma.document.delete({ where: { id } });
 
   await prisma.activityEvent.create({

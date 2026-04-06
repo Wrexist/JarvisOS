@@ -3,6 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AI_RUN_STATUS_OPTIONS } from "@/lib/constants";
 
 interface AIRun {
   id: string;
@@ -26,6 +34,16 @@ const statusColor: Record<string, string> = {
 
 export function AIRunsClient({ runs }: { runs: AIRun[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const types = Array.from(new Set(runs.map((r) => r.type)));
+
+  const filtered = runs.filter((run) => {
+    const matchesType = typeFilter === "all" || run.type === typeFilter;
+    const matchesStatus = statusFilter === "all" || run.status === statusFilter;
+    return matchesType && matchesStatus;
+  });
 
   function toggle(id: string) {
     setExpanded((prev) => {
@@ -37,8 +55,45 @@ export function AIRunsClient({ runs }: { runs: AIRun[] }) {
   }
 
   return (
-    <div className="glass-panel divide-y divide-border/50">
-      {runs.map((run) => (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-44 bg-muted/50">
+            <SelectValue placeholder="All types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            {types.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40 bg-muted/50">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            {AI_RUN_STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filtered.length !== runs.length && (
+          <span className="text-xs text-muted-foreground">
+            {filtered.length} of {runs.length} runs
+          </span>
+        )}
+      </div>
+      {filtered.length === 0 ? (
+        <div className="glass-panel p-12 text-center">
+          <p className="text-muted-foreground">No AI runs match your filters.</p>
+        </div>
+      ) : (
+      <div className="glass-panel divide-y divide-border/50">
+      {filtered.map((run) => (
         <div key={run.id} className="px-4 py-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -110,6 +165,8 @@ export function AIRunsClient({ runs }: { runs: AIRun[] }) {
           )}
         </div>
       ))}
+      </div>
+      )}
     </div>
   );
 }

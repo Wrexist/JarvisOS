@@ -68,14 +68,18 @@ export function DocEditor({
       if (!doc) return;
       setSaving(true);
       try {
-        await fetch(`/api/documents/${doc.id}`, {
+        const res = await fetch(`/api/documents/${doc.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          throw new Error(err?.error ?? "Failed to save");
+        }
         router.refresh();
-      } catch {
-        toast.error("Something went wrong");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to save");
       } finally {
         setSaving(false);
       }

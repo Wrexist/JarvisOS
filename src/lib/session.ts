@@ -3,13 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 /**
- * Gets the current session. Returns null if not authenticated.
- */
-export async function getSession() {
-  return auth();
-}
-
-/**
  * Requires authentication. Returns user + workspace or a 401 response.
  * Use in API routes: `const result = await requireAuth(); if (result instanceof NextResponse) return result;`
  */

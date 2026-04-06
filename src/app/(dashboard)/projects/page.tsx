@@ -4,6 +4,8 @@ import { getSessionWorkspaceId } from "@/lib/session";
 import { listProjects } from "@/server/services/project.service";
 import { ProjectCard } from "@/components/projects/project-card";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FolderKanban } from "lucide-react";
 
 export default async function ProjectsPage() {
   const workspaceId = await getSessionWorkspaceId();
@@ -22,9 +24,13 @@ export default async function ProjectsPage() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="glass-panel p-12 text-center text-muted-foreground">
-          No projects yet. Create one or convert an idea.
-        </div>
+        <EmptyState
+          icon={FolderKanban}
+          title="No projects yet"
+          description="Create a project to start organizing tasks, docs, and workflows. Or convert an idea."
+          actionLabel="Go to Ideas"
+          actionHref="/ideas"
+        />
       ) : (
         <div className="grid gap-3">
           {projects.map((project) => (

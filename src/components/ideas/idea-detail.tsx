@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CommentSection } from "@/components/comments/comment-list";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,6 +98,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [fields, setFields] = useState({
     title: idea.title,
     summary: idea.summary ?? "",
@@ -131,16 +133,21 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
     }
   }
 
-  async function handleDelete() {
-    if (!confirm("Delete this idea? This cannot be undone.")) return;
-    setDeleting(true);
-    try {
-      await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
-      router.push("/ideas");
-    } catch {
-      toast.error("Something went wrong");
-      setDeleting(false);
-    }
+  function handleDelete() {
+    confirm({
+      title: "Delete idea",
+      description: `Are you sure you want to delete "${idea.title}"? This cannot be undone.`,
+      onConfirm: async () => {
+        setDeleting(true);
+        try {
+          await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
+          router.push("/ideas");
+        } catch {
+          toast.error("Something went wrong");
+          setDeleting(false);
+        }
+      },
+    });
   }
 
   const isConverted = idea.status === "CONVERTED";
@@ -148,6 +155,7 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog />
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">

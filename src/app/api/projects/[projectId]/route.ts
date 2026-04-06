@@ -17,7 +17,7 @@ export async function GET(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
-    const project = await getProject(projectId);
+    const project = await getProject(projectId, auth.workspaceId);
 
     if (!project) {
       return NextResponse.json(
@@ -49,11 +49,11 @@ export async function PATCH(
 
     // Handle stage update separately
     if (data.stage) {
-      const project = await updateProjectStage(projectId, data.stage);
+      const project = await updateProjectStage(projectId, data.stage, auth.workspaceId);
       return NextResponse.json(project);
     }
 
-    const project = await updateProject(projectId, data);
+    const project = await updateProject(projectId, data, auth.workspaceId);
     return NextResponse.json(project);
   } catch (error) {
     console.error("Failed to update project:", error);
@@ -72,7 +72,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
-    await deleteProject(projectId);
+    await deleteProject(projectId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete project:", error);

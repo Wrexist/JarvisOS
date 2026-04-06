@@ -12,7 +12,7 @@ export async function GET(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
-    const idea = await getIdea(ideaId);
+    const idea = await getIdea(ideaId, auth.workspaceId);
 
     if (!idea) {
       return NextResponse.json({ error: "Idea not found" }, { status: 404 });
@@ -39,7 +39,7 @@ export async function PATCH(
     const data = await validateBody(request, updateIdeaSchema);
     if (data instanceof NextResponse) return data;
 
-    const idea = await updateIdea(ideaId, data);
+    const idea = await updateIdea(ideaId, data, auth.workspaceId);
     return NextResponse.json(idea);
   } catch (error) {
     console.error("Failed to update idea:", error);
@@ -58,7 +58,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
-    await deleteIdea(ideaId);
+    await deleteIdea(ideaId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete idea:", error);

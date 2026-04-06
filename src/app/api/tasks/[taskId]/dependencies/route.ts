@@ -26,6 +26,14 @@ export async function POST(
       );
     }
 
+    // Verify task belongs to user's workspace
+    const exists = await prisma.task.findFirst({
+      where: { id: taskId, project: { workspaceId: auth.workspaceId } },
+    });
+    if (!exists) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
     const task = await prisma.task.update({
       where: { id: taskId },
       data: {
@@ -67,6 +75,14 @@ export async function DELETE(
         { error: "blockedById is required" },
         { status: 400 }
       );
+    }
+
+    // Verify task belongs to user's workspace
+    const exists = await prisma.task.findFirst({
+      where: { id: taskId, project: { workspaceId: auth.workspaceId } },
+    });
+    if (!exists) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     await prisma.task.update({

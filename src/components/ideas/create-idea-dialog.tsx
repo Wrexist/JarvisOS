@@ -52,7 +52,10 @@ export function CreateIdeaDialog({
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create idea");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Failed to create idea");
+      }
 
       setOpen(false);
       setTitle("");
@@ -60,8 +63,8 @@ export function CreateIdeaDialog({
       setTags("");
       toast.success("Idea created");
       router.refresh();
-    } catch {
-      toast.error("Failed to create idea");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create idea");
     } finally {
       setLoading(false);
     }

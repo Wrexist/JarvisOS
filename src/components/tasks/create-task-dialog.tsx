@@ -23,6 +23,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { PRIORITY_OPTIONS } from "@/lib/constants";
 
 export function CreateTaskDialog({ projectId }: { projectId: string }) {
   const router = useRouter();
@@ -31,6 +32,8 @@ export function CreateTaskDialog({ projectId }: { projectId: string }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
+  const [estimateHours, setEstimateHours] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,19 +48,26 @@ export function CreateTaskDialog({ projectId }: { projectId: string }) {
           title: title.trim(),
           description: description.trim() || undefined,
           priority,
+          estimateHours: estimateHours ? Number(estimateHours) : undefined,
+          dueDate: dueDate || undefined,
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create task");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Failed to create task");
+      }
 
       setOpen(false);
       setTitle("");
       setDescription("");
       setPriority("MEDIUM");
+      setEstimateHours("");
+      setDueDate("");
       toast.success("Task created");
       router.refresh();
-    } catch {
-      toast.error("Failed to create task");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create task");
     } finally {
       setLoading(false);
     }
@@ -112,12 +122,37 @@ export function CreateTaskDialog({ projectId }: { projectId: string }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="LOW">Low</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                  <SelectItem value="URGENT">Urgent</SelectItem>
+                  {PRIORITY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="estimate" className="text-sm font-medium">
+                  Estimate (hours)
+                </label>
+                <Input
+                  id="estimate"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={estimateHours}
+                  onChange={(e) => setEstimateHours(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="dueDate" className="text-sm font-medium">
+                  Due Date
+                </label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              </div>
             </div>
           </div>
           <DialogFooter className="mt-6">

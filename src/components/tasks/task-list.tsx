@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TASK_STATUS_OPTIONS, PRIORITY_OPTIONS } from "@/lib/constants";
 import type { TaskStatus, Priority } from "@/generated/prisma/client";
 
 interface TaskItem {
@@ -67,11 +68,12 @@ export function TaskList({
   async function handleBulkStatus(status: string) {
     setBulkLoading(true);
     try {
-      await fetch("/api/tasks/bulk", {
+      const res = await fetch("/api/tasks/bulk", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], status }),
       });
+      if (!res.ok) throw new Error("Bulk update failed");
       setSelected(new Set());
       router.refresh();
     } catch {
@@ -84,11 +86,12 @@ export function TaskList({
   async function handleBulkPriority(priority: string) {
     setBulkLoading(true);
     try {
-      await fetch("/api/tasks/bulk", {
+      const res = await fetch("/api/tasks/bulk", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], priority }),
       });
+      if (!res.ok) throw new Error("Bulk update failed");
       setSelected(new Set());
       router.refresh();
     } catch {
@@ -147,10 +150,9 @@ export function TaskList({
               <SelectValue placeholder="Set status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="TODO">To Do</SelectItem>
-              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-              <SelectItem value="BLOCKED">Blocked</SelectItem>
-              <SelectItem value="DONE">Done</SelectItem>
+              {TASK_STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select
@@ -161,10 +163,9 @@ export function TaskList({
               <SelectValue placeholder="Set priority" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="LOW">Low</SelectItem>
-              <SelectItem value="MEDIUM">Medium</SelectItem>
-              <SelectItem value="HIGH">High</SelectItem>
-              <SelectItem value="URGENT">Urgent</SelectItem>
+              {PRIORITY_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button
