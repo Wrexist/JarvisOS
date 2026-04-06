@@ -28,6 +28,7 @@ export function CommentSection({
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   const param = taskId ? `taskId=${taskId}` : `ideaId=${ideaId}`;
 
@@ -74,8 +75,9 @@ export function CommentSection({
   }
 
   async function handleEdit(commentId: string) {
-    if (!editContent.trim()) return;
+    if (!editContent.trim() || actionLoading) return;
 
+    setActionLoading(true);
     try {
       const res = await fetch(`/api/comments/${commentId}`, {
         method: "PATCH",
@@ -94,10 +96,16 @@ export function CommentSection({
       toast.success("Comment updated");
     } catch {
       toast.error("Failed to update comment");
+    } finally {
+      setActionLoading(false);
     }
   }
 
   async function handleDelete(commentId: string) {
+    if (actionLoading) return;
+    if (!confirm("Delete this comment?")) return;
+
+    setActionLoading(true);
     try {
       const res = await fetch(`/api/comments/${commentId}`, {
         method: "DELETE",
@@ -109,6 +117,8 @@ export function CommentSection({
       toast.success("Comment deleted");
     } catch {
       toast.error("Failed to delete comment");
+    } finally {
+      setActionLoading(false);
     }
   }
 
@@ -160,6 +170,7 @@ export function CommentSection({
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 text-red-400 hover:text-red-300"
+                    disabled={actionLoading}
                     onClick={() => handleDelete(c.id)}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -179,7 +190,7 @@ export function CommentSection({
                       size="sm"
                       className="h-7 gap-1"
                       onClick={() => handleEdit(c.id)}
-                      disabled={!editContent.trim()}
+                      disabled={!editContent.trim() || actionLoading}
                     >
                       <Check className="h-3 w-3" />
                       Save

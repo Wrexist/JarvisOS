@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, Pencil, Sparkles, RefreshCw, Check } from "lucide-react";
@@ -51,6 +51,7 @@ export function DocEditor({
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [generating, setGenerating] = useState(false);
   const [specTasks, setSpecTasks] = useState<GeneratedTask[]>([]);
   const [specDialogOpen, setSpecDialogOpen] = useState(false);
@@ -63,6 +64,13 @@ export function DocEditor({
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [documentId]);
+
+  // Clean up saved indicator timer on unmount
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
 
   const save = useCallback(
     async (data: Partial<DocData>) => {
@@ -79,8 +87,9 @@ export function DocEditor({
           throw new Error(err?.error ?? "Failed to save");
         }
         router.refresh();
+        if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
         setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
+        savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to save");
       } finally {

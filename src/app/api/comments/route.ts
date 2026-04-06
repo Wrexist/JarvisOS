@@ -20,8 +20,14 @@ export async function GET(request: Request) {
 
     const comments = await prisma.comment.findMany({
       where: {
-        ...(taskId && { taskId }),
-        ...(ideaId && { ideaId }),
+        ...(taskId && {
+          taskId,
+          task: { project: { workspaceId: auth.workspaceId } },
+        }),
+        ...(ideaId && {
+          ideaId,
+          idea: { workspaceId: auth.workspaceId },
+        }),
       },
       orderBy: { createdAt: "asc" },
     });
@@ -55,6 +61,26 @@ export async function POST(request: Request) {
         { error: "taskId or ideaId is required" },
         { status: 400 }
       );
+    }
+
+    // Verify the target task/idea belongs to this workspace
+    if (taskId) {
+      const task = await prisma.task.findFirst({
+        where: { id: taskId, project: { workspaceId: auth.workspaceId } },
+        select: { id: true },
+      });
+      if (!task) {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      }
+    }
+    if (ideaId) {
+      const idea = await prisma.idea.findFirst({
+        where: { id: ideaId, workspaceId: auth.workspaceId },
+        select: { id: true },
+      });
+      if (!idea) {
+        return NextResponse.json({ error: "Idea not found" }, { status: 404 });
+      }
     }
 
     const comment = await prisma.comment.create({
