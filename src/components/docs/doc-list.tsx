@@ -22,6 +22,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { DocumentType } from "@/generated/prisma/client";
 
 interface DocItem {
@@ -41,6 +42,7 @@ export function DocList({
   onDocSelect: (docId: string) => void;
 }) {
   const router = useRouter();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [createOpen, setCreateOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [title, setTitle] = useState("");
@@ -88,19 +90,26 @@ export function DocList({
     }
   }
 
-  async function handleDelete(docId: string, e: React.MouseEvent) {
+  function handleDelete(docId: string, e: React.MouseEvent) {
     e.stopPropagation();
-    if (!confirm("Delete this document?")) return;
-    try {
-      await fetch(`/api/documents/${docId}`, { method: "DELETE" });
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    }
+    confirm({
+      title: "Delete document",
+      description: "This document will be permanently deleted. This cannot be undone.",
+      onConfirm: async () => {
+        const res = await fetch(`/api/documents/${docId}`, { method: "DELETE" });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          toast.error(data?.error || "Failed to delete document");
+          return;
+        }
+        router.refresh();
+      },
+    });
   }
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       <div className="flex items-center gap-2">
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>

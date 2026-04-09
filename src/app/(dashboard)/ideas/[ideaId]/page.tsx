@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getIdea } from "@/server/services/idea.service";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { IdeaDetail } from "@/components/ideas/idea-detail";
 
 export default async function IdeaDetailPage({
@@ -12,7 +13,8 @@ export default async function IdeaDetailPage({
   params: Promise<{ ideaId: string }>;
 }) {
   const { ideaId } = await params;
-  const idea = await getIdea(ideaId);
+  const workspaceId = await getSessionWorkspaceId();
+  const idea = await getIdea(ideaId, workspaceId);
 
   if (!idea) notFound();
 

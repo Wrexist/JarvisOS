@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { IdeaCompare } from "@/components/ideas/idea-compare";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,10 @@ export default async function IdeaComparePage({
   }
 
   const ideaIds = ids.split(",").slice(0, 4);
+  const workspaceId = await getSessionWorkspaceId();
 
   const ideas = await prisma.idea.findMany({
-    where: { id: { in: ideaIds } },
+    where: { id: { in: ideaIds }, workspaceId },
   });
 
   if (ideas.length < 2) {

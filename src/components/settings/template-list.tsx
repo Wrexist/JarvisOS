@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface Template {
   id: string;
@@ -26,6 +27,7 @@ interface Template {
 export function TemplateList() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
+  const { confirm: confirmDelete, ConfirmDialog } = useConfirmDialog();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -67,28 +69,34 @@ export function TemplateList() {
 
   async function handleSave(id: string) {
     try {
-      await fetch(`/api/prompt-templates/${id}`, {
+      const res = await fetch(`/api/prompt-templates/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: editContent }),
       });
+      if (!res.ok) throw new Error("Failed to save");
       setTemplates((prev) =>
         prev.map((t) => (t.id === id ? { ...t, content: editContent } : t))
       );
       setEditingId(null);
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Failed to save template");
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this template?")) return;
-    try {
-      await fetch(`/api/prompt-templates/${id}`, { method: "DELETE" });
-      setTemplates((prev) => prev.filter((t) => t.id !== id));
-    } catch {
-      toast.error("Something went wrong");
-    }
+  function handleDelete(id: string) {
+    confirmDelete({
+      title: "Delete template",
+      description: "This prompt template will be permanently deleted.",
+      onConfirm: async () => {
+        const res = await fetch(`/api/prompt-templates/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          toast.error("Failed to delete template");
+          return;
+        }
+        setTemplates((prev) => prev.filter((t) => t.id !== id));
+      },
+    });
   }
 
   if (loading) {
@@ -97,6 +105,7 @@ export function TemplateList() {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Prompt Templates</h2>
         <Dialog open={createOpen} onOpenChange={(open) => {

@@ -36,6 +36,7 @@ export function ConvertButton({
       router.push(`/projects/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Conversion failed");
+    } finally {
       setLoading(false);
     }
   }

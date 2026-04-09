@@ -27,7 +27,8 @@ export function EnrichButton({ ideaId }: { ideaId: string }) {
         throw new Error(data.error || "Enrichment failed");
       }
 
-      toast.success("Done"); router.refresh();
+      toast.success("Idea enriched successfully");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Enrichment failed");
     } finally {
