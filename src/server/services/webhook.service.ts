@@ -59,50 +59,52 @@ export async function deliverWebhook(
     },
   });
 
-  for (const endpoint of endpoints) {
-    const body = JSON.stringify({
-      event,
-      timestamp: new Date().toISOString(),
-      data: payload,
-    });
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    // Sign payload if secret configured
-    if (endpoint.secret) {
-      const signature =
-        "sha256=" +
-        crypto.createHmac("sha256", endpoint.secret).update(body).digest("hex");
-      headers["X-Webhook-Signature"] = signature;
-    }
-
-    let status = 0;
-    let response = "";
-
-    try {
-      const res = await fetch(endpoint.url, {
-        method: "POST",
-        headers,
-        body,
-        signal: AbortSignal.timeout(10_000),
-      });
-      status = res.status;
-      response = (await res.text()).slice(0, 500);
-    } catch (err) {
-      status = 0;
-      response = err instanceof Error ? err.message : "Delivery failed";
-    }
-
-    await prisma.webhookDelivery.create({
-      data: {
+  await Promise.allSettled(
+    endpoints.map(async (endpoint) => {
+      const body = JSON.stringify({
         event,
-        payload: JSON.parse(JSON.stringify({ event, data: payload })),
-        status,
-        response,
-        endpointId: endpoint.id,
-      },
-    });
-  }
+        timestamp: new Date().toISOString(),
+        data: payload,
+      });
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Sign payload if secret configured
+      if (endpoint.secret) {
+        const signature =
+          "sha256=" +
+          crypto.createHmac("sha256", endpoint.secret).update(body).digest("hex");
+        headers["X-Webhook-Signature"] = signature;
+      }
+
+      let status = 0;
+      let response = "";
+
+      try {
+        const res = await fetch(endpoint.url, {
+          method: "POST",
+          headers,
+          body,
+          signal: AbortSignal.timeout(10_000),
+        });
+        status = res.status;
+        response = (await res.text()).slice(0, 500);
+      } catch (err) {
+        status = 0;
+        response = err instanceof Error ? err.message : "Delivery failed";
+      }
+
+      await prisma.webhookDelivery.create({
+        data: {
+          event,
+          payload: JSON.parse(JSON.stringify({ event, data: payload })),
+          status,
+          response,
+          endpointId: endpoint.id,
+        },
+      });
+    })
+  );
 }

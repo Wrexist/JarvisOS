@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getTask, updateTask, deleteTask } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { updateTaskSchema } from "@/lib/validations";
 
 export async function GET(
@@ -18,8 +18,7 @@ export async function GET(
     }
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to get task:", error);
-    return NextResponse.json({ error: "Failed to get task" }, { status: 500 });
+    return apiError("Failed to get task", error);
   }
 }
 
@@ -36,11 +35,7 @@ export async function PATCH(
     const task = await updateTask(taskId, data, auth.workspaceId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to update task:", error);
-    return NextResponse.json(
-      { error: "Failed to update task" },
-      { status: 500 }
-    );
+    return apiError("Failed to update task", error);
   }
 }
 
@@ -55,10 +50,6 @@ export async function DELETE(
     await deleteTask(taskId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete task:", error);
-    return NextResponse.json(
-      { error: "Failed to delete task" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete task", error);
   }
 }

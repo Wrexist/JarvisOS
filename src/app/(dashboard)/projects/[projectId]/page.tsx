@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getProject } from "@/server/services/project.service";
 import { computeHealthScore } from "@/server/services/health.service";
+import { getSessionWorkspaceId } from "@/lib/session";
 import { StageBadge } from "@/components/projects/stage-badge";
 import { HealthIndicator } from "@/components/projects/health-indicator";
 import { ProjectTabs } from "@/components/projects/project-tabs";
@@ -18,7 +19,8 @@ export default async function ProjectDetailPage({
 }) {
   const { projectId } = await params;
   const { task: initialTaskId, doc: initialDocId } = await searchParams;
-  const project = await getProject(projectId);
+  const workspaceId = await getSessionWorkspaceId();
+  const project = await getProject(projectId, workspaceId);
 
   if (!project) notFound();
 

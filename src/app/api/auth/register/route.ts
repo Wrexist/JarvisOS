@@ -2,9 +2,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import slugify from "slugify";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: Request) {
   try {
+    // Rate limit registration by IP
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const { allowed } = checkRateLimit(`register:${ip}`, { limit: 5, window: 60_000 });
+    if (!allowed) return rateLimitResponse();
+
     const { name, email, password } = await request.json();
 
     if (!email || !password) {
@@ -21,8 +28,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Normalize email to prevent duplicate accounts
+    const normalizedEmail = email.trim().toLowerCase();
+
     const existing = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existing) {
@@ -36,14 +46,14 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         name: name || undefined,
         passwordHash,
       },
     });
 
     // Create a default workspace for the new user
-    const slug = slugify(name || email.split("@")[0], {
+    const slug = slugify(name || normalizedEmail.split("@")[0], {
       lower: true,
       strict: true,
     });
@@ -61,10 +71,6 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Registration failed:", error);
-    return NextResponse.json(
-      { error: "Registration failed" },
-      { status: 500 }
-    );
+    return apiError("Registration failed", error);
   }
 }

@@ -152,8 +152,9 @@ export function DocEditor({
       setSpecTasks([]);
       toast.success(`${selected.length} task${selected.length !== 1 ? "s" : ""} created from spec`);
       router.refresh();
-    } catch {
-      toast.error("Failed to create tasks");
+    } catch (err) {
+      console.error("[ForgeOS Error] Create tasks from spec:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to create tasks");
     } finally {
       setSpecCreating(false);
     }

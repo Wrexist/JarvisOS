@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 export async function PATCH(
   _request: Request,
@@ -29,10 +30,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to dismiss notification:", error);
-    return NextResponse.json(
-      { error: "Failed to dismiss notification" },
-      { status: 500 }
-    );
+    return apiError("Failed to dismiss notification", error);
   }
 }

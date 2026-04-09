@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: Request) {
   try {
@@ -34,11 +35,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(comments);
   } catch (error) {
-    console.error("Failed to list comments:", error);
-    return NextResponse.json(
-      { error: "Failed to list comments" },
-      { status: 500 }
-    );
+    return apiError("Failed to list comments", error);
   }
 }
 
@@ -94,10 +91,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
-    console.error("Failed to create comment:", error);
-    return NextResponse.json(
-      { error: "Failed to create comment" },
-      { status: 500 }
-    );
+    return apiError("Failed to create comment", error);
   }
 }

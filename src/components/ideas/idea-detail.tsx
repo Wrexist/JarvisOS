@@ -123,11 +123,16 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fields),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save");
+      }
       setEditing(false);
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save idea";
+      console.error("[ForgeOS Error] Save idea failed:", err);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -140,10 +145,16 @@ export function IdeaDetail({ idea }: IdeaDetailProps) {
       onConfirm: async () => {
         setDeleting(true);
         try {
-          await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
+          const res = await fetch(`/api/ideas/${idea.id}`, { method: "DELETE" });
+          if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            throw new Error(data?.error || "Failed to delete idea");
+          }
           router.push("/ideas");
-        } catch {
-          toast.error("Something went wrong");
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Failed to delete idea";
+          console.error("[ForgeOS Error] Delete idea failed:", err);
+          toast.error(msg);
           setDeleting(false);
         }
       },

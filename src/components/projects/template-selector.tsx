@@ -28,7 +28,8 @@ export function TemplateSelector() {
       .then((data) => {
         if (Array.isArray(data)) setTemplates(data);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[ForgeOS Error] Load templates:", err);
         toast.error("Failed to load templates");
       })
       .finally(() => setLoading(false));
@@ -50,8 +51,8 @@ export function TemplateSelector() {
       const project = await res.json();
       toast.success("Project created from template");
       router.push(`/projects/${project.id}`);
-    } catch {
-      toast.error("Failed to apply template");
+    } catch (err) {
+      console.error("[ForgeOS Error] Apply template:", err); toast.error(err instanceof Error ? err.message : "Failed to apply template");
     } finally {
       setApplying(null);
     }

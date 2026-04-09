@@ -122,23 +122,27 @@ export function TaskDrawer({
         setTask((prev) => (prev ? { ...prev, ...updated } : prev));
         router.refresh();
       }
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error]", err); toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
   async function handleStatusChange(status: string) {
     if (!task) return;
     try {
-      await fetch(`/api/tasks/${task.id}/status`, {
+      const res = await fetch(`/api/tasks/${task.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to update status");
+      }
       setTask((prev) => (prev ? { ...prev, status: status as TaskStatus } : prev));
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error]", err); toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
@@ -156,8 +160,8 @@ export function TaskDrawer({
       setShowAddBlocker(false);
       toast.success("Dependency added");
       router.refresh();
-    } catch {
-      toast.error("Failed to add dependency");
+    } catch (err) {
+      console.error("[ForgeOS Error] Add dependency:", err); toast.error(err instanceof Error ? err.message : "Failed to add dependency");
     }
   }
 
@@ -181,8 +185,8 @@ export function TaskDrawer({
       );
       toast.success("Dependency removed");
       router.refresh();
-    } catch {
-      toast.error("Failed to remove dependency");
+    } catch (err) {
+      console.error("[ForgeOS Error] Remove dependency:", err); toast.error(err instanceof Error ? err.message : "Failed to remove dependency");
     }
   }
 
@@ -199,8 +203,8 @@ export function TaskDrawer({
       setShowLinkPR(false);
       toast.success("PR linked");
       router.refresh();
-    } catch {
-      toast.error("Failed to link PR");
+    } catch (err) {
+      console.error("[ForgeOS Error] Link PR:", err); toast.error(err instanceof Error ? err.message : "Failed to link PR");
     }
   }
 
@@ -213,8 +217,8 @@ export function TaskDrawer({
       );
       toast.success("PR unlinked");
       router.refresh();
-    } catch {
-      toast.error("Failed to unlink PR");
+    } catch (err) {
+      console.error("[ForgeOS Error] Unlink PR:", err); toast.error(err instanceof Error ? err.message : "Failed to unlink PR");
     }
   }
 
@@ -228,8 +232,8 @@ export function TaskDrawer({
           await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
           onClose();
           router.refresh();
-        } catch {
-          toast.error("Something went wrong");
+        } catch (err) {
+          console.error("[ForgeOS Error]", err); toast.error(err instanceof Error ? err.message : "Something went wrong");
         }
       },
     });

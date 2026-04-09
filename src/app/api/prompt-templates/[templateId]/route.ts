@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { updateTemplateSchema } from "@/lib/validations";
 
 export async function GET(
@@ -23,11 +23,7 @@ export async function GET(
     }
     return NextResponse.json(template);
   } catch (error) {
-    console.error("Failed to get template:", error);
-    return NextResponse.json(
-      { error: "Failed to get template" },
-      { status: 500 }
-    );
+    return apiError("Failed to get template", error);
   }
 }
 
@@ -56,11 +52,7 @@ export async function PATCH(
     });
     return NextResponse.json(template);
   } catch (error) {
-    console.error("Failed to update template:", error);
-    return NextResponse.json(
-      { error: "Failed to update template" },
-      { status: 500 }
-    );
+    return apiError("Failed to update template", error);
   }
 }
 
@@ -84,10 +76,6 @@ export async function DELETE(
     await prisma.promptTemplate.delete({ where: { id: templateId } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete template:", error);
-    return NextResponse.json(
-      { error: "Failed to delete template" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete template", error);
   }
 }

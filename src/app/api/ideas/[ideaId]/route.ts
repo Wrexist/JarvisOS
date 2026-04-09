@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getIdea, updateIdea, deleteIdea } from "@/server/services/idea.service";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { updateIdeaSchema } from "@/lib/validations";
 
 export async function GET(
@@ -20,11 +20,7 @@ export async function GET(
 
     return NextResponse.json(idea);
   } catch (error) {
-    console.error("Failed to get idea:", error);
-    return NextResponse.json(
-      { error: "Failed to get idea" },
-      { status: 500 }
-    );
+    return apiError("Failed to get idea", error);
   }
 }
 
@@ -42,11 +38,7 @@ export async function PATCH(
     const idea = await updateIdea(ideaId, data, auth.workspaceId);
     return NextResponse.json(idea);
   } catch (error) {
-    console.error("Failed to update idea:", error);
-    return NextResponse.json(
-      { error: "Failed to update idea" },
-      { status: 500 }
-    );
+    return apiError("Failed to update idea", error);
   }
 }
 
@@ -61,10 +53,6 @@ export async function DELETE(
     await deleteIdea(ideaId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete idea:", error);
-    return NextResponse.json(
-      { error: "Failed to delete idea" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete idea", error);
   }
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { updateProjectSchema } from "@/lib/validations";
 import {
   getProject,
@@ -28,11 +28,7 @@ export async function GET(
 
     return NextResponse.json(project);
   } catch (error) {
-    console.error("Failed to get project:", error);
-    return NextResponse.json(
-      { error: "Failed to get project" },
-      { status: 500 }
-    );
+    return apiError("Failed to get project", error);
   }
 }
 
@@ -47,20 +43,22 @@ export async function PATCH(
     const data = await validateBody(request, updateProjectSchema);
     if (data instanceof NextResponse) return data;
 
-    // Handle stage update separately
+    // Handle stage update if present
     if (data.stage) {
-      const project = await updateProjectStage(projectId, data.stage, auth.workspaceId);
-      return NextResponse.json(project);
+      await updateProjectStage(projectId, data.stage, auth.workspaceId);
     }
 
-    const project = await updateProject(projectId, data, auth.workspaceId);
+    // Handle other field updates
+    const rest = { name: data.name, description: data.description };
+    const hasOtherFields = Object.values(rest).some((v) => v !== undefined);
+    if (hasOtherFields) {
+      await updateProject(projectId, rest, auth.workspaceId);
+    }
+
+    const project = await getProject(projectId, auth.workspaceId);
     return NextResponse.json(project);
   } catch (error) {
-    console.error("Failed to update project:", error);
-    return NextResponse.json(
-      { error: "Failed to update project" },
-      { status: 500 }
-    );
+    return apiError("Failed to update project", error);
   }
 }
 
@@ -75,10 +73,6 @@ export async function DELETE(
     await deleteProject(projectId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete project:", error);
-    return NextResponse.json(
-      { error: "Failed to delete project" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete project", error);
   }
 }

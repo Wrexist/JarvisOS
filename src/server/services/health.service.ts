@@ -74,7 +74,7 @@ export async function computeHealthScore(
     );
 
     if (daysSinceActivity > 14) {
-      const p = 15;
+      const p = 25;
       penalty += p;
       factors.push({
         label: "Stale project",
@@ -82,7 +82,7 @@ export async function computeHealthScore(
         detail: `No activity in ${daysSinceActivity} days`,
       });
     } else if (daysSinceActivity > 7) {
-      const p = 20;
+      const p = 10;
       penalty += p;
       factors.push({
         label: "Low activity",

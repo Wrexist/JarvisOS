@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { bulkTasksSchema } from "@/lib/validations";
 import { z } from "zod";
 
@@ -41,11 +41,7 @@ export async function PATCH(request: Request) {
       updated: result.count,
     });
   } catch (error) {
-    console.error("Bulk update failed:", error);
-    return NextResponse.json(
-      { error: "Bulk update failed" },
-      { status: 500 }
-    );
+    return apiError("Bulk update failed", error);
   }
 }
 
@@ -69,10 +65,6 @@ export async function DELETE(request: Request) {
       deleted: result.count,
     });
   } catch (error) {
-    console.error("Bulk delete failed:", error);
-    return NextResponse.json(
-      { error: "Bulk delete failed" },
-      { status: 500 }
-    );
+    return apiError("Bulk delete failed", error);
   }
 }

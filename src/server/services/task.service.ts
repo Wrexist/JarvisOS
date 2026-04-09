@@ -193,13 +193,20 @@ export async function deleteTask(id: string, workspaceId?: string) {
     const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
     if (!exists) throw new Error("Task not found");
   }
-  const task = await prisma.task.delete({ where: { id } });
 
-  await prisma.activityEvent.create({
-    data: {
-      type: "task.deleted",
-      message: `Task "${task.title}" was deleted`,
-      projectId: task.projectId,
-    },
+  const task = await prisma.task.findUnique({
+    where: { id },
+    select: { title: true, projectId: true },
   });
+
+  await prisma.$transaction([
+    prisma.task.delete({ where: { id } }),
+    prisma.activityEvent.create({
+      data: {
+        type: "task.deleted",
+        message: `Task "${task?.title ?? "Unknown"}" was deleted`,
+        projectId: task?.projectId,
+      },
+    }),
+  ]);
 }

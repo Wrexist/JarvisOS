@@ -56,6 +56,7 @@ export function GenerateTasksButton({ projectId }: { projectId: string }) {
       setTasks(data.tasks.map((t: Omit<GeneratedTask, "selected">) => ({ ...t, selected: true })));
       setDialogOpen(true);
     } catch (err) {
+      console.error("[ForgeOS Error] Generate tasks:", err);
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
       setGenerating(false);
@@ -86,8 +87,9 @@ export function GenerateTasksButton({ projectId }: { projectId: string }) {
       setTasks([]);
       toast.success(`${selected.length} tasks created`);
       router.refresh();
-    } catch {
-      toast.error("Failed to create tasks");
+    } catch (err) {
+      console.error("[ForgeOS Error] Batch create tasks:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to create tasks");
     } finally {
       setCreating(false);
     }

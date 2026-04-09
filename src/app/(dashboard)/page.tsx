@@ -24,6 +24,7 @@ async function getDashboardData(workspaceId: string) {
     inboxIdeas,
     projects,
     allTasks,
+    doneTasks,
     blockedTasks,
     inProgressTasks,
     urgentTodoTasks,
@@ -46,6 +47,7 @@ async function getDashboardData(workspaceId: string) {
       take: 5,
     }),
     prisma.task.count({ where: { project: { workspaceId } } }),
+    prisma.task.count({ where: { project: { workspaceId }, status: "DONE" } }),
     prisma.task.findMany({
       where: { project: { workspaceId }, status: "BLOCKED" },
       include: { project: { select: { id: true, name: true } } },
@@ -83,6 +85,7 @@ async function getDashboardData(workspaceId: string) {
     inboxIdeas,
     projects,
     totalTasks: allTasks,
+    doneTasks,
     blockedTasks,
     inProgressTasks,
     urgentTodoTasks,
@@ -148,10 +151,7 @@ export default async function HomePage() {
   const workspaceId = await getSessionWorkspaceId();
   const data = await getDashboardData(workspaceId);
   const nextAction = computeNextAction(data);
-
-  const doneTasks = await prisma.task.count({
-    where: { project: { workspaceId }, status: "DONE" },
-  });
+  const doneTasks = data.doneTasks;
 
   return (
     <div className="space-y-6">

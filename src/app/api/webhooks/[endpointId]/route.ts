@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { deleteEndpoint, toggleEndpoint } from "@/server/services/webhook.service";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 export async function DELETE(
   _request: Request,
@@ -13,11 +14,7 @@ export async function DELETE(
     await deleteEndpoint(endpointId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete webhook:", error);
-    return NextResponse.json(
-      { error: "Failed to delete webhook" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete webhook", error);
   }
 }
 
@@ -39,10 +36,6 @@ export async function PATCH(
     const endpoint = await toggleEndpoint(endpointId, active, auth.workspaceId);
     return NextResponse.json(endpoint);
   } catch (error) {
-    console.error("Failed to update webhook:", error);
-    return NextResponse.json(
-      { error: "Failed to update webhook" },
-      { status: 500 }
-    );
+    return apiError("Failed to update webhook", error);
   }
 }

@@ -6,6 +6,7 @@ import { Plus, Trash2, Globe, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ export function WebhookConfig() {
   const [secret, setSecret] = useState("");
   const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
   const [creating, setCreating] = useState(false);
+  const { confirm: confirmDelete, ConfirmDialog } = useConfirmDialog();
 
   useEffect(() => {
     fetch("/api/webhooks")
@@ -90,34 +92,46 @@ export function WebhookConfig() {
       setSelectedEvents(new Set());
       toast.success("Webhook created");
     } catch (err) {
+      console.error("[ForgeOS Error] Create webhook:", err);
       toast.error(err instanceof Error ? err.message : "Failed to create webhook");
     } finally {
       setCreating(false);
     }
   }
 
-  async function handleDelete(id: string) {
-    try {
-      await fetch(`/api/webhooks/${id}`, { method: "DELETE" });
-      setEndpoints((prev) => prev.filter((e) => e.id !== id));
-      toast.success("Webhook deleted");
-    } catch {
-      toast.error("Failed to delete webhook");
-    }
+  function handleDelete(id: string) {
+    confirmDelete({
+      title: "Delete webhook",
+      description: "This webhook endpoint will be permanently removed.",
+      onConfirm: async () => {
+        const res = await fetch(`/api/webhooks/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          toast.error("Failed to delete webhook");
+          return;
+        }
+        setEndpoints((prev) => prev.filter((e) => e.id !== id));
+        toast.success("Webhook deleted");
+      },
+    });
   }
 
   async function handleToggle(id: string, active: boolean) {
     try {
-      await fetch(`/api/webhooks/${id}`, {
+      const res = await fetch(`/api/webhooks/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to update webhook");
+      }
       setEndpoints((prev) =>
         prev.map((e) => (e.id === id ? { ...e, active } : e))
       );
-    } catch {
-      toast.error("Failed to update webhook");
+    } catch (err) {
+      console.error("[ForgeOS Error] Toggle webhook:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update webhook");
     }
   }
 
@@ -127,6 +141,7 @@ export function WebhookConfig() {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-muted-foreground" />

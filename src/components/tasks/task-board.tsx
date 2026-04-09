@@ -40,14 +40,19 @@ export function TaskBoard({
 
   async function handleDrop(taskId: string, newStatus: TaskStatus) {
     try {
-      await fetch(`/api/tasks/${taskId}/status`, {
+      const res = await fetch(`/api/tasks/${taskId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to update status");
+      }
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error] Task status update:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update task status");
     }
   }
 

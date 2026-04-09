@@ -9,6 +9,7 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 const DEFAULT_BREAKDOWN_PROMPT = `Turn this project into an MVP execution plan.
 
@@ -34,6 +35,10 @@ Existing tasks (avoid duplicates):
 {{existing_tasks}}`;
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
+
   const { projectId } = await request.json();
 
   if (!projectId) {
@@ -43,8 +48,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
     include: {
       tasks: { select: { title: true, status: true } },
     },
@@ -56,10 +61,6 @@ export async function POST(request: Request) {
       { status: 404 }
     );
   }
-
-  const auth = await requireAuth();
-  if (auth instanceof NextResponse) return auth;
-  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();
@@ -125,10 +126,8 @@ export async function POST(request: Request) {
       aiRunId: aiRun.id,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Task breakdown failed";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await failAIRun(aiRun.id, message);
-    console.error("Task breakdown failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("Task breakdown failed", error);
   }
 }

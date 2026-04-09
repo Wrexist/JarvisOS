@@ -67,7 +67,7 @@ export function CreateTaskDialog({ projectId }: { projectId: string }) {
       toast.success("Task created");
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create task");
+      console.error("[ForgeOS Error] Create task:", err); toast.error(err instanceof Error ? err.message : "Failed to create task");
     } finally {
       setLoading(false);
     }

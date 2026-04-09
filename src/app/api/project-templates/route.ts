@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { validateBody, apiError } from "@/lib/api-utils";
+import { createProjectTemplateSchema } from "@/lib/validations";
 
 export async function GET() {
   try {
@@ -13,11 +15,7 @@ export async function GET() {
     });
     return NextResponse.json(templates);
   } catch (error) {
-    console.error("Failed to list templates:", error);
-    return NextResponse.json(
-      { error: "Failed to list templates" },
-      { status: 500 }
-    );
+    return apiError("Failed to list templates", error);
   }
 }
 
@@ -26,32 +24,22 @@ export async function POST(request: Request) {
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { workspaceId } = auth;
-    const { name, description, taskTemplates, docTemplates } =
-      await request.json();
 
-    if (!name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
-    }
+    const data = await validateBody(request, createProjectTemplateSchema);
+    if (data instanceof NextResponse) return data;
 
     const template = await prisma.projectTemplate.create({
       data: {
-        name,
-        description,
-        taskTemplates: taskTemplates ?? [],
-        docTemplates: docTemplates ?? [],
+        name: data.name,
+        description: data.description,
+        taskTemplates: data.taskTemplates ?? [],
+        docTemplates: data.docTemplates ?? [],
         workspaceId,
       },
     });
 
     return NextResponse.json(template, { status: 201 });
   } catch (error) {
-    console.error("Failed to create template:", error);
-    return NextResponse.json(
-      { error: "Failed to create template" },
-      { status: 500 }
-    );
+    return apiError("Failed to create template", error);
   }
 }

@@ -71,8 +71,8 @@ export function CommandPalette() {
       if (res.ok) {
         setResults(await res.json());
       }
-    } catch {
-      // Ignore search errors
+    } catch (err) {
+      console.error("[ForgeOS Error] Search:", err);
     } finally {
       setLoading(false);
     }

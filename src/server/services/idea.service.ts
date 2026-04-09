@@ -102,14 +102,19 @@ export async function deleteIdea(id: string, workspaceId?: string) {
     const exists = await prisma.idea.findFirst({ where: { id, workspaceId } });
     if (!exists) throw new Error("Idea not found");
   }
-  const idea = await prisma.idea.delete({ where: { id } });
 
-  await prisma.activityEvent.create({
-    data: {
-      type: "idea.deleted",
-      message: `Idea "${idea.title}" was deleted`,
-    },
-  });
+  // Fetch title before deleting so we can log it
+  const idea = await prisma.idea.findUnique({ where: { id }, select: { title: true } });
+
+  await prisma.$transaction([
+    prisma.idea.delete({ where: { id } }),
+    prisma.activityEvent.create({
+      data: {
+        type: "idea.deleted",
+        message: `Idea "${idea?.title ?? "Unknown"}" was deleted`,
+      },
+    }),
+  ]);
 }
 
 export async function convertIdeaToProject(ideaId: string, workspaceId: string) {

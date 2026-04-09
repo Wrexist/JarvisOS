@@ -8,6 +8,7 @@ import {
   autoCompleteLinkedTasks,
 } from "@/server/services/github-sync.service";
 import type { PRStatus, CheckConclusion } from "@/generated/prisma/client";
+import { apiError } from "@/lib/api-utils";
 
 function mapPRStatus(state: string, merged: boolean): PRStatus {
   if (merged) return "MERGED";
@@ -45,7 +46,12 @@ export async function POST(request: Request) {
           .update(body)
           .digest("hex");
 
-      if (signature !== expected) {
+      const sigBuffer = Buffer.from(signature);
+      const expectedBuffer = Buffer.from(expected);
+      if (
+        sigBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+      ) {
         return NextResponse.json(
           { error: "Invalid signature" },
           { status: 401 }
@@ -108,10 +114,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook processing failed:", error);
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
+    return apiError("Webhook processing failed", error);
   }
 }

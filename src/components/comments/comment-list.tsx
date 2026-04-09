@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { MessageSquare, Pencil, Trash2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatRelativeTime } from "@/lib/format";
 
 interface Comment {
@@ -29,6 +30,7 @@ export function CommentSection({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const { confirm: confirmDelete, ConfirmDialog } = useConfirmDialog();
 
   const param = taskId ? `taskId=${taskId}` : `ideaId=${ideaId}`;
 
@@ -67,8 +69,8 @@ export function CommentSection({
       setComments((prev) => [...prev, comment]);
       setNewComment("");
       toast.success("Comment added");
-    } catch {
-      toast.error("Failed to add comment");
+    } catch (err) {
+      console.error("[ForgeOS Error] Add comment:", err); toast.error(err instanceof Error ? err.message : "Failed to add comment");
     } finally {
       setSubmitting(false);
     }
@@ -94,32 +96,37 @@ export function CommentSection({
       setEditingId(null);
       setEditContent("");
       toast.success("Comment updated");
-    } catch {
-      toast.error("Failed to update comment");
+    } catch (err) {
+      console.error("[ForgeOS Error] Update comment:", err); toast.error(err instanceof Error ? err.message : "Failed to update comment");
     } finally {
       setActionLoading(false);
     }
   }
 
-  async function handleDelete(commentId: string) {
+  function handleDelete(commentId: string) {
     if (actionLoading) return;
-    if (!confirm("Delete this comment?")) return;
+    confirmDelete({
+      title: "Delete comment",
+      description: "This comment will be permanently deleted.",
+      onConfirm: async () => {
+        setActionLoading(true);
+        try {
+          const res = await fetch(`/api/comments/${commentId}`, {
+            method: "DELETE",
+          });
 
-    setActionLoading(true);
-    try {
-      const res = await fetch(`/api/comments/${commentId}`, {
-        method: "DELETE",
-      });
+          if (!res.ok) throw new Error("Failed");
 
-      if (!res.ok) throw new Error("Failed");
-
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-      toast.success("Comment deleted");
-    } catch {
-      toast.error("Failed to delete comment");
-    } finally {
-      setActionLoading(false);
-    }
+          setComments((prev) => prev.filter((c) => c.id !== commentId));
+          toast.success("Comment deleted");
+        } catch (err) {
+          console.error("[ForgeOS Error] Delete comment:", err);
+          toast.error(err instanceof Error ? err.message : "Failed to delete comment");
+        } finally {
+          setActionLoading(false);
+        }
+      },
+    });
   }
 
   function isEdited(c: Comment) {
@@ -128,6 +135,7 @@ export function CommentSection({
 
   return (
     <div className="space-y-3">
+      <ConfirmDialog />
       <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
         <MessageSquare className="h-4 w-4" />
         Comments ({comments.length})

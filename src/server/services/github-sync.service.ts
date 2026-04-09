@@ -213,24 +213,24 @@ export async function autoCompleteLinkedTasks(pullRequestId: string) {
 
   if (!pr || pr.linkedTasks.length === 0) return [];
 
-  const completed = [];
-  for (const task of pr.linkedTasks) {
-    await prisma.task.update({
-      where: { id: task.id },
-      data: { status: "DONE" },
-    });
+  const taskIds = pr.linkedTasks.map((t) => t.id);
 
-    await prisma.activityEvent.create({
-      data: {
+  await prisma.$transaction([
+    prisma.task.updateMany({
+      where: { id: { in: taskIds } },
+      data: { status: "DONE" },
+    }),
+    prisma.activityEvent.createMany({
+      data: pr.linkedTasks.map((task) => ({
         type: "task.auto_completed",
         message: `Task "${task.title}" auto-completed from PR #${pr.number} merge`,
         projectId: task.projectId,
         taskId: task.id,
-      },
-    });
+      })),
+    }),
+  ]);
 
-    completed.push(task);
-  }
+  const completed = pr.linkedTasks;
 
   if (completed.length > 0) {
     const workspaceId = pr.repository.workspaceId;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 export async function PATCH(
   request: Request,
@@ -44,11 +45,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("Failed to update comment:", error);
-    return NextResponse.json(
-      { error: "Failed to update comment" },
-      { status: 500 }
-    );
+    return apiError("Failed to update comment", error);
   }
 }
 
@@ -82,10 +79,6 @@ export async function DELETE(
     await prisma.comment.delete({ where: { id: commentId } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete comment:", error);
-    return NextResponse.json(
-      { error: "Failed to delete comment" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete comment", error);
   }
 }

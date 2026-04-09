@@ -10,6 +10,7 @@ import {
 } from "@/server/services/ai-run.service";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: Request) {
   const auth = await requireAuth();
@@ -114,10 +115,8 @@ export async function POST(request: Request) {
       aiRun: { id: aiRun.id, output: text },
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "AI enrichment failed";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await failAIRun(aiRun.id, message);
-    console.error("AI enrichment failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("AI enrichment failed", error);
   }
 }
