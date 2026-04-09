@@ -125,8 +125,8 @@ export function ProjectTabs({
         body: JSON.stringify({ stage }),
       });
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error]", err); toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setChangingStage(false);
     }

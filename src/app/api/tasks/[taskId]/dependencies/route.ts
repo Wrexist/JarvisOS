@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(
   request: Request,
@@ -52,11 +53,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to add dependency:", error);
-    return NextResponse.json(
-      { error: "Failed to add dependency" },
-      { status: 500 }
-    );
+    return apiError("Failed to add dependency", error);
   }
 }
 
@@ -94,10 +91,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to remove dependency:", error);
-    return NextResponse.json(
-      { error: "Failed to remove dependency" },
-      { status: 500 }
-    );
+    return apiError("Failed to remove dependency", error);
   }
 }

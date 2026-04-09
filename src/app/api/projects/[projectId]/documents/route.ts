@@ -4,7 +4,7 @@ import {
   createDocument,
 } from "@/server/services/document.service";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { createDocumentSchema } from "@/lib/validations";
 import { prisma } from "@/lib/prisma";
 
@@ -28,11 +28,7 @@ export async function GET(
     const docs = await listProjectDocuments(projectId);
     return NextResponse.json(docs);
   } catch (error) {
-    console.error("Failed to list documents:", error);
-    return NextResponse.json(
-      { error: "Failed to list documents" },
-      { status: 500 }
-    );
+    return apiError("Failed to list documents", error);
   }
 }
 
@@ -59,10 +55,6 @@ export async function POST(
     const doc = await createDocument(projectId, data);
     return NextResponse.json(doc, { status: 201 });
   } catch (error) {
-    console.error("Failed to create document:", error);
-    return NextResponse.json(
-      { error: "Failed to create document" },
-      { status: 500 }
-    );
+    return apiError("Failed to create document", error);
   }
 }

@@ -10,6 +10,7 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 const DEFAULT_SPEC_PROMPT = `Create an MVP product spec in markdown.
 
@@ -98,10 +99,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ document: doc, aiRun: { id: aiRun.id } });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Spec generation failed";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await failAIRun(aiRun.id, message);
-    console.error("Spec generation failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("Spec generation failed", error);
   }
 }

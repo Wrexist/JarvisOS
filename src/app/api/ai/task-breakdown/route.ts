@@ -9,6 +9,7 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 const DEFAULT_BREAKDOWN_PROMPT = `Turn this project into an MVP execution plan.
 
@@ -125,10 +126,8 @@ export async function POST(request: Request) {
       aiRunId: aiRun.id,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Task breakdown failed";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await failAIRun(aiRun.id, message);
-    console.error("Task breakdown failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("Task breakdown failed", error);
   }
 }

@@ -69,8 +69,8 @@ export function CommentSection({
       setComments((prev) => [...prev, comment]);
       setNewComment("");
       toast.success("Comment added");
-    } catch {
-      toast.error("Failed to add comment");
+    } catch (err) {
+      console.error("[ForgeOS Error] Add comment:", err); toast.error(err instanceof Error ? err.message : "Failed to add comment");
     } finally {
       setSubmitting(false);
     }
@@ -96,8 +96,8 @@ export function CommentSection({
       setEditingId(null);
       setEditContent("");
       toast.success("Comment updated");
-    } catch {
-      toast.error("Failed to update comment");
+    } catch (err) {
+      console.error("[ForgeOS Error] Update comment:", err); toast.error(err instanceof Error ? err.message : "Failed to update comment");
     } finally {
       setActionLoading(false);
     }
@@ -119,8 +119,9 @@ export function CommentSection({
 
           setComments((prev) => prev.filter((c) => c.id !== commentId));
           toast.success("Comment deleted");
-        } catch {
-          toast.error("Failed to delete comment");
+        } catch (err) {
+          console.error("[ForgeOS Error] Delete comment:", err);
+          toast.error(err instanceof Error ? err.message : "Failed to delete comment");
         } finally {
           setActionLoading(false);
         }

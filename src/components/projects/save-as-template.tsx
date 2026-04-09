@@ -77,8 +77,8 @@ export function SaveAsTemplate({
 
       setOpen(false);
       toast.success("Template saved");
-    } catch {
-      toast.error("Failed to save template");
+    } catch (err) {
+      console.error("[ForgeOS Error] Save template:", err); toast.error(err instanceof Error ? err.message : "Failed to save template");
     } finally {
       setSaving(false);
     }

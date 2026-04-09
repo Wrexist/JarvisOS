@@ -92,6 +92,7 @@ export function WebhookConfig() {
       setSelectedEvents(new Set());
       toast.success("Webhook created");
     } catch (err) {
+      console.error("[ForgeOS Error] Create webhook:", err);
       toast.error(err instanceof Error ? err.message : "Failed to create webhook");
     } finally {
       setCreating(false);
@@ -121,12 +122,16 @@ export function WebhookConfig() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to update webhook");
+      }
       setEndpoints((prev) =>
         prev.map((e) => (e.id === id ? { ...e, active } : e))
       );
-    } catch {
-      toast.error("Failed to update webhook");
+    } catch (err) {
+      console.error("[ForgeOS Error] Toggle webhook:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to update webhook");
     }
   }
 

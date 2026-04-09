@@ -37,8 +37,8 @@ export function ProjectSettings({
       if (!res.ok) throw new Error("Failed to save");
       toast.success("Project updated");
       router.refresh();
-    } catch {
-      toast.error("Failed to update project");
+    } catch (err) {
+      console.error("[ForgeOS Error] Update project:", err); toast.error(err instanceof Error ? err.message : "Failed to update project");
     } finally {
       setSaving(false);
     }
@@ -54,8 +54,8 @@ export function ProjectSettings({
           await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
           toast.success("Project deleted");
           router.push("/projects");
-        } catch {
-          toast.error("Failed to delete project");
+        } catch (err) {
+          console.error("[ForgeOS Error] Delete project:", err); toast.error(err instanceof Error ? err.message : "Failed to delete project");
           setDeleting(false);
         }
       },

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { moveTaskStatus } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
 import type { TaskStatus } from "@/generated/prisma/client";
+import { apiError } from "@/lib/api-utils";
 
 const validStatuses: TaskStatus[] = ["TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
 
@@ -25,10 +26,6 @@ export async function PATCH(
     const task = await moveTaskStatus(taskId, status, auth.workspaceId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to update task status:", error);
-    return NextResponse.json(
-      { error: "Failed to update task status" },
-      { status: 500 }
-    );
+    return apiError("Failed to update task status", error);
   }
 }

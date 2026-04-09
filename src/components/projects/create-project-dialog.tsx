@@ -60,7 +60,7 @@ export function CreateProjectDialog({
       toast.success("Project created");
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create project");
+      console.error("[ForgeOS Error] Create project:", err); toast.error(err instanceof Error ? err.message : "Failed to create project");
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { listProjectTasks, createTask } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { createTaskSchema } from "@/lib/validations";
 import { prisma } from "@/lib/prisma";
 
@@ -25,11 +25,7 @@ export async function GET(
     const tasks = await listProjectTasks(projectId);
     return NextResponse.json(tasks);
   } catch (error) {
-    console.error("Failed to list tasks:", error);
-    return NextResponse.json(
-      { error: "Failed to list tasks" },
-      { status: 500 }
-    );
+    return apiError("Failed to list tasks", error);
   }
 }
 
@@ -56,10 +52,6 @@ export async function POST(
     const task = await createTask(projectId, data);
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
-    console.error("Failed to create task:", error);
-    return NextResponse.json(
-      { error: "Failed to create task" },
-      { status: 500 }
-    );
+    return apiError("Failed to create task", error);
   }
 }

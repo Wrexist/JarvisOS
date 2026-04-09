@@ -4,6 +4,7 @@ import {
   upsertRepository,
   connectRepoToProject,
 } from "@/server/services/github-sync.service";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(
   request: Request,
@@ -34,10 +35,6 @@ export async function POST(
     const project = await connectRepoToProject(projectId, repo.id);
     return NextResponse.json({ project, repository: repo });
   } catch (error) {
-    console.error("Failed to connect repository:", error);
-    return NextResponse.json(
-      { error: "Failed to connect repository" },
-      { status: 500 }
-    );
+    return apiError("Failed to connect repository", error);
   }
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { listProjects, createProject } from "@/server/services/project.service";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { createProjectSchema } from "@/lib/validations";
 
 export async function GET() {
@@ -12,11 +12,7 @@ export async function GET() {
     const projects = await listProjects(workspaceId);
     return NextResponse.json(projects);
   } catch (error) {
-    console.error("Failed to list projects:", error);
-    return NextResponse.json(
-      { error: "Failed to list projects" },
-      { status: 500 }
-    );
+    return apiError("Failed to list projects", error);
   }
 }
 
@@ -33,10 +29,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
-    console.error("Failed to create project:", error);
-    return NextResponse.json(
-      { error: "Failed to create project" },
-      { status: 500 }
-    );
+    return apiError("Failed to create project", error);
   }
 }

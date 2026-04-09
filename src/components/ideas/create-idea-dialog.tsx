@@ -64,7 +64,7 @@ export function CreateIdeaDialog({
       toast.success("Idea created");
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create idea");
+      console.error("[ForgeOS Error] Create idea:", err); toast.error(err instanceof Error ? err.message : "Failed to create idea");
     } finally {
       setLoading(false);
     }

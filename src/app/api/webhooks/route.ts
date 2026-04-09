@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { listEndpoints, createEndpoint } from "@/server/services/webhook.service";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { createWebhookSchema } from "@/lib/validations";
 
 export async function GET() {
@@ -12,11 +12,7 @@ export async function GET() {
     const endpoints = await listEndpoints(workspaceId);
     return NextResponse.json(endpoints);
   } catch (error) {
-    console.error("Failed to list webhooks:", error);
-    return NextResponse.json(
-      { error: "Failed to list webhooks" },
-      { status: 500 }
-    );
+    return apiError("Failed to list webhooks", error);
   }
 }
 
@@ -48,10 +44,6 @@ export async function POST(request: Request) {
     const endpoint = await createEndpoint(workspaceId, data);
     return NextResponse.json(endpoint, { status: 201 });
   } catch (error) {
-    console.error("Failed to create webhook:", error);
-    return NextResponse.json(
-      { error: "Failed to create webhook" },
-      { status: 500 }
-    );
+    return apiError("Failed to create webhook", error);
   }
 }

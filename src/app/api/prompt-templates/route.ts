@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { createTemplateSchema } from "@/lib/validations";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET() {
   try {
@@ -14,11 +15,7 @@ export async function GET() {
     });
     return NextResponse.json(templates);
   } catch (error) {
-    console.error("Failed to list templates:", error);
-    return NextResponse.json(
-      { error: "Failed to list templates" },
-      { status: 500 }
-    );
+    return apiError("Failed to list templates", error);
   }
 }
 
@@ -48,10 +45,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(template, { status: 201 });
   } catch (error) {
-    console.error("Failed to create template:", error);
-    return NextResponse.json(
-      { error: "Failed to create template" },
-      { status: 500 }
-    );
+    return apiError("Failed to create template", error);
   }
 }

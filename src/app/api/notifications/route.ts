@@ -4,6 +4,7 @@ import {
   listUnreadNotifications,
   markAllNotificationsRead,
 } from "@/server/services/notification.service";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET() {
   try {
@@ -13,11 +14,7 @@ export async function GET() {
     const notifications = await listUnreadNotifications(workspaceId);
     return NextResponse.json(notifications);
   } catch (error) {
-    console.error("Failed to list notifications:", error);
-    return NextResponse.json(
-      { error: "Failed to list notifications" },
-      { status: 500 }
-    );
+    return apiError("Failed to list notifications", error);
   }
 }
 
@@ -29,10 +26,6 @@ export async function PATCH() {
     await markAllNotificationsRead(workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to mark notifications:", error);
-    return NextResponse.json(
-      { error: "Failed to mark notifications" },
-      { status: 500 }
-    );
+    return apiError("Failed to mark notifications", error);
   }
 }

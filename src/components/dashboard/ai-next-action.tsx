@@ -18,7 +18,8 @@ export function AINextActionButton() {
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
       setResult(data);
-    } catch {
+    } catch (err) {
+      console.error("[ForgeOS Error] AI next action:", err);
       setResult(null);
     } finally {
       setLoading(false);

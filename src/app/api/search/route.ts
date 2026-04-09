@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
+import { apiError } from "@/lib/api-utils";
 
 const VALID_STATUSES = ["INBOX", "REVIEWING", "VALIDATED", "CONVERTED", "ARCHIVED", "TODO", "IN_PROGRESS", "BLOCKED", "DONE"];
 const VALID_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"];
@@ -153,7 +154,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ ideas, projects, tasks, documents });
   } catch (error) {
-    console.error("Search failed:", error);
-    return NextResponse.json({ error: "Search failed" }, { status: 500 });
+    return apiError("Search failed", error);
   }
 }

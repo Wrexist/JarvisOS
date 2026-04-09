@@ -55,15 +55,19 @@ export function TemplateList() {
           content: newContent,
         }),
       });
-      if (!res.ok) throw new Error("Failed to create");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to create template");
+      }
       const template = await res.json();
       setTemplates((prev) => [template, ...prev]);
       setCreateOpen(false);
       setNewName("");
       setNewDescription("");
       setNewContent("");
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error] Create template:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to create template");
     }
   }
 
@@ -74,13 +78,17 @@ export function TemplateList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: editContent }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save template");
+      }
       setTemplates((prev) =>
         prev.map((t) => (t.id === id ? { ...t, content: editContent } : t))
       );
       setEditingId(null);
-    } catch {
-      toast.error("Failed to save template");
+    } catch (err) {
+      console.error("[ForgeOS Error] Save template:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to save template");
     }
   }
 

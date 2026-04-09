@@ -5,7 +5,7 @@ import {
   deleteDocument,
 } from "@/server/services/document.service";
 import { requireAuth } from "@/lib/session";
-import { validateBody } from "@/lib/api-utils";
+import { validateBody, apiError } from "@/lib/api-utils";
 import { updateDocumentSchema } from "@/lib/validations";
 
 export async function GET(
@@ -25,11 +25,7 @@ export async function GET(
     }
     return NextResponse.json(doc);
   } catch (error) {
-    console.error("Failed to get document:", error);
-    return NextResponse.json(
-      { error: "Failed to get document" },
-      { status: 500 }
-    );
+    return apiError("Failed to get document", error);
   }
 }
 
@@ -46,11 +42,7 @@ export async function PATCH(
     const doc = await updateDocument(documentId, data, auth.workspaceId);
     return NextResponse.json(doc);
   } catch (error) {
-    console.error("Failed to update document:", error);
-    return NextResponse.json(
-      { error: "Failed to update document" },
-      { status: 500 }
-    );
+    return apiError("Failed to update document", error);
   }
 }
 
@@ -65,10 +57,6 @@ export async function DELETE(
     await deleteDocument(documentId, auth.workspaceId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete document:", error);
-    return NextResponse.json(
-      { error: "Failed to delete document" },
-      { status: 500 }
-    );
+    return apiError("Failed to delete document", error);
   }
 }

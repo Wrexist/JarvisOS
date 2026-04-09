@@ -8,6 +8,7 @@ import {
   completeAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 const DEFAULT_NEXT_ACTION_PROMPT = `Given this project state, suggest the single most important next action.
 
@@ -144,9 +145,6 @@ export async function POST() {
 
     return NextResponse.json(result);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Next action failed";
-    console.error("Next action failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("Next action failed", error);
   }
 }

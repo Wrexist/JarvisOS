@@ -35,7 +35,9 @@ export function ConvertButton({
       toast.success("Converted to project");
       router.push(`/projects/${data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Conversion failed");
+      const msg = err instanceof Error ? err.message : "Conversion failed";
+      console.error("[ForgeOS Error] Idea conversion:", err);
+      setError(msg);
     } finally {
       setLoading(false);
     }

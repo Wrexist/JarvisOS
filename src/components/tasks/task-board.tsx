@@ -51,6 +51,7 @@ export function TaskBoard({
       }
       router.refresh();
     } catch (err) {
+      console.error("[ForgeOS Error] Task status update:", err);
       toast.error(err instanceof Error ? err.message : "Failed to update task status");
     }
   }

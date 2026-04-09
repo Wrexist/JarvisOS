@@ -73,11 +73,11 @@ export function TaskList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], status }),
       });
-      if (!res.ok) throw new Error("Bulk update failed");
+      if (!res.ok) { const d = await res.json().catch(() => null); throw new Error(d?.error || "Bulk update failed"); }
       setSelected(new Set());
       router.refresh();
-    } catch {
-      toast.error("Bulk update failed");
+    } catch (err) {
+      console.error("[ForgeOS Error] Bulk update:", err); toast.error(err instanceof Error ? err.message : "Bulk update failed");
     } finally {
       setBulkLoading(false);
     }
@@ -91,11 +91,11 @@ export function TaskList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskIds: [...selected], priority }),
       });
-      if (!res.ok) throw new Error("Bulk update failed");
+      if (!res.ok) { const d = await res.json().catch(() => null); throw new Error(d?.error || "Bulk update failed"); }
       setSelected(new Set());
       router.refresh();
-    } catch {
-      toast.error("Bulk update failed");
+    } catch (err) {
+      console.error("[ForgeOS Error] Bulk update:", err); toast.error(err instanceof Error ? err.message : "Bulk update failed");
     } finally {
       setBulkLoading(false);
     }
@@ -115,8 +115,8 @@ export function TaskList({
           });
           setSelected(new Set());
           router.refresh();
-        } catch {
-          toast.error("Bulk delete failed");
+        } catch (err) {
+          console.error("[ForgeOS Error] Bulk delete:", err); toast.error(err instanceof Error ? err.message : "Bulk delete failed");
         } finally {
           setBulkLoading(false);
         }

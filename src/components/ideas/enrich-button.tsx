@@ -30,7 +30,9 @@ export function EnrichButton({ ideaId }: { ideaId: string }) {
       toast.success("Idea enriched successfully");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Enrichment failed");
+      const msg = err instanceof Error ? err.message : "Enrichment failed";
+      console.error("[ForgeOS Error] AI enrichment:", err);
+      setError(msg);
     } finally {
       setLoading(false);
     }

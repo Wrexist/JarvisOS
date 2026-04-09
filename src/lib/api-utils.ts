@@ -33,3 +33,39 @@ export async function validateBody<T>(
   }
 }
 
+/**
+ * Builds a structured error response for API routes.
+ * Logs full error details server-side and returns a JSON response
+ * with enough context for debugging (error message, code, timestamp).
+ */
+export function apiError(
+  context: string,
+  error: unknown,
+  status = 500
+): NextResponse {
+  const timestamp = new Date().toISOString();
+  const message =
+    error instanceof Error ? error.message : "Internal server error";
+  const stack = error instanceof Error ? error.stack : undefined;
+
+  // Full server-side log — visible in hosting logs / terminal
+  console.error(
+    JSON.stringify({
+      error: context,
+      message,
+      stack,
+      timestamp,
+    })
+  );
+
+  // Client-facing response — enough detail to report, no stack traces
+  return NextResponse.json(
+    {
+      error: message,
+      context,
+      timestamp,
+    },
+    { status }
+  );
+}
+

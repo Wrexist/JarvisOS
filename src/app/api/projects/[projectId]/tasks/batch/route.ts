@@ -3,6 +3,7 @@ import { createManyTasks } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { apiError } from "@/lib/api-utils";
 
 const batchSchema = z.object({
   tasks: z.array(
@@ -45,10 +46,6 @@ export async function POST(
     const result = await createManyTasks(projectId, parsed.data.tasks);
     return NextResponse.json({ count: result.count });
   } catch (error) {
-    console.error("Batch task creation failed:", error);
-    return NextResponse.json(
-      { error: "Failed to create tasks" },
-      { status: 500 }
-    );
+    return apiError("Batch task creation failed", error);
   }
 }

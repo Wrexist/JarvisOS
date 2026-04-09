@@ -5,6 +5,7 @@ import {
 } from "@/server/services/github-sync.service";
 import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(
   request: Request,
@@ -34,11 +35,7 @@ export async function POST(
     const task = await linkTaskToPR(taskId, prId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to link PR:", error);
-    return NextResponse.json(
-      { error: "Failed to link PR" },
-      { status: 500 }
-    );
+    return apiError("Failed to link PR", error);
   }
 }
 
@@ -62,10 +59,6 @@ export async function DELETE(
     const task = await unlinkTaskPR(taskId);
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to unlink PR:", error);
-    return NextResponse.json(
-      { error: "Failed to unlink PR" },
-      { status: 500 }
-    );
+    return apiError("Failed to unlink PR", error);
   }
 }

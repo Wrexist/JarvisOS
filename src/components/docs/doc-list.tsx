@@ -58,15 +58,19 @@ export function DocList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: title.trim(), type }),
       });
-      if (!res.ok) throw new Error("Failed to create document");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to create document");
+      }
 
       const doc = await res.json();
       setCreateOpen(false);
       setTitle("");
       onDocSelect(doc.id);
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error] Create document:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to create document");
     }
   }
 
@@ -78,13 +82,17 @@ export function DocList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
       });
-      if (!res.ok) throw new Error("Spec generation failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Spec generation failed");
+      }
 
       const { document } = await res.json();
       onDocSelect(document.id);
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (err) {
+      console.error("[ForgeOS Error] Generate spec:", err);
+      toast.error(err instanceof Error ? err.message : "Spec generation failed");
     } finally {
       setGenerating(false);
     }

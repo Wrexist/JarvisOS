@@ -8,6 +8,7 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: Request) {
   const auth = await requireAuth();
@@ -111,10 +112,8 @@ ${existingTasks}`;
       aiRunId: aiRun.id,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Spec-to-tasks failed";
+    const message = error instanceof Error ? error.message : "Unknown error";
     await failAIRun(aiRun.id, message);
-    console.error("Spec-to-tasks failed:", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError("Spec-to-tasks failed", error);
   }
 }

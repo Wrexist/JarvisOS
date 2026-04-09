@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { createProject } from "@/server/services/project.service";
+import { apiError } from "@/lib/api-utils";
 
 interface TaskTemplate {
   title: string;
@@ -79,10 +80,6 @@ export async function POST(
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
-    console.error("Failed to apply template:", error);
-    return NextResponse.json(
-      { error: "Failed to apply template" },
-      { status: 500 }
-    );
+    return apiError("Failed to apply template", error);
   }
 }
