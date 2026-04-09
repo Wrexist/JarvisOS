@@ -251,6 +251,8 @@ model Document {
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model Repository {
@@ -314,6 +316,8 @@ model CheckRun {
 
   pullRequestId String?
   pullRequest   PullRequest? @relation(fields: [pullRequestId], references: [id], onDelete: SetNull)
+
+  @@index([headSha])
 }
 
 model AIRun {
@@ -338,6 +342,8 @@ model AIRun {
 
   ideaId String?
   idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
 }
 
 model PromptTemplate {
@@ -379,6 +385,8 @@ model Notification {
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, read])
 }
 
 model Comment {
@@ -393,6 +401,9 @@ model Comment {
 
   ideaId String?
   idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([ideaId])
 }
 
 model ProjectTemplate {

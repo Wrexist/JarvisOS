@@ -83,3 +83,24 @@ export const updateTaskSchema = z.object({
   dueDate: z.string().nullable().optional(),
   relevantFiles: z.array(z.string()).optional(),
 });
+
+export const createProjectTemplateSchema = z.object({
+  name: z.string().min(1, "Name is required").max(200),
+  description: z.string().max(500).optional(),
+  taskTemplates: z.array(z.object({
+    title: z.string().min(1).max(200),
+    description: z.string().max(5000).optional(),
+    priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+    acceptanceCriteria: z.string().max(5000).optional(),
+  })).optional(),
+  docTemplates: z.array(z.object({
+    title: z.string().min(1).max(200),
+    type: z.enum(["PRD", "TECH_SPEC", "NOTES", "RETRO", "SCRATCHPAD"]),
+  })).optional(),
+});
+
+export const createWebhookSchema = z.object({
+  url: z.string().url("Invalid URL format").max(2000),
+  events: z.array(z.string().min(1)).min(1, "At least one event is required"),
+  secret: z.string().max(256).optional(),
+});

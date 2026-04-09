@@ -3,6 +3,7 @@ import { listProjectTasks, createTask } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
 import { validateBody } from "@/lib/api-utils";
 import { createTaskSchema } from "@/lib/validations";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _request: Request,
@@ -12,6 +13,15 @@ export async function GET(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
+
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, workspaceId: auth.workspaceId },
+      select: { id: true },
+    });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const tasks = await listProjectTasks(projectId);
     return NextResponse.json(tasks);
   } catch (error) {
@@ -31,6 +41,15 @@ export async function POST(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
+
+    const projectExists = await prisma.project.findFirst({
+      where: { id: projectId, workspaceId: auth.workspaceId },
+      select: { id: true },
+    });
+    if (!projectExists) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const data = await validateBody(request, createTaskSchema);
     if (data instanceof NextResponse) return data;
 

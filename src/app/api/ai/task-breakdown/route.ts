@@ -34,6 +34,10 @@ Existing tasks (avoid duplicates):
 {{existing_tasks}}`;
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { workspaceId } = auth;
+
   const { projectId } = await request.json();
 
   if (!projectId) {
@@ -43,8 +47,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
     include: {
       tasks: { select: { title: true, status: true } },
     },
@@ -56,10 +60,6 @@ export async function POST(request: Request) {
       { status: 404 }
     );
   }
-
-  const auth = await requireAuth();
-  if (auth instanceof NextResponse) return auth;
-  const { workspaceId } = auth;
 
   const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
   if (!allowed) return rateLimitResponse();

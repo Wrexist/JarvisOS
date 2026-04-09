@@ -45,7 +45,12 @@ export async function POST(request: Request) {
           .update(body)
           .digest("hex");
 
-      if (signature !== expected) {
+      const sigBuffer = Buffer.from(signature);
+      const expectedBuffer = Buffer.from(expected);
+      if (
+        sigBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+      ) {
         return NextResponse.json(
           { error: "Invalid signature" },
           { status: 401 }

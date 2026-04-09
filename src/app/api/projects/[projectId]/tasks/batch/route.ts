@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createManyTasks } from "@/server/services/task.service";
 import { requireAuth } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const batchSchema = z.object({
@@ -22,6 +23,15 @@ export async function POST(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { projectId } = await params;
+
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, workspaceId: auth.workspaceId },
+      select: { id: true },
+    });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     const body = await request.json();
     const parsed = batchSchema.safeParse(body);
 

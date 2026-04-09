@@ -47,13 +47,19 @@ export async function PATCH(
     const data = await validateBody(request, updateProjectSchema);
     if (data instanceof NextResponse) return data;
 
-    // Handle stage update separately
+    // Handle stage update if present
     if (data.stage) {
-      const project = await updateProjectStage(projectId, data.stage, auth.workspaceId);
-      return NextResponse.json(project);
+      await updateProjectStage(projectId, data.stage, auth.workspaceId);
     }
 
-    const project = await updateProject(projectId, data, auth.workspaceId);
+    // Handle other field updates
+    const rest = { name: data.name, description: data.description };
+    const hasOtherFields = Object.values(rest).some((v) => v !== undefined);
+    if (hasOtherFields) {
+      await updateProject(projectId, rest, auth.workspaceId);
+    }
+
+    const project = await getProject(projectId, auth.workspaceId);
     return NextResponse.json(project);
   } catch (error) {
     console.error("Failed to update project:", error);

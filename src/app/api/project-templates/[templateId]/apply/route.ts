@@ -33,8 +33,8 @@ export async function POST(
       // Empty body is ok — will use template name
     }
 
-    const template = await prisma.projectTemplate.findUnique({
-      where: { id: templateId },
+    const template = await prisma.projectTemplate.findFirst({
+      where: { id: templateId, workspaceId },
     });
 
     if (!template) {

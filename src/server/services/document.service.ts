@@ -65,13 +65,20 @@ export async function deleteDocument(id: string, workspaceId?: string) {
     const exists = await prisma.document.findFirst({ where: { id, project: { workspaceId } } });
     if (!exists) throw new Error("Document not found");
   }
-  const doc = await prisma.document.delete({ where: { id } });
 
-  await prisma.activityEvent.create({
-    data: {
-      type: "document.deleted",
-      message: `Document "${doc.title}" was deleted`,
-      projectId: doc.projectId,
-    },
+  const doc = await prisma.document.findUnique({
+    where: { id },
+    select: { title: true, projectId: true },
   });
+
+  await prisma.$transaction([
+    prisma.document.delete({ where: { id } }),
+    prisma.activityEvent.create({
+      data: {
+        type: "document.deleted",
+        message: `Document "${doc?.title ?? "Unknown"}" was deleted`,
+        projectId: doc?.projectId,
+      },
+    }),
+  ]);
 }
