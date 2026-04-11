@@ -7,6 +7,8 @@ import { PRList } from "@/components/github/pr-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 
+export const metadata = { title: "GitHub" };
+
 export default async function GitHubPage() {
   const workspaceId = await getSessionWorkspaceId();
   const repositories = await prisma.repository.findMany({

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
+import { AI_SYSTEM_PROMPT, sanitizeForPrompt } from "@/lib/ai/prompts";
 import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -8,21 +9,18 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { apiError } from "@/lib/api-utils";
+import { apiError, validateBody } from "@/lib/api-utils";
+import { aiDocumentIdSchema } from "@/lib/validations";
+import { getAIConfig } from "@/lib/ai/config";
 
 export async function POST(request: Request) {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
   const { workspaceId } = auth;
 
-  const { documentId } = await request.json();
-
-  if (!documentId) {
-    return NextResponse.json(
-      { error: "documentId is required" },
-      { status: 400 }
-    );
-  }
+  const data = await validateBody(request, aiDocumentIdSchema);
+  if (data instanceof NextResponse) return data;
+  const { documentId } = data;
 
   const doc = await prisma.document.findFirst({
     where: { id: documentId, project: { workspaceId } },
@@ -62,25 +60,28 @@ Return JSON:
 }
 
 Specification:
-${doc.content.slice(0, 4000)}
+${sanitizeForPrompt(doc.content, 4000)}
 
-Project: ${doc.project.name}
+Project: ${sanitizeForPrompt(doc.project.name, 200)}
 
 Existing tasks (avoid duplicates):
-${existingTasks}`;
+${sanitizeForPrompt(existingTasks, 2000)}`;
+
+  const aiConfig = getAIConfig("spec-to-tasks");
 
   const aiRun = await createAIRun({
     type: "TASK_GENERATION",
     input: prompt,
-    modelName: "claude-sonnet-4-20250514",
+    modelName: aiConfig.model,
     workspaceId,
     projectId: doc.project.id,
   });
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2048,
+      model: aiConfig.model,
+      max_tokens: aiConfig.maxTokens,
+      system: AI_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -104,7 +105,10 @@ ${existingTasks}`;
       tasks = [];
     }
 
-    await completeAIRun(aiRun.id, text);
+    await completeAIRun(aiRun.id, text, {
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
 
     return NextResponse.json({
       tasks,

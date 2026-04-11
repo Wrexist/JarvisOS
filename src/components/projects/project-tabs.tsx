@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ProjectStage, TaskStatus } from "@/generated/prisma/client";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 interface ProjectTabsProps {
   project: {
@@ -162,6 +163,7 @@ export function ProjectTabs({
       </div>
 
       {/* Tab content */}
+      <ErrorBoundary>
       {activeTab === "Overview" && (
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Stats */}
@@ -287,6 +289,7 @@ export function ProjectTabs({
           />
         </div>
       )}
+      </ErrorBoundary>
     </div>
   );
 }

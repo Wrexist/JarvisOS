@@ -5,6 +5,8 @@ import { listIdeas } from "@/server/services/idea.service";
 import { IdeaList } from "@/components/ideas/idea-list";
 import { CreateIdeaDialog } from "@/components/ideas/create-idea-dialog";
 
+export const metadata = { title: "Ideas" };
+
 export default async function IdeasPage() {
   const workspaceId = await getSessionWorkspaceId();
   const ideas = await listIdeas(workspaceId);

@@ -6,6 +6,8 @@ import { Bot } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AIRunsClient } from "@/components/ai-runs/ai-runs-client";
 
+export const metadata = { title: "AI Runs" };
+
 export default async function AIRunsPage() {
   const workspaceId = await getSessionWorkspaceId();
   const aiRuns = await prisma.aIRun.findMany({

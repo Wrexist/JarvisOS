@@ -12,6 +12,8 @@ import { StageBadge } from "@/components/projects/stage-badge";
 import { TrendingUp, TrendingDown, Minus, CheckSquare, Bot } from "lucide-react";
 import type { ProjectStage } from "@/generated/prisma/client";
 
+export const metadata = { title: "Analytics" };
+
 export default async function AnalyticsPage() {
   const workspaceId = await getSessionWorkspaceId();
 

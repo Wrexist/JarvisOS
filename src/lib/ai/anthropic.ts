@@ -5,7 +5,7 @@ const globalForAnthropic = globalThis as unknown as {
 };
 
 export const anthropic =
-  globalForAnthropic.anthropic ?? new Anthropic();
+  globalForAnthropic.anthropic ?? new Anthropic({ maxRetries: 3 });
 
 if (process.env.NODE_ENV !== "production") {
   globalForAnthropic.anthropic = anthropic;

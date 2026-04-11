@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/session";
 import { renderTemplate } from "@/lib/ai/prompts";
 import { createAIRun, completeAIRun } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { validateBody } from "@/lib/api-utils";
+import { aiTaskIdSchema } from "@/lib/validations";
 
 const DEFAULT_TASK_PROMPT = `Implement this task in ForgeOS.
 
@@ -35,14 +37,9 @@ export async function POST(request: Request) {
   if (auth instanceof NextResponse) return auth;
   const { workspaceId } = auth;
 
-  const { taskId } = await request.json();
-
-  if (!taskId) {
-    return NextResponse.json(
-      { error: "taskId is required" },
-      { status: 400 }
-    );
-  }
+  const data = await validateBody(request, aiTaskIdSchema);
+  if (data instanceof NextResponse) return data;
+  const { taskId } = data;
 
   const task = await prisma.task.findFirst({
     where: { id: taskId, project: { workspaceId } },

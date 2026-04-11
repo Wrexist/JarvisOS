@@ -4,6 +4,8 @@ import { getSessionWorkspaceId } from "@/lib/session";
 import { listAllTasks } from "@/server/services/task.service";
 import { TaskListGlobal } from "@/components/tasks/task-list-global";
 
+export const metadata = { title: "Tasks" };
+
 export default async function TasksPage() {
   const workspaceId = await getSessionWorkspaceId();
   const tasks = await listAllTasks(workspaceId);

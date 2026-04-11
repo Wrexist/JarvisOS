@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
+export const metadata = { title: "Compare Ideas" };
+
 export default async function IdeaComparePage({
   searchParams,
 }: {

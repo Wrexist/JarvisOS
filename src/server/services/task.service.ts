@@ -79,7 +79,7 @@ export async function getTask(id: string, workspaceId?: string) {
   });
 }
 
-export async function createTask(projectId: string, data: CreateTaskInput) {
+export async function createTask(projectId: string, data: CreateTaskInput, userId?: string) {
   const task = await prisma.task.create({
     data: {
       title: data.title,
@@ -99,6 +99,7 @@ export async function createTask(projectId: string, data: CreateTaskInput) {
       message: `Task "${task.title}" was created`,
       projectId,
       taskId: task.id,
+      userId,
     },
   });
 
@@ -107,7 +108,8 @@ export async function createTask(projectId: string, data: CreateTaskInput) {
 
 export async function createManyTasks(
   projectId: string,
-  tasks: CreateTaskInput[]
+  tasks: CreateTaskInput[],
+  userId?: string
 ) {
   const result = await prisma.task.createMany({
     data: tasks.map((data) => ({
@@ -127,6 +129,7 @@ export async function createManyTasks(
       type: "task.bulk_created",
       message: `${result.count} tasks were generated from AI`,
       projectId,
+      userId,
     },
   });
 
@@ -149,7 +152,7 @@ export async function updateTask(id: string, data: UpdateTaskInput, workspaceId?
   return task;
 }
 
-export async function moveTaskStatus(id: string, status: TaskStatus, workspaceId?: string) {
+export async function moveTaskStatus(id: string, status: TaskStatus, workspaceId?: string, userId?: string) {
   if (workspaceId) {
     const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
     if (!exists) throw new Error("Task not found");
@@ -166,6 +169,7 @@ export async function moveTaskStatus(id: string, status: TaskStatus, workspaceId
       message: `Task "${task.title}" moved to ${status}`,
       projectId: task.projectId,
       taskId: task.id,
+      userId,
     },
   });
 
@@ -188,7 +192,7 @@ export async function moveTaskStatus(id: string, status: TaskStatus, workspaceId
   return task;
 }
 
-export async function deleteTask(id: string, workspaceId?: string) {
+export async function deleteTask(id: string, workspaceId?: string, userId?: string) {
   if (workspaceId) {
     const exists = await prisma.task.findFirst({ where: { id, project: { workspaceId } } });
     if (!exists) throw new Error("Task not found");
@@ -206,6 +210,7 @@ export async function deleteTask(id: string, workspaceId?: string) {
         type: "task.deleted",
         message: `Task "${task?.title ?? "Unknown"}" was deleted`,
         projectId: task?.projectId,
+        userId,
       },
     }),
   ]);

@@ -4,7 +4,10 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ForgeOS",
+  title: {
+    template: "%s | ForgeOS",
+    default: "ForgeOS",
+  },
   description:
     "AI-native product execution system for ideas, projects, tasks, and code",
 };

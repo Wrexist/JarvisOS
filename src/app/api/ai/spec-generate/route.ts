@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
-import { renderTemplate } from "@/lib/ai/prompts";
+import { renderTemplate, AI_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { createDocument } from "@/server/services/document.service";
@@ -10,7 +10,9 @@ import {
   failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { apiError } from "@/lib/api-utils";
+import { apiError, validateBody } from "@/lib/api-utils";
+import { aiProjectIdSchema } from "@/lib/validations";
+import { getAIConfig } from "@/lib/ai/config";
 
 const DEFAULT_SPEC_PROMPT = `Create an MVP product spec in markdown.
 
@@ -34,14 +36,9 @@ export async function POST(request: Request) {
   if (auth instanceof NextResponse) return auth;
   const { workspaceId } = auth;
 
-  const { projectId } = await request.json();
-
-  if (!projectId) {
-    return NextResponse.json(
-      { error: "projectId is required" },
-      { status: 400 }
-    );
-  }
+  const data = await validateBody(request, aiProjectIdSchema);
+  if (data instanceof NextResponse) return data;
+  const { projectId } = data;
 
   const project = await prisma.project.findFirst({
     where: { id: projectId, workspaceId },
@@ -70,18 +67,21 @@ export async function POST(request: Request) {
     }
   );
 
+  const aiConfig = getAIConfig("spec-generate");
+
   const aiRun = await createAIRun({
     type: "SPEC_GENERATION",
     input: prompt,
-    modelName: "claude-sonnet-4-20250514",
+    modelName: aiConfig.model,
     workspaceId,
     projectId: project.id,
   });
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
+      model: aiConfig.model,
+      max_tokens: aiConfig.maxTokens,
+      system: AI_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -95,7 +95,10 @@ export async function POST(request: Request) {
       content: text,
     });
 
-    await completeAIRun(aiRun.id, text);
+    await completeAIRun(aiRun.id, text, {
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
 
     return NextResponse.json({ document: doc, aiRun: { id: aiRun.id } });
   } catch (error) {

@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = { title: "Weekly Review" };
+
 export default async function ReviewPage() {
   const workspaceId = await getSessionWorkspaceId();
   const [review, staleProjects] = await Promise.all([

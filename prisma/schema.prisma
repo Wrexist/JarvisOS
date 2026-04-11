@@ -94,9 +94,10 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  workspaces Workspace[]
-  accounts   Account[]
-  sessions   Session[]
+  workspaces      Workspace[]
+  accounts        Account[]
+  sessions        Session[]
+  activityEvents  ActivityEvent[]
 }
 
 model Account {
@@ -180,6 +181,7 @@ model Idea {
   comments Comment[]
 
   @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
 }
 
 model Project {
@@ -239,6 +241,7 @@ model Task {
 
   @@index([projectId, status])
   @@index([projectId, priority])
+  @@index([projectId, createdAt])
 }
 
 model Document {
@@ -298,6 +301,9 @@ model PullRequest {
 
   linkedTasks Task[]     @relation("TaskLinkedPR")
   checkRuns   CheckRun[]
+
+  @@index([repositoryId, updatedAt])
+  @@index([projectId])
 }
 
 model CheckRun {
@@ -321,15 +327,17 @@ model CheckRun {
 }
 
 model AIRun {
-  id        String      @id @default(cuid())
-  type      AIRunType
-  status    AIRunStatus @default(QUEUED)
-  modelName String?
-  input     String
-  output    String?
-  error     String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id           String      @id @default(cuid())
+  type         AIRunType
+  status       AIRunStatus @default(QUEUED)
+  modelName    String?
+  input        String
+  output       String?
+  error        String?
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -344,6 +352,8 @@ model AIRun {
   idea   Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId])
+  @@index([workspaceId, createdAt])
+  @@index([projectId])
 }
 
 model PromptTemplate {
@@ -371,7 +381,11 @@ model ActivityEvent {
   taskId String?
   task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   @@index([projectId, createdAt])
+  @@index([userId])
 }
 
 model Notification {
