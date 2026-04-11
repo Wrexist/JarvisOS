@@ -1,0 +1,55 @@
+appId: com.forgeos.desktop
+productName: ForgeOS
+copyright: Copyright 2026 ForgeOS
+directories:
+  output: dist-electron
+
+files:
+  - electron/dist/**/*
+  - electron/splash.html
+  - .next/standalone/**/*
+  - .next/static/**/*
+  - public/**/*
+  - prisma/migrations/**/*
+  - prisma/schema.prisma
+  - node_modules/@electric-sql/pglite/**/*
+  - node_modules/pg/**/*
+
+extraResources:
+  - from: .next/standalone
+    to: standalone
+  - from: prisma/migrations
+    to: prisma/migrations
+
+asar: true
+asarUnpack:
+  - node_modules/@electric-sql/pglite/**/*
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: public/icon.png
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ForgeOS
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: Development
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  category: public.app-category.developer-tools
