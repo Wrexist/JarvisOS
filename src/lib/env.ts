@@ -5,8 +5,11 @@ import { z } from "zod";
  * Fails fast at import time with a clear error listing all missing/invalid vars.
  */
 const envSchema = z.object({
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
+  // DATABASE_URL is optional in desktop mode (uses FORGEOS_DATA_DIR instead)
+  DATABASE_URL: z.string().optional(),
+  // NextAuth accepts AUTH_SECRET or NEXTAUTH_SECRET
+  AUTH_SECRET: z.string().optional(),
+  NEXTAUTH_SECRET: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_DEFAULT_MODEL: z.string().optional(),
   REDIS_URL: z.string().optional(),
@@ -15,10 +18,21 @@ const envSchema = z.object({
   GITHUB_WEBHOOK_SECRET: z.string().optional(),
   GITHUB_CLIENT_ID: z.string().optional(),
   GITHUB_CLIENT_SECRET: z.string().optional(),
+  FORGEOS_DESKTOP: z.string().optional(),
+  FORGEOS_DATA_DIR: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-});
+}).refine(
+  (data) => data.DATABASE_URL || data.FORGEOS_DESKTOP === "true",
+  { message: "DATABASE_URL is required (unless FORGEOS_DESKTOP=true)" }
+).refine(
+  (data) => data.AUTH_SECRET || data.NEXTAUTH_SECRET,
+  { message: "AUTH_SECRET or NEXTAUTH_SECRET is required" }
+);
 
 function validateEnv() {
+  // Skip validation during build (no DB/auth needed for static analysis)
+  if (process.env.NEXT_PHASE === "phase-production-build") return null;
+
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
     const errors = result.error.issues
