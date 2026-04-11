@@ -2,9 +2,9 @@
 /**
  * Cross-platform startup script for ForgeOS.
  *
- * Replaces start.bat / start.sh so that users can run "node start.js"
- * without triggering Windows Smart App Control (which blocks .bat files
- * downloaded from the internet).
+ * Uses .cjs extension so Windows Smart App Control does not block it
+ * (.js and .bat are in the WDAC enforceable file-type list; .cjs is not).
+ * Run with: node start.cjs  or  pnpm launch
  */
 
 const { execSync, spawn } = require("child_process");

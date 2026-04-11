@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Thin wrapper — delegates to start.js for cross-platform consistency.
-# You can also run:  node start.js
+# Thin wrapper — delegates to start.cjs for cross-platform consistency.
+# You can also run:  node start.cjs
 set -e
 cd "$(dirname "$0")"
 
@@ -10,4 +10,4 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-exec node start.js "$@"
+exec node start.cjs "$@"

@@ -19,7 +19,7 @@
     "electron:dev": "pnpm electron:compile && concurrently \"pnpm dev\" \"wait-on http://127.0.0.1:3000 && electron electron/dist/main.js\"",
     "electron:build": "pnpm build && pnpm electron:compile && electron-builder --config electron-builder.yml",
     "electron:start": "pnpm electron:compile && electron electron/dist/main.js",
-    "launch": "node start.js"
+    "launch": "node start.cjs"
   },
   "main": "electron/dist/main.js",
   "dependencies": {
