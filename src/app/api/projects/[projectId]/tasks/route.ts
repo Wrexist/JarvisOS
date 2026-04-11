@@ -49,7 +49,7 @@ export async function POST(
     const data = await validateBody(request, createTaskSchema);
     if (data instanceof NextResponse) return data;
 
-    const task = await createTask(projectId, data);
+    const task = await createTask(projectId, data, auth.userId);
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
     return apiError("Failed to create task", error);

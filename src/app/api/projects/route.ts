@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const data = await validateBody(request, createProjectSchema);
     if (data instanceof NextResponse) return data;
 
-    const project = await createProject(workspaceId, data);
+    const project = await createProject(workspaceId, data, auth.userId);
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {

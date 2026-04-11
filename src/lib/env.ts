@@ -6,11 +6,11 @@ import { z } from "zod";
  */
 const envSchema = z.object({
   // DATABASE_URL is optional in desktop mode (uses FORGEOS_DATA_DIR instead)
-  DATABASE_URL: z.string().optional(),
+  DATABASE_URL: z.string().trim().min(1).optional(),
   // NextAuth accepts AUTH_SECRET or NEXTAUTH_SECRET
-  AUTH_SECRET: z.string().optional(),
-  NEXTAUTH_SECRET: z.string().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
+  AUTH_SECRET: z.string().trim().min(1).optional(),
+  NEXTAUTH_SECRET: z.string().trim().min(1).optional(),
+  ANTHROPIC_API_KEY: z.string().trim().min(1).optional(),
   AI_DEFAULT_MODEL: z.string().optional(),
   REDIS_URL: z.string().optional(),
   GITHUB_APP_ID: z.string().optional(),
@@ -19,11 +19,14 @@ const envSchema = z.object({
   GITHUB_CLIENT_ID: z.string().optional(),
   GITHUB_CLIENT_SECRET: z.string().optional(),
   FORGEOS_DESKTOP: z.string().optional(),
-  FORGEOS_DATA_DIR: z.string().optional(),
+  FORGEOS_DATA_DIR: z.string().min(1).optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 }).refine(
   (data) => data.DATABASE_URL || data.FORGEOS_DESKTOP === "true",
   { message: "DATABASE_URL is required (unless FORGEOS_DESKTOP=true)" }
+).refine(
+  (data) => data.FORGEOS_DESKTOP !== "true" || !!data.FORGEOS_DATA_DIR,
+  { message: "FORGEOS_DATA_DIR is required when FORGEOS_DESKTOP=true" }
 ).refine(
   (data) => data.AUTH_SECRET || data.NEXTAUTH_SECRET,
   { message: "AUTH_SECRET or NEXTAUTH_SECRET is required" }
@@ -36,7 +39,10 @@ function validateEnv() {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
     const errors = result.error.issues
-      .map((issue) => `  - ${issue.path.join(".")}: ${issue.message}`)
+      .map((issue) => {
+        const label = issue.path.length > 0 ? issue.path.join(".") : "(config)";
+        return `  - ${label}: ${issue.message}`;
+      })
       .join("\n");
     console.error(`\n❌ Invalid environment variables:\n${errors}\n`);
     throw new Error("Invalid environment variables");

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const data = await validateBody(request, createIdeaSchema);
     if (data instanceof NextResponse) return data;
 
-    const idea = await createIdea(workspaceId, data);
+    const idea = await createIdea(workspaceId, data, auth.userId);
 
     return NextResponse.json(idea, { status: 201 });
   } catch (error) {

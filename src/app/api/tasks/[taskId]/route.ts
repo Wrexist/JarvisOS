@@ -47,7 +47,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { taskId } = await params;
-    await deleteTask(taskId, auth.workspaceId);
+    await deleteTask(taskId, auth.workspaceId, auth.userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     return apiError("Failed to delete task", error);

@@ -13,7 +13,7 @@ export async function POST(
     if (auth instanceof NextResponse) return auth;
     const { workspaceId } = auth;
 
-    const project = await convertIdeaToProject(ideaId, workspaceId);
+    const project = await convertIdeaToProject(ideaId, workspaceId, auth.userId);
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     return apiError("Failed to convert idea", error, 400);

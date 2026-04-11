@@ -45,14 +45,14 @@ export async function PATCH(
 
     // Handle stage update if present
     if (data.stage) {
-      await updateProjectStage(projectId, data.stage, auth.workspaceId);
+      await updateProjectStage(projectId, data.stage, auth.workspaceId, auth.userId);
     }
 
     // Handle other field updates
     const rest = { name: data.name, description: data.description };
     const hasOtherFields = Object.values(rest).some((v) => v !== undefined);
     if (hasOtherFields) {
-      await updateProject(projectId, rest, auth.workspaceId);
+      await updateProject(projectId, rest, auth.workspaceId, auth.userId);
     }
 
     const project = await getProject(projectId, auth.workspaceId);

@@ -35,7 +35,7 @@ export async function PATCH(
     const data = await validateBody(request, updateIdeaSchema);
     if (data instanceof NextResponse) return data;
 
-    const idea = await updateIdea(ideaId, data, auth.workspaceId);
+    const idea = await updateIdea(ideaId, data, auth.workspaceId, auth.userId);
     return NextResponse.json(idea);
   } catch (error) {
     return apiError("Failed to update idea", error);
@@ -50,7 +50,7 @@ export async function DELETE(
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;
     const { ideaId } = await params;
-    await deleteIdea(ideaId, auth.workspaceId);
+    await deleteIdea(ideaId, auth.workspaceId, auth.userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     return apiError("Failed to delete idea", error);

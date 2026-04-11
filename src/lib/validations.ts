@@ -107,17 +107,17 @@ export const createWebhookSchema = z.object({
 
 // AI route schemas
 export const aiIdeaEnrichSchema = z.object({
-  ideaId: z.string().min(1, "ideaId is required"),
+  ideaId: z.string().trim().min(1, "ideaId is required"),
 });
 
 export const aiProjectIdSchema = z.object({
-  projectId: z.string().min(1, "projectId is required"),
+  projectId: z.string().trim().min(1, "projectId is required"),
 });
 
 export const aiDocumentIdSchema = z.object({
-  documentId: z.string().min(1, "documentId is required"),
+  documentId: z.string().trim().min(1, "documentId is required"),
 });
 
 export const aiTaskIdSchema = z.object({
-  taskId: z.string().min(1, "taskId is required"),
+  taskId: z.string().trim().min(1, "taskId is required"),
 });

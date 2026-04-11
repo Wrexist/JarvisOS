@@ -163,7 +163,7 @@ export function ProjectTabs({
       </div>
 
       {/* Tab content */}
-      <ErrorBoundary>
+      <ErrorBoundary key={`${project.id}:${activeTab}`}>
       {activeTab === "Overview" && (
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Stats */}

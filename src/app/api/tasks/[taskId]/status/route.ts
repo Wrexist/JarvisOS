@@ -23,7 +23,7 @@ export async function PATCH(
       );
     }
 
-    const task = await moveTaskStatus(taskId, status, auth.workspaceId);
+    const task = await moveTaskStatus(taskId, status, auth.workspaceId, auth.userId);
     return NextResponse.json(task);
   } catch (error) {
     return apiError("Failed to update task status", error);

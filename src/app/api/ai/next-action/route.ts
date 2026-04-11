@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import {
   createAIRun,
   completeAIRun,
+  failAIRun,
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { apiError } from "@/lib/api-utils";
@@ -41,6 +42,7 @@ export async function POST() {
   if (auth instanceof NextResponse) return auth;
   const { workspaceId } = auth;
 
+  let aiRunId: string | null = null;
   try {
     const { allowed } = checkRateLimit(`ai:${workspaceId}`, { limit: 20, window: 60_000 });
     if (!allowed) return rateLimitResponse();
@@ -112,6 +114,7 @@ export async function POST() {
       workspaceId,
       projectId: p.id,
     });
+    aiRunId = aiRun.id;
 
     const response = await anthropic.messages.create({
       model: aiConfig.model,
@@ -152,6 +155,8 @@ export async function POST() {
 
     return NextResponse.json(result);
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    if (aiRunId) await failAIRun(aiRunId, message);
     return apiError("Next action failed", error);
   }
 }

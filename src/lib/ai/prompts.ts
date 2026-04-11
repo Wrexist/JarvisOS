@@ -7,7 +7,7 @@ export function sanitizeForPrompt(text: string, maxLen = 4000): string {
   const cleaned = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
   const truncated = cleaned.length > maxLen ? cleaned.slice(0, maxLen) + "..." : cleaned;
   // Escape delimiter tokens so user input cannot break out of the wrapper
-  const escaped = truncated.replace(/<\/?user_input>/gi, "");
+  const escaped = truncated.replace(/<\s*\/?\s*user_input\b[^>]*>/gi, "");
   return `<user_input>${escaped}</user_input>`;
 }
 
