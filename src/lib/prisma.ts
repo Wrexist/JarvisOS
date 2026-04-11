@@ -58,13 +58,13 @@ function createDesktopPrismaClient(): PrismaClient {
     constructor() {
       super({ max: 0 });
     }
-    override async query(
+    async query(
       configOrText: string | { text: string; values?: unknown[]; rowMode?: string },
       values?: unknown[]
     ) {
       return execQuery(configOrText, values);
     }
-    override async connect() {
+    async connect() {
       return {
         query: execQuery,
         release() {},
@@ -72,13 +72,14 @@ function createDesktopPrismaClient(): PrismaClient {
         removeListener() { return this; },
       };
     }
-    override async end() {
+    async end() {
       await pglite.close();
     }
   }
 
   const pool = new PGlitePool();
-  const adapter = new PrismaPg(pool);
+  // Cast needed: pg.Pool loaded via require() is untyped, but pool passes instanceof check at runtime
+  const adapter = new PrismaPg(pool as InstanceType<typeof pg.Pool>);
   return new PrismaClient({ adapter });
 }
 /* eslint-enable @typescript-eslint/no-require-imports */
