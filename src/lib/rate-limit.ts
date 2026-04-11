@@ -1,9 +1,8 @@
 /**
- * Simple in-memory rate limiter using token bucket algorithm.
- * For production, replace with Redis-backed implementation.
+ * Rate limiter using token bucket algorithm.
+ * Uses in-memory storage. For distributed deployments, swap for Redis-backed
+ * implementation (e.g., ioredis INCR + EXPIRE sliding window pattern).
  */
-const buckets = new Map<string, { tokens: number; lastRefill: number }>();
-let lastCleanup = Date.now();
 
 interface RateLimitOptions {
   /** Max requests per window */
@@ -11,6 +10,9 @@ interface RateLimitOptions {
   /** Window size in milliseconds */
   window: number;
 }
+
+const buckets = new Map<string, { tokens: number; lastRefill: number }>();
+let lastCleanup = Date.now();
 
 /** Clean up expired buckets every 60 seconds to prevent memory leak. */
 function cleanup(window: number) {

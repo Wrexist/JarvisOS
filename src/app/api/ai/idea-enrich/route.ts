@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
-import { renderTemplate, IDEA_ENRICH_PROMPT } from "@/lib/ai/prompts";
+import { renderTemplate, IDEA_ENRICH_PROMPT, AI_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { requireAuth } from "@/lib/session";
 import { getIdea, updateIdea } from "@/server/services/idea.service";
 import {
@@ -11,17 +11,18 @@ import {
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { apiError } from "@/lib/api-utils";
+import { validateBody } from "@/lib/api-utils";
+import { aiIdeaEnrichSchema } from "@/lib/validations";
+import { getAIConfig } from "@/lib/ai/config";
 
 export async function POST(request: Request) {
   const auth = await requireAuth();
   if (auth instanceof NextResponse) return auth;
   const { workspaceId } = auth;
 
-  const { ideaId } = await request.json();
-
-  if (!ideaId) {
-    return NextResponse.json({ error: "ideaId is required" }, { status: 400 });
-  }
+  const data = await validateBody(request, aiIdeaEnrichSchema);
+  if (data instanceof NextResponse) return data;
+  const { ideaId } = data;
 
   const idea = await getIdea(ideaId, workspaceId);
   if (!idea) {
@@ -43,18 +44,21 @@ export async function POST(request: Request) {
     idea_description: idea.description ?? idea.summary ?? "",
   });
 
+  const aiConfig = getAIConfig("idea-enrich");
+
   const aiRun = await createAIRun({
     type: "IDEA_ENRICH",
     input: prompt,
-    modelName: "claude-sonnet-4-20250514",
+    modelName: aiConfig.model,
     workspaceId,
     ideaId: idea.id,
   });
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
+      model: aiConfig.model,
+      max_tokens: aiConfig.maxTokens,
+      system: AI_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -108,7 +112,10 @@ export async function POST(request: Request) {
       status: idea.status === "INBOX" ? "REVIEWING" : undefined,
     });
 
-    await completeAIRun(aiRun.id, text);
+    await completeAIRun(aiRun.id, text, {
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
 
     return NextResponse.json({
       idea: updatedIdea,

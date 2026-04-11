@@ -57,7 +57,7 @@ export async function getIdea(id: string, workspaceId?: string) {
   });
 }
 
-export async function createIdea(workspaceId: string, data: CreateIdeaInput) {
+export async function createIdea(workspaceId: string, data: CreateIdeaInput, userId?: string) {
   const idea = await prisma.idea.create({
     data: {
       title: data.title,
@@ -71,13 +71,14 @@ export async function createIdea(workspaceId: string, data: CreateIdeaInput) {
     data: {
       type: "idea.created",
       message: `Idea "${idea.title}" was created`,
+      userId,
     },
   });
 
   return idea;
 }
 
-export async function updateIdea(id: string, data: UpdateIdeaInput, workspaceId?: string) {
+export async function updateIdea(id: string, data: UpdateIdeaInput, workspaceId?: string, userId?: string) {
   if (workspaceId) {
     const exists = await prisma.idea.findFirst({ where: { id, workspaceId } });
     if (!exists) throw new Error("Idea not found");
@@ -91,13 +92,14 @@ export async function updateIdea(id: string, data: UpdateIdeaInput, workspaceId?
     data: {
       type: "idea.updated",
       message: `Idea "${idea.title}" was updated`,
+      userId,
     },
   });
 
   return idea;
 }
 
-export async function deleteIdea(id: string, workspaceId?: string) {
+export async function deleteIdea(id: string, workspaceId?: string, userId?: string) {
   if (workspaceId) {
     const exists = await prisma.idea.findFirst({ where: { id, workspaceId } });
     if (!exists) throw new Error("Idea not found");
@@ -112,12 +114,13 @@ export async function deleteIdea(id: string, workspaceId?: string) {
       data: {
         type: "idea.deleted",
         message: `Idea "${idea?.title ?? "Unknown"}" was deleted`,
+        userId,
       },
     }),
   ]);
 }
 
-export async function convertIdeaToProject(ideaId: string, workspaceId: string) {
+export async function convertIdeaToProject(ideaId: string, workspaceId: string, userId?: string) {
   const idea = await prisma.idea.findFirst({ where: { id: ideaId, workspaceId } });
   if (!idea) throw new Error("Idea not found");
   if (idea.status === "CONVERTED") throw new Error("Idea already converted");
@@ -152,11 +155,13 @@ export async function convertIdeaToProject(ideaId: string, workspaceId: string) 
         type: "idea.converted",
         message: `Idea "${idea.title}" was converted to project`,
         projectId: project.id,
+        userId,
       },
       {
         type: "project.created",
         message: `Project "${project.name}" was created from idea`,
         projectId: project.id,
+        userId,
       },
     ],
   });

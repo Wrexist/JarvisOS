@@ -7,6 +7,8 @@ import { CreateProjectDialog } from "@/components/projects/create-project-dialog
 import { EmptyState } from "@/components/ui/empty-state";
 import { FolderKanban } from "lucide-react";
 
+export const metadata = { title: "Projects" };
+
 export default async function ProjectsPage() {
   const workspaceId = await getSessionWorkspaceId();
   const projects = await listProjects(workspaceId);

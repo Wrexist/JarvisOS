@@ -50,7 +50,8 @@ export async function getProject(id: string, workspaceId?: string) {
 
 export async function createProject(
   workspaceId: string,
-  data: CreateProjectInput
+  data: CreateProjectInput,
+  userId?: string
 ) {
   const slug = slugify(data.name, { lower: true, strict: true });
 
@@ -74,6 +75,7 @@ export async function createProject(
       type: "project.created",
       message: `Project "${project.name}" was created`,
       projectId: project.id,
+      userId,
     },
   });
 
@@ -83,7 +85,8 @@ export async function createProject(
 export async function updateProject(
   id: string,
   data: { name?: string; description?: string | null },
-  workspaceId?: string
+  workspaceId?: string,
+  userId?: string
 ) {
   if (workspaceId) {
     const exists = await prisma.project.findFirst({ where: { id, workspaceId } });
@@ -99,13 +102,14 @@ export async function updateProject(
       type: "project.updated",
       message: `Project "${project.name}" was updated`,
       projectId: project.id,
+      userId,
     },
   });
 
   return project;
 }
 
-export async function updateProjectStage(id: string, stage: ProjectStage, workspaceId?: string) {
+export async function updateProjectStage(id: string, stage: ProjectStage, workspaceId?: string, userId?: string) {
   if (workspaceId) {
     const exists = await prisma.project.findFirst({ where: { id, workspaceId } });
     if (!exists) throw new Error("Project not found");
@@ -121,6 +125,7 @@ export async function updateProjectStage(id: string, stage: ProjectStage, worksp
       message: `Project "${project.name}" moved to ${stage}`,
       projectId: project.id,
       metadata: { stage },
+      userId,
     },
   });
 

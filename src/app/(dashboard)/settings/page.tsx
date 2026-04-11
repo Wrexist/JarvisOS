@@ -4,6 +4,8 @@ import { ClaudeMdGenerator } from "@/components/settings/claude-md-generator";
 import { HooksTemplate } from "@/components/settings/hooks-template";
 import { WebhookConfig } from "@/components/settings/webhook-config";
 
+export const metadata = { title: "Settings" };
+
 export default function SettingsPage() {
   return (
     <div className="space-y-8">

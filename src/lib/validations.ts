@@ -104,3 +104,20 @@ export const createWebhookSchema = z.object({
   events: z.array(z.string().min(1)).min(1, "At least one event is required"),
   secret: z.string().max(256).optional(),
 });
+
+// AI route schemas
+export const aiIdeaEnrichSchema = z.object({
+  ideaId: z.string().min(1, "ideaId is required"),
+});
+
+export const aiProjectIdSchema = z.object({
+  projectId: z.string().min(1, "projectId is required"),
+});
+
+export const aiDocumentIdSchema = z.object({
+  documentId: z.string().min(1, "documentId is required"),
+});
+
+export const aiTaskIdSchema = z.object({
+  taskId: z.string().min(1, "taskId is required"),
+});

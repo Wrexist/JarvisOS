@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai/anthropic";
-import { renderTemplate } from "@/lib/ai/prompts";
+import { renderTemplate, AI_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { requireAuth } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/server/services/ai-run.service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { apiError } from "@/lib/api-utils";
+import { getAIConfig } from "@/lib/ai/config";
 
 const DEFAULT_NEXT_ACTION_PROMPT = `Given this project state, suggest the single most important next action.
 
@@ -102,17 +103,20 @@ export async function POST() {
       }
     );
 
+    const aiConfig = getAIConfig("next-action");
+
     const aiRun = await createAIRun({
       type: "NEXT_ACTION",
       input: prompt,
-      modelName: "claude-sonnet-4-20250514",
+      modelName: aiConfig.model,
       workspaceId,
       projectId: p.id,
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 512,
+      model: aiConfig.model,
+      max_tokens: aiConfig.maxTokens,
+      system: AI_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -141,7 +145,10 @@ export async function POST() {
       // Use raw text as reason
     }
 
-    await completeAIRun(aiRun.id, text);
+    await completeAIRun(aiRun.id, text, {
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
 
     return NextResponse.json(result);
   } catch (error) {

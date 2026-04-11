@@ -18,6 +18,8 @@ import { OnboardingChecklist } from "@/components/onboarding/onboarding-checklis
 import { StageBadge } from "@/components/projects/stage-badge";
 import Link from "next/link";
 
+export const metadata = { title: "Dashboard" };
+
 async function getDashboardData(workspaceId: string) {
   const [
     ideaCount,

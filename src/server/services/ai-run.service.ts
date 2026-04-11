@@ -26,10 +26,19 @@ export async function createAIRun(data: {
   });
 }
 
-export async function completeAIRun(id: string, output: string) {
+export async function completeAIRun(
+  id: string,
+  output: string,
+  usage?: { inputTokens?: number; outputTokens?: number }
+) {
   const run = await prisma.aIRun.update({
     where: { id },
-    data: { status: "COMPLETED", output },
+    data: {
+      status: "COMPLETED",
+      output,
+      inputTokens: usage?.inputTokens,
+      outputTokens: usage?.outputTokens,
+    },
   });
 
   const href = run.ideaId

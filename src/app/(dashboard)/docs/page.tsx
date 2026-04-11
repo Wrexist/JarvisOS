@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getSessionWorkspaceId } from "@/lib/session";
 import { DocListGlobal } from "@/components/docs/doc-list-global";
 
+export const metadata = { title: "Documents" };
+
 export default async function DocsPage() {
   const workspaceId = await getSessionWorkspaceId();
   const documents = await prisma.document.findMany({
