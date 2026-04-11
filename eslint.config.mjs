@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Electron compiled output (CJS)
     "electron/dist/**",
+    // Standalone Node.js bootstrap script (CJS, no deps)
+    "start.js",
   ]),
 ]);
 
